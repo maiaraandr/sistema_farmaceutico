@@ -267,6 +267,49 @@
     padding-left: var(--space-10);
 }
 
+/* Password Toggle */
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--gray-400);
+    cursor: pointer;
+    padding: var(--space-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    transition: var(--transition);
+    width: 32px;
+    height: 32px;
+}
+
+.password-toggle:hover {
+    color: var(--primary);
+    background-color: var(--gray-100);
+}
+
+.password-toggle:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.password-toggle svg {
+    width: 20px;
+    height: 20px;
+}
+
+.password-input-wrapper .form-input {
+    padding-right: var(--space-12);
+}
+
 /* ========================================
    BADGES
    ======================================== */

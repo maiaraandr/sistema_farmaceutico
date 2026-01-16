@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema Farmacêutico</title>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/login.css">
+    
+    <style>
+        /* Password Toggle */
+        .password-input-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #9CA3AF;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            width: 32px;
+            height: 32px;
+        }
+
+        .password-toggle:hover {
+            color: #0066FF;
+            background-color: #F3F4F6;
+        }
+
+        .password-toggle:focus {
+            outline: 2px solid #0066FF;
+            outline-offset: 2px;
+        }
+
+        .password-toggle svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .password-input-wrapper .form-input {
+            padding-right: 48px;
+        }
+    </style>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="login-logo">
+                        <i data-lucide="pill"></i>
+                    </div>
+                    <h1 class="login-title">Sistema Farmacêutico</h1>
+                    <p class="login-subtitle">Digite suas credenciais para acessar</p>
+                </div>
+
+                <div id="loginError" class="login-error hidden">
+                    <i data-lucide="alert-circle" style="width: 20px; height: 20px;"></i>
+                    <span id="errorMessage"></span>
+                </div>
+
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="username" class="form-label required">Usuário</label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            class="form-input" 
+                            placeholder="Digite seu usuário"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label required">Senha</label>
+                        <div class="password-input-wrapper">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                class="form-input" 
+                                placeholder="Digite sua senha"
+                                required
+                            >
+                            <button type="button" class="password-toggle" id="togglePassword" aria-label="Mostrar senha">
+                                <i data-lucide="eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="login-btn" id="loginBtn">
+                        Iniciar Sessão
+                    </button>
+                </form>
+
+                <div class="login-demo">
+                    <div class="login-demo-title">
+                        <i data-lucide="info" style="width: 16px; height: 16px;"></i>
+                        Credenciais de teste:
+                    </div>
+                    <div class="login-demo-item">
+                        <span class="login-demo-label">Admin:</span>
+                        <span class="login-demo-value" data-user="admin" data-pass="admin123">admin / admin123</span>
+                    </div>
+                    <div class="login-demo-item">
+                        <span class="login-demo-label">Caixa:</span>
+                        <span class="login-demo-value" data-user="caixa1" data-pass="caixa123">caixa1 / caixa123</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // ===== STORAGE.JS EMBUTIDO =====
+        const STORAGE_KEYS = {
+            USERS: 'farm_users',
+            PRODUTOS: 'farm_produtos',
+            FORNECEDORES: 'farm_fornecedores',
+            MOVIMENTACOES: 'farm_movimentacoes',
+            CURRENT_USER: 'farm_current_user',
+            SESSION_TOKEN: 'farm_session_token'
+        };
+
+        function saveToStorage(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+                return true;
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                return false;
+            }
+        }
+
+        function loadFromStorage(key, defaultValue = null) {
+            try {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : defaultValue;
+            } catch (error) {
+                console.error('Erro ao carregar:', error);
+                return defaultValue;
+            }
+        }
+
+        function removeFromStorage(key) {
+            localStorage.removeItem(key);
+        }
+
+        function getUsers() {
+            return loadFromStorage(STORAGE_KEYS.USERS, []);
+        }
+
+        function saveUsers(users) {
+            return saveToStorage(STORAGE_KEYS.USERS, users);
+        }
+
+        function getCurrentUser() {
+            return loadFromStorage(STORAGE_KEYS.CURRENT_USER);
+        }
+
+        function initializeSampleData() {
+            if (getUsers().length > 0) return;
+
+            const users = [
+                {
+                    id: 1,
+                    usuario: 'admin',
+                    senha: 'admin123',
+                    nome: 'Administrador Principal',
+                    tipo: 'admin'
+                },
+                {
+                    id: 2,
+                    usuario: 'caixa1',
+                    senha: 'caixa123',
+                    nome: 'João Silva',
+                    tipo: 'caixa'
+                }
+            ];
+            saveUsers(users);
+            console.log('Usuários inicializados:', users);
+        }
+
+        // ===== AUTH.JS EMBUTIDO =====
+        function login(username, password) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log('Tentando login:', username);
+                    const users = getUsers();
+                    console.log('👥 Usuários disponíveis:', users);
+
+                    const user = users.find(u => 
+                        u.usuario === username && u.senha === password
+                    );
+
+                    console.log('Usuário encontrado:', user);
+
+                    if (user) {
+                        const sessionData = {
+                            id: user.id,
+                            usuario: user.usuario,
+                            nome: user.nome,
+                            tipo: user.tipo,
+                            loginAt: new Date().toISOString()
+                        };
+
+                        saveToStorage(STORAGE_KEYS.CURRENT_USER, sessionData);
+                        const token = btoa(`${user.usuario}:${Date.now()}`);
+                        saveToStorage(STORAGE_KEYS.SESSION_TOKEN, token);
+
+                        console.log('Login bem-sucedido!');
+                        resolve({ success: true, user: sessionData });
+                    } else {
+                        console.log('Login falhou');
+                        resolve({ success: false, message: 'Usuário ou senha inválidos' });
+                    }
+                }, 500);
+            });
+        }
+
+        // ===== INICIALIZAÇÃO =====
+        initializeSampleData();
+        
+        // Inicializar ícones
+        lucide.createIcons();
+
+        // Focar no campo
+        document.getElementById('username').focus();
+
+        // ===== FORMULÁRIO =====
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
+            
+            console.log('Dados do formulário:', { username, password });
+            
+            loginBtn.classList.add('loading');
+            loginBtn.textContent = 'Entrando...';
+            errorDiv.classList.add('hidden');
+            
+            try {
+                const result = await login(username, password);
+                
+                if (result.success) {
+                    alert('Login bem-sucedido! Redirecionando...\n\nNome: ' + result.user.nome);
+                    // window.location.href = 'pages/dashboard.html';
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showError('Erro ao fazer login. Tente novamente.');
+            } finally {
+                loginBtn.classList.remove('loading');
+                loginBtn.textContent = 'Iniciar Sessão';
+            }
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('loginError');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            errorMessage.textContent = message;
+            errorDiv.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        // Auto-preencher
+        document.querySelectorAll('.login-demo-value').forEach(el => {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', function() {
+                const user = this.dataset.user;
+                const pass = this.dataset.pass;
+                
+                document.getElementById('username').value = user;
+                document.getElementById('password').value = pass;
+                document.getElementById('username').focus();
+            });
+        });
+
+        // Toggle mostrar/ocultar senha
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.setAttribute('data-lucide', 'eye-off');
+                this.setAttribute('aria-label', 'Ocultar senha');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.setAttribute('data-lucide', 'eye');
+                this.setAttribute('aria-label', 'Mostrar senha');
+            }
+            
+            // Reinicializar ícones Lucide
+            lucide.createIcons();
+        });
+
+        // Debug no console
+        console.log('Sistema carregado!');
+        console.log('Usuários cadastrados:', getUsers());
+    </script>
+</body>
+</html>
