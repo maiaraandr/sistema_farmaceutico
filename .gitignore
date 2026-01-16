@@ -1,0 +1,9 @@
+# Bibliotecas do Node (nunca devem ir para o Git)
+node_modules/
+
+# Arquivos de configuração de ambiente (senhas e chaves)
+.env
+
+# Logs e arquivos temporários
+npm-debug.log*
+.DS_Store
