@@ -10,12 +10,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/login.css">
-
-<!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -30,7 +24,7 @@
                         <i data-lucide="pill"></i>
                     </div>
                     <h1 class="login-title">Sistema Farmacêutico</h1>
-                    <p class="login-subtitle">Insira suas credenciais para acessar o sistema</p>
+                    <p class="login-subtitle">Ingrese sus credenciales para acceder al sistema</p>
                 </div>
 
                 <!-- Mensagem de Erro -->
@@ -132,15 +126,25 @@
                 const result = await login(username, password, rememberMe);
                 
                 if (result.success) {
-                    // Sucesso! Redirecionar para dashboard
-                    window.location.href = 'pages/dashboard.html';
+                    // Sucesso! Mostrar mensagem e redirecionar
+                    loginBtn.textContent = '✓ Sucesso! Redirecionando...';
+                    loginBtn.style.backgroundColor = '#10B981';
+                    
+                    // Adicionar animação de fade-out
+                    document.querySelector('.login-page').classList.add('fade-out');
+                    
+                    // Aguardar animação terminar, depois redirecionar
+                    setTimeout(() => {
+                        window.location.href = 'pages/dashboard.html';
+                    }, 600);
                 } else {
                     // Erro
                     showError(result.message);
+                    loginBtn.classList.remove('loading');
+                    loginBtn.textContent = 'Iniciar Sessão';
                 }
             } catch (error) {
                 showError('Erro ao fazer login. Tente novamente.');
-            } finally {
                 loginBtn.classList.remove('loading');
                 loginBtn.textContent = 'Iniciar Sessão';
             }

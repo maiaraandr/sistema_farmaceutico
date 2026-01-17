@@ -9,13 +9,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/login.css">
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-
-
+    
     <style>
         /* Password Toggle */
         .password-input-wrapper {
@@ -200,22 +194,22 @@
                 }
             ];
             saveUsers(users);
-            console.log('Usuários inicializados:', users);
+            console.log('✅ Usuários inicializados:', users);
         }
 
         // ===== AUTH.JS EMBUTIDO =====
         function login(username, password) {
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    console.log('Tentando login:', username);
+                    console.log('🔐 Tentando login:', username);
                     const users = getUsers();
-                    console.log('Usuários disponíveis:', users);
+                    console.log('👥 Usuários disponíveis:', users);
 
                     const user = users.find(u => 
                         u.usuario === username && u.senha === password
                     );
 
-                    console.log('Usuário encontrado:', user);
+                    console.log('🔍 Usuário encontrado:', user);
 
                     if (user) {
                         const sessionData = {
@@ -230,10 +224,10 @@
                         const token = btoa(`${user.usuario}:${Date.now()}`);
                         saveToStorage(STORAGE_KEYS.SESSION_TOKEN, token);
 
-                        console.log('Login bem-sucedido!');
+                        console.log('✅ Login bem-sucedido!');
                         resolve({ success: true, user: sessionData });
                     } else {
-                        console.log('Login falhou');
+                        console.log('❌ Login falhou');
                         resolve({ success: false, message: 'Usuário ou senha inválidos' });
                     }
                 }, 500);
@@ -258,7 +252,7 @@
             const loginBtn = document.getElementById('loginBtn');
             const errorDiv = document.getElementById('loginError');
             
-            console.log('Dados do formulário:', { username, password });
+            console.log('📝 Dados do formulário:', { username, password });
             
             loginBtn.classList.add('loading');
             loginBtn.textContent = 'Entrando...';
@@ -268,15 +262,28 @@
                 const result = await login(username, password);
                 
                 if (result.success) {
-                    alert('Login bem-sucedido! Redirecionando...\n\nNome: ' + result.user.nome);
-                    // window.location.href = 'pages/dashboard.html';
+                    // Sucesso! Mostrar mensagem e redirecionar
+                    loginBtn.textContent = '✓ Sucesso! Redirecionando...';
+                    loginBtn.style.backgroundColor = '#10B981';
+                    
+                    console.log('✅ Login bem-sucedido! Redirecionando para dashboard...');
+                    
+                    // Adicionar animação de fade-out
+                    document.querySelector('.login-page').classList.add('fade-out');
+                    
+                    // Aguardar animação terminar, depois redirecionar
+                    setTimeout(() => {
+                        window.location.href = 'pages/dashboard.html';
+                    }, 600);
                 } else {
+                    console.log('❌ Login falhou');
                     showError(result.message);
+                    loginBtn.classList.remove('loading');
+                    loginBtn.textContent = 'Iniciar Sessão';
                 }
             } catch (error) {
                 console.error('Erro:', error);
                 showError('Erro ao fazer login. Tente novamente.');
-            } finally {
                 loginBtn.classList.remove('loading');
                 loginBtn.textContent = 'Iniciar Sessão';
             }
@@ -324,8 +331,8 @@
         });
 
         // Debug no console
-        console.log('Sistema carregado!');
-        console.log('Usuários cadastrados:', getUsers());
+        console.log('🎯 Sistema carregado!');
+        console.log('👥 Usuários cadastrados:', getUsers());
     </script>
 </body>
 </html>

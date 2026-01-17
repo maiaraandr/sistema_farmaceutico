@@ -553,6 +553,22 @@
     z-index: 9999;
 }
 
+/* Animação de saída da página de login */
+.login-page.fade-out {
+    animation: fadeOut 0.5s ease forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
 /* ========================================
    TOOLTIP
    ======================================== */
