@@ -4,176 +4,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro - Sistema Farmacêutico</title>
-    
-    <!-- Estilos -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/register.css">
-    
-    <!-- Lucide Icons -->
+    <link rel="stylesheet" href="../CSS/Auth_minimal.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    <div class="auth-container">
-        <!-- Lado Esquerdo - Login Simplificado -->
-        <div class="auth-left">
-            <div class="login-simple-card">
-                <div class="auth-header">
-                    <div class="auth-logo">
-                        <i data-lucide="pill"></i>
-                    </div>
-                    <h1 class="auth-title">Login</h1>
-                    <p class="auth-subtitle">Já tem uma conta? Entre aqui</p>
+    <div class="auth-page">
+        <div class="auth-container wide">
+            <div class="register-box">
+                <!-- Ícone -->
+                <div class="auth-icon">
+                    <i data-lucide="user-plus"></i>
                 </div>
-
-                <form id="loginForm" class="auth-form">
-                    <div class="form-group">
-                        <label for="loginUsername" class="form-label required">Usuário</label>
-                        <input 
-                            type="text" 
-                            id="loginUsername" 
-                            class="form-input" 
-                            placeholder="Digite seu usuário"
-                            required
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="loginPassword" class="form-label required">Senha</label>
-                        <div class="password-input-wrapper">
+                
+                <h1 class="register-title">Cadastro de Usuário</h1>
+                
+                <div id="registerError" class="message error hidden"></div>
+                <div id="registerSuccess" class="message success hidden"></div>
+                
+                <form id="registerForm">
+                    <div class="form-field">
+                        <div class="input-wrapper">
+                            <i data-lucide="user" class="input-icon" style="width: 18px; height: 18px;"></i>
                             <input 
-                                type="password" 
-                                id="loginPassword" 
-                                class="form-input" 
-                                placeholder="Digite sua senha"
+                                type="text" 
+                                id="nome"
+                                placeholder="NOME COMPLETO"
                                 required
                             >
-                            <button type="button" class="password-toggle" data-toggle="loginPassword">
-                                <i data-lucide="eye"></i>
-                            </button>
                         </div>
                     </div>
-
-                    <button type="submit" class="auth-btn">
-                        Entrar
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Separador -->
-        <div class="auth-divider"></div>
-
-        <!-- Lado Direito - Cadastro -->
-        <div class="auth-right">
-            <div class="register-card">
-                <div class="auth-header">
-                    <div class="auth-logo">
-                        <i data-lucide="user-plus"></i>
-                    </div>
-                    <h1 class="auth-title">Cadastro de Usuário</h1>
-                    <p class="auth-subtitle">Preencha os dados para criar sua conta</p>
-                </div>
-
-                <!-- Mensagem de erro -->
-                <div id="registerError" class="login-error hidden">
-                    <i data-lucide="alert-circle" style="width: 20px; height: 20px;"></i>
-                    <span id="errorMessage"></span>
-                </div>
-
-                <!-- Mensagem de sucesso -->
-                <div id="registerSuccess" class="success-message hidden">
-                    <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
-                    <span id="successMessage"></span>
-                </div>
-
-                <form id="registerForm" class="auth-form">
-                    <div class="form-group">
-                        <label for="nome" class="form-label required">Nome Completo</label>
-                        <input 
-                            type="text" 
-                            id="nome" 
-                            class="form-input" 
-                            placeholder="Digite seu nome completo"
-                            required
-                        >
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="email" class="form-label required">E-mail</label>
+                    
+                    <div class="form-field">
+                        <div class="input-wrapper">
+                            <i data-lucide="mail" class="input-icon" style="width: 18px; height: 18px;"></i>
                             <input 
                                 type="email" 
-                                id="email" 
-                                class="form-input" 
-                                placeholder="seu@email.com"
+                                id="email"
+                                placeholder="E-MAIL"
                                 required
                             >
                         </div>
-
-                        <div class="form-group">
-                            <label for="telefone" class="form-label">Telefone</label>
+                    </div>
+                    
+                    <div class="form-field small">
+                        <div class="input-wrapper">
+                            <i data-lucide="phone" class="input-icon" style="width: 18px; height: 18px;"></i>
                             <input 
                                 type="tel" 
-                                id="telefone" 
-                                class="form-input" 
-                                placeholder="(00) 00000-0000"
+                                id="telefone"
+                                placeholder="TELEFONE"
                             >
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="usuario" class="form-label required">Usuário</label>
-                        <input 
-                            type="text" 
-                            id="usuario" 
-                            class="form-input" 
-                            placeholder="Escolha um nome de usuário"
-                            required
-                            minlength="4"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="senha" class="form-label required">Senha</label>
-                        <div class="password-input-wrapper">
+                    
+                    <div class="form-field">
+                        <div class="input-wrapper">
+                            <i data-lucide="user-check" class="input-icon" style="width: 18px; height: 18px;"></i>
                             <input 
-                                type="password" 
-                                id="senha" 
-                                class="form-input" 
-                                placeholder="Mínimo 6 caracteres"
+                                type="text" 
+                                id="usuario"
+                                placeholder="USUÁRIO"
                                 required
-                                minlength="6"
+                                minlength="4"
                             >
-                            <button type="button" class="password-toggle" data-toggle="senha">
-                                <i data-lucide="eye"></i>
-                            </button>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="senhaConfirm" class="form-label required">Confirmar Senha</label>
-                        <div class="password-input-wrapper">
-                            <input 
-                                type="password" 
-                                id="senhaConfirm" 
-                                class="form-input" 
-                                placeholder="Digite a senha novamente"
-                                required
-                                minlength="6"
-                            >
-                            <button type="button" class="password-toggle" data-toggle="senhaConfirm">
-                                <i data-lucide="eye"></i>
-                            </button>
+                    
+                    <div class="form-field small">
+                        <div class="input-wrapper">
+                            <i data-lucide="lock" class="input-icon" style="width: 18px; height: 18px;"></i>
+                            <div class="password-wrapper">
+                                <input 
+                                    type="password" 
+                                    id="senha"
+                                    placeholder="SENHA"
+                                    required
+                                    minlength="6"
+                                >
+                                <button type="button" class="password-toggle" id="toggleSenha">
+                                    <i data-lucide="eye" style="width: 18px; height: 18px;"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
-
-                    <button type="submit" class="auth-btn" id="registerBtn">
-                        Criar Conta
-                    </button>
-
+                    
+                    <div class="form-field small">
+                        <div class="input-wrapper">
+                            <i data-lucide="lock" class="input-icon" style="width: 18px; height: 18px;"></i>
+                            <div class="password-wrapper">
+                                <input 
+                                    type="password" 
+                                    id="senhaConfirm"
+                                    placeholder="CONFIRMAR SENHA"
+                                    required
+                                    minlength="6"
+                                >
+                                <button type="button" class="password-toggle" id="toggleSenhaConfirm">
+                                    <i data-lucide="eye" style="width: 18px; height: 18px;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" id="registerBtn">Cadastrar</button>
+                    
                     <div class="auth-link">
-                        Já tem uma conta? <a href="index.html">Fazer login</a>
+                        <a href="index.html">Já tem conta? Fazer login</a>
                     </div>
                 </form>
             </div>
@@ -181,71 +117,46 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="js/storage.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="../Javascript/Storage.js"></script>
+    <script src="../Javascript/autenticacao.js"></script>
     <script>
         // Inicializar ícones
         lucide.createIcons();
 
-        // ========================================
-        // TOGGLE DE SENHA
-        // ========================================
-        document.querySelectorAll('.password-toggle').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-toggle');
-                const input = document.getElementById(targetId);
-                const icon = this.querySelector('i');
-                
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.setAttribute('data-lucide', 'eye-off');
-                } else {
-                    input.type = 'password';
-                    icon.setAttribute('data-lucide', 'eye');
-                }
-                
-                lucide.createIcons();
-            });
-        });
+        // Focar no primeiro campo
+        document.getElementById('nome').focus();
 
-        // ========================================
-        // LOGIN FORM
-        // ========================================
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Toggle de senha 1
+        document.getElementById('toggleSenha').addEventListener('click', function() {
+            const input = document.getElementById('senha');
+            const icon = this.querySelector('i');
             
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const btn = e.target.querySelector('.auth-btn');
-            
-            btn.classList.add('loading');
-            btn.textContent = 'Entrando...';
-            
-            try {
-                const result = await login(username, password, false);
-                
-                if (result.success) {
-                    btn.textContent = '✓ Sucesso! Redirecionando...';
-                    btn.style.backgroundColor = '#10B981';
-                    
-                    setTimeout(() => {
-                        window.location.href = 'pages/dashboard.html';
-                    }, 600);
-                } else {
-                    alert('Usuário ou senha inválidos');
-                    btn.classList.remove('loading');
-                    btn.textContent = 'Entrar';
-                }
-            } catch (error) {
-                alert('Erro ao fazer login');
-                btn.classList.remove('loading');
-                btn.textContent = 'Entrar';
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
             }
+            lucide.createIcons();
         });
 
-        // ========================================
-        // REGISTER FORM
-        // ========================================
+        // Toggle de senha 2
+        document.getElementById('toggleSenhaConfirm').addEventListener('click', function() {
+            const input = document.getElementById('senhaConfirm');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        });
+
+        // Formulário de cadastro
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -266,40 +177,44 @@
             
             // Validações
             if (senha !== senhaConfirm) {
-                showError('As senhas não coincidem');
+                errorDiv.textContent = 'As senhas não coincidem';
+                errorDiv.classList.remove('hidden');
                 return;
             }
             
             if (usuario.length < 4) {
-                showError('O usuário deve ter no mínimo 4 caracteres');
+                errorDiv.textContent = 'O usuário deve ter no mínimo 4 caracteres';
+                errorDiv.classList.remove('hidden');
                 return;
             }
             
             if (senha.length < 6) {
-                showError('A senha deve ter no mínimo 6 caracteres');
+                errorDiv.textContent = 'A senha deve ter no mínimo 6 caracteres';
+                errorDiv.classList.remove('hidden');
                 return;
             }
             
             // Verificar se usuário já existe
             const users = getUsers();
             if (users.find(u => u.usuario === usuario)) {
-                showError('Este usuário já existe');
+                errorDiv.textContent = 'Este usuário já existe';
+                errorDiv.classList.remove('hidden');
                 return;
             }
             
             // Criar usuário
-            btn.classList.add('loading');
-            btn.textContent = 'Criando conta...';
+            btn.disabled = true;
+            btn.textContent = 'Cadastrando...';
             
-            setTimeout(() => {
+            setTimeout(async () => {
                 const novoUsuario = {
                     id: Date.now(),
                     usuario: usuario,
-                    senha: senha, // Em produção, usar hash
+                    senha: senha,
                     nome: nome,
                     email: email,
                     telefone: telefone,
-                    tipo: 'caixa', // Por padrão, novo usuário é caixa
+                    tipo: 'caixa',
                     criadoEm: new Date().toISOString()
                 };
                 
@@ -307,40 +222,21 @@
                 saveUsers(users);
                 
                 // Mostrar sucesso
-                showSuccess('Conta criada com sucesso! Redirecionando...');
-                btn.textContent = '✓ Conta criada!';
-                btn.style.backgroundColor = '#10B981';
+                successDiv.textContent = 'Conta criada com sucesso! Redirecionando...';
+                successDiv.classList.remove('hidden');
+                btn.textContent = 'Sucesso!';
+                btn.style.backgroundColor = '#22c55e';
+                btn.style.color = '#fff';
                 
-                // Fazer login automático
+                // Login automático e redirecionar
                 setTimeout(async () => {
                     const result = await login(usuario, senha, false);
                     if (result.success) {
-                        window.location.href = 'pages/dashboard.html';
+                        window.location.href = 'dashboard.html';
                     }
-                }, 1500);
-            }, 800);
+                }, 1000);
+            }, 500);
         });
-
-        function showError(message) {
-            const errorDiv = document.getElementById('registerError');
-            const errorMessage = document.getElementById('errorMessage');
-            
-            errorMessage.textContent = message;
-            errorDiv.classList.remove('hidden');
-            lucide.createIcons();
-        }
-
-        function showSuccess(message) {
-            const successDiv = document.getElementById('registerSuccess');
-            const successMessage = document.getElementById('successMessage');
-            
-            successMessage.textContent = message;
-            successDiv.classList.remove('hidden');
-            lucide.createIcons();
-        }
-
-        // Focar no primeiro campo
-        document.getElementById('loginUsername').focus();
     </script>
 </body>
 </html>

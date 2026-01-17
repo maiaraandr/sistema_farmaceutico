@@ -1,0 +1,348 @@
+/**
+ * ========================================
+ * DESIGN AZUL MODERNO - INSPIRADO NO MODELO
+ * ========================================
+ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #2563eb 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Efeito de ondas no fundo */
+body::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: drift 20s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes drift {
+    from { transform: translate(0, 0); }
+    to { transform: translate(-50px, -50px); }
+}
+
+/* ========================================
+   PÁGINA DE AUTENTICAÇÃO
+   ======================================== */
+.auth-page {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+.auth-container.wide {
+    max-width: 500px;
+}
+
+/* ========================================
+   BOX DE LOGIN E CADASTRO
+   ======================================== */
+.login-box,
+.register-box {
+    background-color: transparent;
+    padding: 50px 40px;
+    width: 100%;
+}
+
+/* Ícone no topo */
+.auth-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 40px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.auth-icon svg {
+    width: 50px;
+    height: 50px;
+    color: #fff;
+}
+
+/* Título */
+.login-title,
+.register-title {
+    font-size: 24px;
+    font-weight: 300;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+}
+
+/* ========================================
+   CAMPOS DE FORMULÁRIO
+   ======================================== */
+.form-field {
+    margin-bottom: 20px;
+}
+
+.form-field label {
+    display: none; /* Esconde labels, usamos placeholders */
+}
+
+.form-field input {
+    width: 100%;
+    padding: 16px 20px;
+    padding-left: 50px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    font-size: 15px;
+    color: #fff;
+    outline: none;
+    transition: all 0.3s;
+    border-radius: 4px;
+}
+
+.form-field input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+.form-field input:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Ícones nos inputs */
+.input-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.7);
+    pointer-events: none;
+}
+
+/* Campos menores no cadastro */
+.form-field.small input {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .form-field.small input {
+        width: 70%;
+    }
+}
+
+/* ========================================
+   TOGGLE DE SENHA
+   ======================================== */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 50px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.2s;
+}
+
+.password-toggle:hover {
+    color: #fff;
+}
+
+/* ========================================
+   BOTÕES
+   ======================================== */
+.btn-primary {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    margin: 30px 0 20px;
+    background-color: #fff;
+    color: #2563eb;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   LINKS
+   ======================================== */
+.auth-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.auth-link a {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    padding-bottom: 2px;
+}
+
+.auth-link a:hover {
+    opacity: 0.7;
+    border-bottom-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ========================================
+   MENSAGENS
+   ======================================== */
+.message {
+    padding: 14px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-size: 13px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.message.error {
+    background-color: rgba(239, 68, 68, 0.9);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.message.success {
+    background-color: rgba(34, 197, 94, 0.9);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.message.hidden {
+    display: none;
+}
+
+/* ========================================
+   RESPONSIVIDADE
+   ======================================== */
+@media (max-width: 768px) {
+    .auth-page {
+        padding: 20px 15px;
+    }
+    
+    .login-box,
+    .register-box {
+        padding: 40px 25px;
+    }
+    
+    .auth-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 30px;
+    }
+    
+    .auth-icon svg {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .login-title,
+    .register-title {
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .form-field.small input {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-box,
+    .register-box {
+        padding: 30px 20px;
+    }
+    
+    .form-field input {
+        padding: 14px 18px;
+        padding-left: 45px;
+        font-size: 14px;
+    }
+}
+
+/* ========================================
+   ANIMAÇÕES
+   ======================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-box,
+.register-box {
+    animation: fadeIn 0.5s ease;
+}

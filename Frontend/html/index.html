@@ -3,207 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sistema de Inventário Farmacêutico - Login">
     <title>Login - Sistema Farmacêutico</title>
-    
-    <!-- Estilos -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/login.css">
-    
-    <!-- Lucide Icons -->
+    <link rel="stylesheet" href="../CSS/Auth_minimal.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    <div class="login-page">
-        <div class="login-container">
-            <div class="login-card">
-                <!-- Logo e Cabeçalho -->
-                <div class="login-header">
-                    <div class="login-logo">
-                        <i data-lucide="pill"></i>
-                    </div>
-                    <h1 class="login-title">Sistema Farmacêutico</h1>
-                    <p class="login-subtitle">Ingrese sus credenciales para acceder al sistema</p>
+    <div class="auth-page">
+        <div class="auth-container">
+            <div class="login-box">
+                <!-- Ícone -->
+                <div class="auth-icon">
+                    <i data-lucide="pill"></i>
                 </div>
-
-                <!-- Mensagem de Erro -->
-                <div id="loginError" class="login-error hidden">
-                    <i data-lucide="alert-circle" style="width: 20px; height: 20px;"></i>
-                    <span id="errorMessage"></span>
-                </div>
-
-                <!-- Formulário de Login -->
-                <form id="loginForm" class="login-form">
-                    <div class="form-group">
-                        <label for="username" class="form-label required">Usuário</label>
-                        <input 
-                            type="text" 
-                            id="username" 
-                            class="form-input" 
-                            placeholder="Digite seu usuário"
-                            required
-                            autocomplete="username"
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password" class="form-label required">Senha</label>
-                        <div class="password-input-wrapper">
+                
+                <div id="loginError" class="message error hidden"></div>
+                
+                <form id="loginForm">
+                    <div class="form-field">
+                        <div class="input-wrapper">
+                            <i data-lucide="user" class="input-icon" style="width: 18px; height: 18px;"></i>
                             <input 
-                                type="password" 
-                                id="password" 
-                                class="form-input" 
-                                placeholder="Digite sua senha"
+                                type="text" 
+                                id="username" 
+                                placeholder="USERNAME"
                                 required
-                                autocomplete="current-password"
+                                autocomplete="username"
                             >
-                            <button type="button" class="password-toggle" id="togglePassword" aria-label="Mostrar senha">
-                                <i data-lucide="eye" id="eyeIcon"></i>
-                            </button>
                         </div>
                     </div>
-
-                    <div class="login-options">
-                        <label class="remember-me">
-                            <input type="checkbox" id="rememberMe">
-                            <span>Lembrar-me</span>
-                        </label>
-                        <a href="#" class="forgot-password">Esqueceu a senha?</a>
+                    
+                    <div class="form-field">
+                        <div class="input-wrapper">
+                            <i data-lucide="lock" class="input-icon" style="width: 18px; height: 18px;"></i>
+                            <div class="password-wrapper">
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    placeholder="PASSWORD"
+                                    required
+                                    autocomplete="current-password"
+                                >
+                                <button type="button" class="password-toggle" id="togglePassword">
+                                    <i data-lucide="eye" style="width: 18px; height: 18px;"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-
-                    <button type="submit" class="login-btn" id="loginBtn">
-                        Iniciar Sessão
-                    </button>
+                    
+                    <button type="submit" class="btn-primary" id="loginBtn">Login</button>
+                    
+                    <div class="auth-link">
+                        <a href="Register.html">Novo usuário?</a>
+                    </div>
                 </form>
-
-                <!-- Link para Cadastro -->
-                <div style="text-align: center; margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid var(--gray-200);">
-                    <p style="color: var(--gray-600); font-size: var(--text-sm); margin-bottom: var(--space-3);">
-                        Não tem uma conta?
-                    </p>
-                    <a href="register.html" style="display: inline-flex; align-items: center; gap: var(--space-2); color: var(--primary); font-weight: 600; text-decoration: none; font-size: var(--text-base); transition: var(--transition);">
-                        <i data-lucide="user-plus" style="width: 20px; height: 20px;"></i>
-                        Criar Nova Conta
-                    </a>
-                </div>
-
-                <!-- Credenciais de Teste -->
-                <div class="login-demo">
-                    <div class="login-demo-title">
-                        <i data-lucide="info" style="width: 16px; height: 16px;"></i>
-                        Credenciais de teste:
-                    </div>
-                    <div class="login-demo-item">
-                        <span class="login-demo-label">Admin:</span>
-                        <span class="login-demo-value">admin / admin123</span>
-                    </div>
-                    <div class="login-demo-item">
-                        <span class="login-demo-label">Caixa:</span>
-                        <span class="login-demo-value">caixa1 / caixa123</span>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 
     <!-- JavaScript -->
-    <script src="js/storage.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="../Javascript/Storage.js"></script>
+    <script src="../Javascript/autenticacao.js"></script>
     <script>
-        // Inicializar ícones Lucide
+        // Inicializar ícones
         lucide.createIcons();
 
-        // Focar no campo de usuário
+        // Focar no campo usuário
         document.getElementById('username').focus();
+
+        // Toggle de senha
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const input = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        });
 
         // Formulário de login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
-            
-            const loginBtn = document.getElementById('loginBtn');
+            const btn = document.getElementById('loginBtn');
             const errorDiv = document.getElementById('loginError');
             
-            // Mostrar loading
-            loginBtn.classList.add('loading');
-            loginBtn.textContent = 'Entrando...';
+            // Esconder erro
             errorDiv.classList.add('hidden');
             
+            // Mostrar loading
+            btn.disabled = true;
+            btn.textContent = 'Entrando...';
+            
             try {
-                const result = await login(username, password, rememberMe);
+                const result = await login(username, password, false);
                 
                 if (result.success) {
-                    // Sucesso! Mostrar mensagem e redirecionar
-                    loginBtn.textContent = '✓ Sucesso! Redirecionando...';
-                    loginBtn.style.backgroundColor = '#10B981';
+                    btn.textContent = 'Sucesso!';
+                    btn.style.backgroundColor = '#22c55e';
+                    btn.style.color = '#fff';
                     
-                    // Adicionar animação de fade-out
-                    document.querySelector('.login-page').classList.add('fade-out');
-                    
-                    // Aguardar animação terminar, depois redirecionar
                     setTimeout(() => {
-                        window.location.href = 'pages/dashboard.html';
-                    }, 600);
+                        window.location.href = 'dashboard.html';
+                    }, 500);
                 } else {
-                    // Erro
-                    showError(result.message);
-                    loginBtn.classList.remove('loading');
-                    loginBtn.textContent = 'Iniciar Sessão';
+                    errorDiv.textContent = 'Usuário ou senha inválidos';
+                    errorDiv.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.textContent = 'Login';
                 }
             } catch (error) {
-                showError('Erro ao fazer login. Tente novamente.');
-                loginBtn.classList.remove('loading');
-                loginBtn.textContent = 'Iniciar Sessão';
+                errorDiv.textContent = 'Erro ao fazer login';
+                errorDiv.classList.remove('hidden');
+                btn.disabled = false;
+                btn.textContent = 'Login';
             }
-        });
-
-        function showError(message) {
-            const errorDiv = document.getElementById('loginError');
-            const errorMessage = document.getElementById('errorMessage');
-            
-            errorMessage.textContent = message;
-            errorDiv.classList.remove('hidden');
-            
-            // Reinicializar ícones
-            lucide.createIcons();
-        }
-
-        // Preencher automaticamente ao clicar nas credenciais de teste
-        document.querySelectorAll('.login-demo-value').forEach(el => {
-            el.style.cursor = 'pointer';
-            el.addEventListener('click', function() {
-                const text = this.textContent.trim();
-                const [user, pass] = text.split(' / ');
-                
-                if (user && pass) {
-                    document.getElementById('username').value = user;
-                    document.getElementById('password').value = pass;
-                    document.getElementById('username').focus();
-                }
-            });
-        });
-
-        // Toggle mostrar/ocultar senha
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const eyeIcon = document.getElementById('eyeIcon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.setAttribute('data-lucide', 'eye-off');
-                this.setAttribute('aria-label', 'Ocultar senha');
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.setAttribute('data-lucide', 'eye');
-                this.setAttribute('aria-label', 'Mostrar senha');
-            }
-            
-            // Reinicializar ícones Lucide
-            lucide.createIcons();
         });
     </script>
 </body>
