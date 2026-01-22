@@ -417,3 +417,32 @@
         display: none !important;
     }
 }
+
+.sidebar-header .logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.sidebar-header .logo-icon {
+    width: 56px;
+    height: 56px;
+    background: #3b82f6;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sidebar-header .logo-icon i {
+    width: 32px;
+    height: 32px;
+    color: white;
+}
+
+.sidebar-header .logo span {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Entrada de Medicamentos | FarmaSys</title>
+    <link rel="stylesheet" href="../CSS/Style.css">
+    <link rel="stylesheet" href="../CSS/Components.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Cabeçalho -->
+    <header class="page-header">
+        <h1>
+            <i data-lucide="package-plus"></i>
+            Entrada de Medicamentos
+        </h1>
+        <p>Registro de entrada de medicamentos no estoque</p>
+    </header>
+
+    <!-- Formulário -->
+    <section class="card">
+        <form id="formEntrada" class="form-grid">
+
+            <div class="form-group">
+                <label>Medicamento</label>
+                <input type="text" id="medicamento" required>
+            </div>
+
+            <div class="form-group">
+                <label>Quantidade</label>
+                <input type="number" id="quantidade" required>
+            </div>
+
+            <div class="form-group">
+                <label>Fornecedor</label>
+                <input type="text" id="fornecedor" required>
+            </div>
+
+            <div class="form-group">
+                <label>Data de Validade</label>
+                <input type="date" id="validade" required>
+            </div>
+
+            <div class="form-group">
+                <label>Data de Entrada</label>
+                <input type="text" id="dataEntrada" disabled>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">
+                    <i data-lucide="check"></i>
+                    Registrar Entrada
+                </button>
+
+                <a href="dashboard.html" class="btn btn-secondary">
+                    <i data-lucide="arrow-left"></i>
+                    Voltar
+                </a>
+            </div>
+
+        </form>
+    </section>
+
+    <!-- Tabela -->
+    <section class="card">
+        <h2>
+            <i data-lucide="list"></i>
+            Histórico de Entradas
+        </h2>
+
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Medicamento</th>
+                    <th>Quantidade</th>
+                    <th>Fornecedor</th>
+                    <th>Validade</th>
+                    <th>Data de Entrada</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaEntrada"></tbody>
+        </table>
+    </section>
+
+</div>
+
+<script src="../Javascript/entrada.js"></script>
+<script>
+    lucide.createIcons();
+</script>
+
+</body>
+</html>

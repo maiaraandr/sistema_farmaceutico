@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Saída de Medicamentos | FarmaSys</title>
+    <link rel="stylesheet" href="../CSS/Style.css">
+    <link rel="stylesheet" href="../CSS/Components.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Cabeçalho -->
+        <header class="page-header">
+            <h1>
+                <i data-lucide="package-minus"></i>
+                Saída de Medicamentos
+            </h1>
+            <p>Registre a saída de medicamentos do estoque</p>
+        </header>
+
+        <!-- Card do formulário -->
+        <section class="card">
+            <form id="formSaida" class="form-grid">
+
+                <div class="form-group">
+                    <label>Medicamento</label>
+                    <input type="text" id="medicamento" placeholder="Nome do medicamento" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Quantidade</label>
+                    <input type="number" id="quantidade" placeholder="Quantidade retirada" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Destino / Motivo</label>
+                    <input type="text" id="destino" placeholder="Venda, uso interno, descarte..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Data da Saída</label>
+                    <input type="text" id="dataSaida" disabled>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger">
+                        <i data-lucide="check"></i>
+                        Registrar Saída
+                    </button>
+
+                    <a href="dashboard.html" class="btn btn-secondary">
+                        <i data-lucide="arrow-left"></i>
+                        Voltar
+                    </a>
+                </div>
+
+            </form>
+        </section>
+
+        <!-- Tabela -->
+        <section class="card">
+            <h2>
+                <i data-lucide="list"></i>
+                Histórico de Saídas
+            </h2>
+
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Medicamento</th>
+                        <th>Quantidade</th>
+                        <th>Destino</th>
+                        <th>Data da Saída</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabelaSaida"></tbody>
+            </table>
+        </section>
+
+    </div>
+
+    <script src="../Javascript/saida.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+
+</body>
+
+</html>

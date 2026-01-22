@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatórios | FarmaSys</title>
+    <link rel="stylesheet" href="../CSS/Style.css">
+    <link rel="stylesheet" href="../CSS/Components.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Cabeçalho -->
+    <header class="page-header">
+        <h1>
+            <i data-lucide="file-text"></i>
+            Relatórios
+        </h1>
+        <p>Resumo de entradas e saídas de medicamentos</p>
+    </header>
+
+    <!-- Cards -->
+    <section class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-success">
+                <i data-lucide="package-plus"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Total de Entradas</span>
+                <span class="stat-value" id="totalEntradas">0</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-danger">
+                <i data-lucide="package-minus"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Total de Saídas</span>
+                <span class="stat-value" id="totalSaidas">0</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-primary">
+                <i data-lucide="layers"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Saldo Atual</span>
+                <span class="stat-value" id="saldo">0</span>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Tabela -->
+    <section class="card">
+        <h2>
+            <i data-lucide="list"></i>
+            Histórico Consolidado
+        </h2>
+
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Medicamento</th>
+                    <th>Quantidade</th>
+                    <th>Fornecedor / Destino</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaRelatorios"></tbody>
+        </table>
+    </section>
+
+    <a href="dashboard.html" class="btn btn-secondary">
+        <i data-lucide="arrow-left"></i>
+        Voltar
+    </a>
+
+</div>
+
+<script src="../Javascript/relatorios.js"></script>
+<script>
+    lucide.createIcons();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Fornecedores | FarmaSys</title>
+    <link rel="stylesheet" href="../CSS/Style.css">
+    <link rel="stylesheet" href="../CSS/Components.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Cabeçalho -->
+    <header class="page-header">
+        <h1>
+            <i data-lucide="truck"></i>
+            Fornecedores
+        </h1>
+        <p>Cadastro e gerenciamento de fornecedores</p>
+    </header>
+
+    <!-- Formulário -->
+    <section class="card">
+        <form id="formFornecedor" class="form-grid">
+
+            <div class="form-group">
+                <label>Nome do Fornecedor</label>
+                <input type="text" id="nome" required>
+            </div>
+
+            <div class="form-group">
+                <label>CNPJ</label>
+                <input type="text" id="cnpj" placeholder="00.000.000/0000-00" required>
+            </div>
+
+            <div class="form-group">
+                <label>Telefone</label>
+                <input type="text" id="telefone" placeholder="(00) 00000-0000" required>
+            </div>
+
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Data de Cadastro</label>
+                <input type="text" id="dataCadastro" disabled>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i data-lucide="check"></i>
+                    Cadastrar
+                </button>
+
+                <a href="dashboard.html" class="btn btn-secondary">
+                    <i data-lucide="arrow-left"></i>
+                    Voltar
+                </a>
+            </div>
+
+        </form>
+    </section>
+
+    <!-- Tabela -->
+    <section class="card">
+        <h2>
+            <i data-lucide="list"></i>
+            Fornecedores Cadastrados
+        </h2>
+
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Fornecedor</th>
+                    <th>CNPJ</th>
+                    <th>Telefone</th>
+                    <th>E-mail</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaFornecedores"></tbody>
+        </table>
+    </section>
+
+</div>
+
+<script src="../Javascript/fornecedores.js"></script>
+<script>
+    lucide.createIcons();
+</script>
+
+</body>
+</html>

@@ -4,200 +4,184 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sistema Farmacêutico</title>
-    
-    <!-- Estilos -->
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/components.css">
-    <link rel="stylesheet" href="../css/dashboard.css">
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-
-    
-    <!-- Lucide Icons -->
+    <link rel="stylesheet" href="../CSS/Style.css">
+    <link rel="stylesheet" href="../CSS/Components.css">
+    <link rel="stylesheet" href="../CSS/dashboard.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- CSS INLINE PARA GARANTIR QUE O LOGO FUNCIONE -->
+    <style>
+        .sidebar-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .sidebar-header .logo-icon {
+            width: 56px;
+            height: 56px;
+            background: #3b82f6;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header .logo-icon i {
+            width: 32px;
+            height: 32px;
+            color: white;
+        }
+
+        .sidebar-header .logo span {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+        }
+        
+        /* Remover bola azul */
+        .user-avatar {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-layout">
         <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <!-- Logo -->
+        <aside class="sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <i data-lucide="pill"></i>
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i data-lucide="pill"></i>
+                    </div>
+                    <span>FarmaSys</span>
                 </div>
-                <h1 class="sidebar-title">FarmaSys</h1>
             </div>
 
-            <!-- Navegação -->
             <nav class="sidebar-nav">
-                <div class="nav-section-title">Menu Principal</div>
                 <a href="dashboard.html" class="nav-item active">
                     <i data-lucide="layout-dashboard"></i>
                     <span>Dashboard</span>
                 </a>
                 <a href="produtos.html" class="nav-item">
                     <i data-lucide="package"></i>
-                    <span>Produtos</span>
+                    <span>Medicamentos</span>
                 </a>
                 <a href="fornecedores.html" class="nav-item">
                     <i data-lucide="truck"></i>
                     <span>Fornecedores</span>
                 </a>
-
-                <div class="nav-section-title">Movimentação</div>
                 <a href="entrada.html" class="nav-item">
-                    <i data-lucide="arrow-down-to-line"></i>
+                    <i data-lucide="package-plus"></i>
                     <span>Entrada</span>
                 </a>
                 <a href="saida.html" class="nav-item">
-                    <i data-lucide="arrow-up-from-line"></i>
+                    <i data-lucide="package-minus"></i>
                     <span>Saída</span>
                 </a>
-                <a href="consulta.html" class="nav-item">
-                    <i data-lucide="search"></i>
-                    <span>Consultar Estoque</span>
-                </a>
-
-                <div class="nav-section-title">Relatórios</div>
-                <a href="estoque-baixo.html" class="nav-item">
-                    <i data-lucide="alert-triangle"></i>
-                    <span>Estoque Baixo</span>
-                </a>
-                <a href="a-vencer.html" class="nav-item">
-                    <i data-lucide="calendar-clock"></i>
-                    <span>A Vencer</span>
-                </a>
-                <a href="vendas.html" class="nav-item">
-                    <i data-lucide="trending-up"></i>
-                    <span>Vendas</span>
-                </a>
-                <a href="compras.html" class="nav-item">
-                    <i data-lucide="shopping-cart"></i>
-                    <span>Compras</span>
+                <a href="relatorios.html" class="nav-item">
+                    <i data-lucide="file-text"></i>
+                    <span>Relatórios</span>
                 </a>
             </nav>
 
-            <!-- User Info -->
             <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">A</div>
-                    <div class="user-details">
-                        <p class="user-name" id="userName">Carregando...</p>
-                        <p class="user-role" id="userRole">...</p>
-                    </div>
-                    <button class="btn-logout" id="btnLogout" title="Sair">
-                        <i data-lucide="log-out"></i>
-                    </button>
-                </div>
+                <button class="nav-item" id="logoutBtn">
+                    <i data-lucide="log-out"></i>
+                    <span>Sair</span>
+                </button>
             </div>
         </aside>
 
-        <!-- Overlay Mobile -->
-        <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-        <!-- Botão Menu Mobile -->
-        <button class="mobile-menu-btn" id="mobileMenuBtn">
-            <i data-lucide="menu"></i>
-        </button>
-
-        <!-- Conteúdo Principal -->
+        <!-- Main Content -->
         <main class="main-content">
             <!-- Header -->
-            <div class="content-header">
-                <h1 class="page-title">Dashboard</h1>
-                <p class="page-subtitle">Visão geral do sistema de inventário farmacêutico</p>
-            </div>
-
-            <!-- Cards de Estatísticas -->
-            <div class="stats-grid" id="statsGrid">
-                <!-- Será preenchido dinamicamente -->
-            </div>
-
-            <!-- Seção: Estoque Baixo -->
-            <div class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <i data-lucide="alert-triangle" style="width: 24px; height: 24px; color: var(--warning); vertical-align: middle;"></i>
-                        Alertas de Estoque Baixo
-                    </h2>
-                    <a href="estoque-baixo.html" class="btn btn-outline btn-sm">
-                        Ver todos
-                        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
-                    </a>
+            <header class="content-header">
+                <div class="header-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <h1 class="page-title">Dashboard</h1>
                 </div>
-                <div class="card">
-                    <div class="alert-list" id="lowStockList">
-                        <!-- Será preenchido dinamicamente -->
+                <div class="header-right">
+                    <div class="user-info">
+                        <span class="user-name" id="userName">Carregando...</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-primary">
+                        <i data-lucide="package"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Total de Medicamentos</span>
+                        <span class="stat-value" id="totalProdutos">0</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-warning">
+                        <i data-lucide="alert-triangle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Estoque Baixo</span>
+                        <span class="stat-value" id="estoqueBaixo">0</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-danger">
+                        <i data-lucide="calendar-x"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Próximos ao Vencimento</span>
+                        <span class="stat-value" id="proximoVencimento">0</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-success">
+                        <i data-lucide="dollar-sign"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Valor Total em Estoque</span>
+                        <span class="stat-value" id="valorTotal">R$ 0,00</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Seção: Produtos a Vencer -->
+            <!-- Alertas -->
             <div class="content-section">
                 <div class="section-header">
                     <h2 class="section-title">
-                        <i data-lucide="calendar-clock" style="width: 24px; height: 24px; color: var(--error); vertical-align: middle;"></i>
-                        Produtos Próximos ao Vencimento
+                        <i data-lucide="bell"></i>
+                        Alertas Importantes
                     </h2>
-                    <a href="a-vencer.html" class="btn btn-outline btn-sm">
-                        Ver todos
-                        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
-                    </a>
                 </div>
-                <div class="card">
-                    <div class="alert-list" id="expiringList">
-                        <!-- Será preenchido dinamicamente -->
-                    </div>
+                <div id="alertasContainer"></div>
+            </div>
+
+            <!-- Medicamentos Próximos ao Vencimento -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i data-lucide="calendar-clock"></i>
+                        Medicamentos Próximos ao Vencimento
+                    </h2>
+                    <a href="produtos.html" class="btn-link">Ver todos</a>
                 </div>
+                <div id="vencimentoContainer"></div>
             </div>
         </main>
     </div>
 
     <!-- JavaScript -->
-    <script src="../js/storage.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/dashboard.js"></script>
-    <script>
-        // Proteger página
-        protectPage();
-
-        // Inicializar ícones
-        lucide.createIcons();
-
-        // Carregar dados do usuário
-        loadUserInfo();
-
-        // Carregar estatísticas
-        loadStatistics();
-
-        // Carregar alertas
-        loadLowStockAlerts();
-        loadExpiringProducts();
-
-        // Logout
-        document.getElementById('btnLogout').addEventListener('click', () => {
-            if (confirm('Deseja realmente sair?')) {
-                logout();
-            }
-        });
-
-        // Menu mobile
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-        mobileMenuBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-            sidebarOverlay.classList.toggle('active');
-        });
-
-        sidebarOverlay.addEventListener('click', () => {
-            sidebar.classList.remove('open');
-            sidebarOverlay.classList.remove('active');
-        });
-    </script>
+    <script src="../Javascript/Storage.js"></script>
+    <script src="../Javascript/dashboard.js"></script>
 </body>
 </html>
