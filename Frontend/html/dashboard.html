@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Sistema Farmacêutico</title>
+    <title>Dashboard - FarmaSys</title>
     <link rel="stylesheet" href="../CSS/Style.css">
     <link rel="stylesheet" href="../CSS/Components.css">
     <link rel="stylesheet" href="../CSS/dashboard.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="dashboard-layout">
@@ -60,12 +61,13 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Header -->
-            <header class="content-header">
+            <header class="content-header animate-fadeIn">
                 <div class="header-left">
-                    <button class="mobile-menu-btn" id="mobileMenuBtn">
-                        <i data-lucide="menu"></i>
-                    </button>
-                    <h1 class="page-title">Dashboard</h1>
+                    <h1 class="page-title">
+                        <i data-lucide="layout-dashboard"></i>
+                        Dashboard
+                    </h1>
+                    <p class="page-subtitle">Visão geral do sistema</p>
                 </div>
                 <div class="header-right">
                     <div class="user-info">
@@ -75,69 +77,206 @@
             </header>
 
             <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
+            <div class="stats-grid animate-slideInRight">
+                <!-- Total Medicamentos -->
+                <div class="stat-card hover-lift">
                     <div class="stat-icon stat-icon-primary">
                         <i data-lucide="package"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Total de Medicamentos</span>
                         <span class="stat-value" id="totalProdutos">0</span>
+                        <span class="stat-change positive">
+                            <i data-lucide="trending-up" style="width: 14px; height: 14px;"></i>
+                            +12% este mês
+                        </span>
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <!-- Estoque Baixo -->
+                <div class="stat-card hover-lift">
                     <div class="stat-icon stat-icon-warning">
                         <i data-lucide="alert-triangle"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Estoque Baixo</span>
                         <span class="stat-value" id="estoqueBaixo">0</span>
+                        <span class="stat-change">
+                            <i data-lucide="alert-circle" style="width: 14px; height: 14px;"></i>
+                            Requer atenção
+                        </span>
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <!-- Próximos ao Vencimento -->
+                <div class="stat-card hover-lift">
                     <div class="stat-icon stat-icon-danger">
                         <i data-lucide="calendar-x"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Próximos ao Vencimento</span>
                         <span class="stat-value" id="proximoVencimento">0</span>
+                        <span class="stat-change negative">
+                            <i data-lucide="clock" style="width: 14px; height: 14px;"></i>
+                            Últimos 90 dias
+                        </span>
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <!-- Valor Total -->
+                <div class="stat-card hover-lift">
                     <div class="stat-icon stat-icon-success">
                         <i data-lucide="dollar-sign"></i>
                     </div>
                     <div class="stat-content">
                         <span class="stat-label">Valor Total em Estoque</span>
                         <span class="stat-value" id="valorTotal">R$ 0,00</span>
+                        <span class="stat-change positive">
+                            <i data-lucide="trending-up" style="width: 14px; height: 14px;"></i>
+                            +8% este mês
+                        </span>
                     </div>
                 </div>
             </div>
 
-            <!-- Alertas -->
-            <div class="content-section">
+            <!-- Charts Row -->
+            <div class="charts-row animate-fadeIn">
+                <!-- Gráfico de Movimentações -->
+                <div class="card hover-scale">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i data-lucide="trending-up"></i>
+                            Movimentações (Últimos 7 dias)
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chartMovimentacoes" height="80"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Categorias -->
+                <div class="card hover-scale">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i data-lucide="pie-chart"></i>
+                            Distribuição por Categoria
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="chartCategorias" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas Importantes -->
+            <div class="content-section animate-slideInLeft">
                 <div class="section-header">
                     <h2 class="section-title">
                         <i data-lucide="bell"></i>
                         Alertas Importantes
                     </h2>
                 </div>
-                <div id="alertasContainer"></div>
+                
+                <div id="alertasContainer">
+                    <!-- Alerta de Estoque Baixo -->
+                    <div class="alert alert-warning">
+                        <div class="alert-icon">
+                            <i data-lucide="alert-triangle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">Estoque Baixo</div>
+                            <div class="alert-message">
+                                3 medicamentos estão com estoque abaixo do mínimo recomendado.
+                                <a href="produtos.html" class="text-primary font-semibold"> Ver detalhes →</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alerta de Vencimento -->
+                    <div class="alert alert-danger">
+                        <div class="alert-icon">
+                            <i data-lucide="calendar-x"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">Medicamentos Vencendo</div>
+                            <div class="alert-message">
+                                5 medicamentos vencem nos próximos 30 dias.
+                                <a href="produtos.html" class="text-primary font-semibold"> Verificar →</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alerta de Sucesso -->
+                    <div class="alert alert-success">
+                        <div class="alert-icon">
+                            <i data-lucide="check-circle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">Sistema Atualizado</div>
+                            <div class="alert-message">
+                                Todos os dados foram sincronizados com sucesso.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Medicamentos Próximos ao Vencimento -->
-            <div class="content-section">
+            <div class="content-section animate-fadeIn">
                 <div class="section-header">
                     <h2 class="section-title">
                         <i data-lucide="calendar-clock"></i>
                         Medicamentos Próximos ao Vencimento
                     </h2>
-                    <a href="produtos.html" class="btn-link">Ver todos</a>
+                    <a href="produtos.html" class="btn btn-outline btn-sm">
+                        Ver todos
+                        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                    </a>
                 </div>
-                <div id="vencimentoContainer"></div>
+
+                <div class="table-card">
+                    <table class="table-modern">
+                        <thead>
+                            <tr>
+                                <th>Medicamento</th>
+                                <th>Categoria</th>
+                                <th>Estoque</th>
+                                <th>Validade</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vencimentoContainer">
+                            <tr>
+                                <td>
+                                    <div class="table-cell-content">
+                                        <div class="table-icon" style="background: var(--primary-100); color: var(--primary);">
+                                            <i data-lucide="pill"></i>
+                                        </div>
+                                        <span class="font-semibold">Paracetamol 500mg</span>
+                                    </div>
+                                </td>
+                                <td><span class="badge badge-primary">Analgésico</span></td>
+                                <td>45 cp</td>
+                                <td>15/03/2026</td>
+                                <td><span class="badge badge-warning">45 dias</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="table-cell-content">
+                                        <div class="table-icon" style="background: #fee2e2; color: var(--error);">
+                                            <i data-lucide="pill"></i>
+                                        </div>
+                                        <span class="font-semibold">Dipirona 500mg</span>
+                                    </div>
+                                </td>
+                                <td><span class="badge badge-primary">Analgésico</span></td>
+                                <td>23 cp</td>
+                                <td>28/02/2026</td>
+                                <td><span class="badge badge-danger">30 dias</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
     </div>
@@ -146,20 +285,67 @@
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/dashboard.js"></script>
     
-    <!-- INICIALIZAR ÍCONES LUCIDE -->
     <script>
-        // Garantir que os ícones sejam renderizados
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-            console.log('✅ Ícones Lucide inicializados com sucesso!');
-        } else {
-            console.error('❌ Lucide não carregou!');
-        }
-        
-        // Também inicializar após o DOM carregar
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
+        // Inicializar ícones
+        lucide.createIcons();
+
+        // Configurar gráficos
+        const ctx1 = document.getElementById('chartMovimentacoes').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                datasets: [{
+                    label: 'Entradas',
+                    data: [12, 19, 15, 25, 22, 30, 28],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Saídas',
+                    data: [8, 12, 10, 15, 18, 20, 16],
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        const ctx2 = document.getElementById('chartCategorias').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Analgésico', 'Antibiótico', 'Anti-inflamatório', 'Vitamina', 'Outros'],
+                datasets: [{
+                    data: [30, 25, 20, 15, 10],
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#10b981',
+                        '#f59e0b',
+                        '#8b5cf6',
+                        '#6b7280'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
             }
         });
     </script>

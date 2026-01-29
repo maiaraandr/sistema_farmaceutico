@@ -3,7 +3,7 @@ from django.urls import path
 from django.http import HttpResponse
 
 def home(request):
-    return HttpResponse("Sistema Farmacêutico rodando ✅")
+    return HttpResponse("Sistema Farmacêutico rodando")
 
 urlpatterns = [
     path('', home),
