@@ -2,96 +2,1119 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Fornecedores | FarmaSys</title>
-    <link rel="stylesheet" href="../CSS/Style.css">
-    <link rel="stylesheet" href="../CSS/Components.css">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Fornecedores - Sistema Hospitalar</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #fafafa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f5f5f5;
+            --text-primary: #2c2c2c;
+            --text-secondary: #5a5a5a;
+            --text-tertiary: #8a8a8a;
+            --border: #e0e0e0;
+            --border-light: #ececec;
+            --accent: #404040;
+            --accent-hover: #2c2c2c;
+            --success: #4a7c59;
+            --warning: #b8860b;
+            --danger: #a84032;
+            --info: #4a6b7c;
+            --shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .header-title h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .header-title p {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Tabs */
+        .tabs {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: flex;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 2px;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+
+        .tab:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Page Content */
+        .page-content {
+            display: none;
+        }
+
+        .page-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-badge {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 2px;
+            font-size: 11px;
+            font-weight: 500;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* KPI Card */
+        .kpi-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 4px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .kpi-card:hover {
+            border-left-color: var(--text-primary);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .kpi-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .kpi-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .chart-container.large {
+            height: 400px;
+        }
+
+        /* Filters */
+        .filters-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .filters-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-select, .search-input {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            border-radius: 2px;
+            font-size: 13px;
+            color: var(--text-primary);
+            font-family: 'IBM Plex Sans', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .filter-select:hover, .search-input:hover {
+            border-color: var(--accent);
+        }
+
+        .filter-select:focus, .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(64, 64, 64, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: var(--bg-tertiary);
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table tbody td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 2px;
+            font-size: 11px;
+            font-weight: 500;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .status-ativo {
+            background: rgba(74, 124, 89, 0.15);
+            color: var(--success);
+        }
+
+        .status-inativo {
+            background: rgba(168, 64, 50, 0.15);
+            color: var(--danger);
+        }
+
+        .status-analise {
+            background: rgba(184, 134, 11, 0.15);
+            color: var(--warning);
+        }
+
+        /* Rating Stars */
+        .rating {
+            color: var(--warning);
+            font-size: 14px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Info Box */
+        .info-box {
+            background: var(--bg-tertiary);
+            border-left: 3px solid var(--info);
+            padding: 16px;
+            border-radius: 2px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .info-box strong {
+            color: var(--text-primary);
+        }
+
+        /* Supplier Card */
+        .supplier-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .supplier-card:hover {
+            box-shadow: 0 4px 12px var(--shadow);
+            border-color: var(--accent);
+        }
+
+        .supplier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .supplier-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .supplier-id {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .supplier-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .supplier-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .supplier-stat-label {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .supplier-stat-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 16px; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .filters-grid { grid-template-columns: 1fr; }
+            .tabs { flex-direction: column; }
+            .chart-container { height: 250px; }
+        }
+    </style>
 </head>
 <body>
-
-<div class="container">
-
-    <!-- Cabeçalho -->
-    <header class="page-header">
-        <h1>
-            <i data-lucide="truck"></i>
-            Fornecedores
-        </h1>
-        <p>Cadastro e gerenciamento de fornecedores</p>
-    </header>
-
-    <!-- Formulário -->
-    <section class="card">
-        <form id="formFornecedor" class="form-grid">
-
-            <div class="form-group">
-                <label>Nome do Fornecedor</label>
-                <input type="text" id="nome" required>
+    <div class="container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <div class="header-icon">🏢</div>
+                <div>
+                    <h1>Gestão de Fornecedores</h1>
+                    <p>Hospital Municipal / Cadastro e Performance</p>
+                </div>
             </div>
-
-            <div class="form-group">
-                <label>CNPJ</label>
-                <input type="text" id="cnpj" placeholder="00.000.000/0000-00" required>
-            </div>
-
-            <div class="form-group">
-                <label>Telefone</label>
-                <input type="text" id="telefone" placeholder="(00) 00000-0000" required>
-            </div>
-
-            <div class="form-group">
-                <label>E-mail</label>
-                <input type="email" id="email" required>
-            </div>
-
-            <div class="form-group">
-                <label>Data de Cadastro</label>
-                <input type="text" id="dataCadastro" disabled>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                    <i data-lucide="check"></i>
-                    Cadastrar
+            <div class="header-actions">
+                <button class="btn" onclick="adicionarFornecedor()">
+                    ➕ Novo Fornecedor
                 </button>
+                <button class="btn btn-primary" onclick="exportarDados()">
+                    📥 Exportar
+                </button>
+            </div>
+        </div>
 
-                <a href="dashboard.html" class="btn btn-secondary">
-                    <i data-lucide="arrow-left"></i>
-                    Voltar
-                </a>
+        <!-- Tabs Navigation -->
+        <div class="tabs">
+            <button class="tab active" onclick="mudarPagina(1)">
+                Visão Geral
+            </button>
+            <button class="tab" onclick="mudarPagina(2)">
+                Performance e Avaliações
+            </button>
+            <button class="tab" onclick="mudarPagina(3)">
+                Cadastro Completo
+            </button>
+        </div>
+
+        <!-- PÁGINA 1: VISÃO GERAL -->
+        <div class="page-content active" id="page1">
+            <!-- Info Box -->
+            <div class="info-box">
+                <strong>Dashboard de Fornecedores:</strong> Gerencie fornecedores, acompanhe performance, avaliações e histórico de pedidos.
             </div>
 
-        </form>
-    </section>
+            <!-- KPI Cards -->
+            <div class="grid-4">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total de Fornecedores</div>
+                    <div class="kpi-value" id="kpi-total">-</div>
+                    <div class="kpi-subtitle">Cadastrados no sistema</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Fornecedores Ativos</div>
+                    <div class="kpi-value" id="kpi-ativos">-</div>
+                    <div class="kpi-subtitle">Em operação</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Avaliação Média</div>
+                    <div class="kpi-value" id="kpi-avaliacao">-</div>
+                    <div class="kpi-subtitle">De 5.0 estrelas</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Total de Pedidos</div>
+                    <div class="kpi-value" id="kpi-pedidos">-</div>
+                    <div class="kpi-subtitle">Nos últimos 6 meses</div>
+                </div>
+            </div>
 
-    <!-- Tabela -->
-    <section class="card">
-        <h2>
-            <i data-lucide="list"></i>
-            Fornecedores Cadastrados
-        </h2>
+            <!-- Filters -->
+            <div class="filters-section">
+                <div class="filters-title">🔍 Filtros</div>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Status</label>
+                        <select class="filter-select" id="filter-status-p1" onchange="aplicarFiltrosP1()">
+                            <option value="todos">Todos</option>
+                            <option value="Ativo">Ativos</option>
+                            <option value="Inativo">Inativos</option>
+                            <option value="Em Análise">Em Análise</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Categoria</label>
+                        <select class="filter-select" id="filter-categoria-p1" onchange="aplicarFiltrosP1()">
+                            <option value="todos">Todas</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Buscar Fornecedor</label>
+                        <input type="text" class="search-input" id="search-p1" placeholder="Nome ou CNPJ..." oninput="aplicarFiltrosP1()">
+                    </div>
+                </div>
+            </div>
 
-        <table class="styled-table">
-            <thead>
+            <!-- Charts -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Distribuição por Status</div>
+                        <div class="card-badge">Donut</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chart-status-p1"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Pedidos Mensais</div>
+                        <div class="card-badge">Linha</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chart-pedidos-p1"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Fornecedores -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Top 10 Fornecedores por Pedidos</div>
+                    <div class="card-badge" id="badge-top-p1">-</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chart-top-p1"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- PÁGINA 2: PERFORMANCE -->
+        <div class="page-content" id="page2">
+            <!-- Filters -->
+            <div class="filters-section">
+                <div class="filters-title">🔍 Filtros de Performance</div>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Avaliação Mínima</label>
+                        <select class="filter-select" id="filter-avaliacao-p2" onchange="aplicarFiltrosP2()">
+                            <option value="0">Todas</option>
+                            <option value="4.5">4.5+ estrelas</option>
+                            <option value="4.0">4.0+ estrelas</option>
+                            <option value="3.5">3.5+ estrelas</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Pontualidade Mínima</label>
+                        <select class="filter-select" id="filter-pontualidade-p2" onchange="aplicarFiltrosP2()">
+                            <option value="0">Todas</option>
+                            <option value="90">90%+</option>
+                            <option value="80">80%+</option>
+                            <option value="70">70%+</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Buscar</label>
+                        <input type="text" class="search-input" id="search-p2" placeholder="Nome..." oninput="aplicarFiltrosP2()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Distribuição de Avaliações</div>
+                        <div class="card-badge">Histograma</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chart-avaliacoes-p2"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Taxa de Pontualidade</div>
+                        <div class="card-badge">Dispersão</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chart-pontualidade-p2"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela Performance -->
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Fornecedor</th>
+                            <th>Avaliação</th>
+                            <th>Pontualidade</th>
+                            <th>Total Pedidos</th>
+                            <th>Prazo Médio</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-p2">
+                        <tr><td colspan="6" style="text-align: center; padding: 20px;">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PÁGINA 3: CADASTRO COMPLETO -->
+        <div class="page-content" id="page3">
+            <!-- Filters -->
+            <div class="filters-section">
+                <div class="filters-title">🔍 Busca Avançada</div>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Nome</label>
+                        <input type="text" class="search-input" id="search-nome-p3" placeholder="Nome..." oninput="aplicarFiltrosP3()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">CNPJ</label>
+                        <input type="text" class="search-input" id="search-cnpj-p3" placeholder="00.000.000/0001-00" oninput="aplicarFiltrosP3()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Cidade</label>
+                        <select class="filter-select" id="filter-cidade-p3" onchange="aplicarFiltrosP3()">
+                            <option value="todos">Todas</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Status</label>
+                        <select class="filter-select" id="filter-status-p3" onchange="aplicarFiltrosP3()">
+                            <option value="todos">Todos</option>
+                            <option value="Ativo">Ativo</option>
+                            <option value="Inativo">Inativo</option>
+                            <option value="Em Análise">Em Análise</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPIs Dinâmicos -->
+            <div class="grid-4">
+                <div class="kpi-card">
+                    <div class="kpi-label">Resultados</div>
+                    <div class="kpi-value" id="kpi-resultados-p3">-</div>
+                    <div class="kpi-subtitle">Fornecedores encontrados</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Avaliação Média</div>
+                    <div class="kpi-value" id="kpi-avg-aval-p3">-</div>
+                    <div class="kpi-subtitle">Dos resultados</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Pontualidade Média</div>
+                    <div class="kpi-value" id="kpi-avg-pont-p3">-</div>
+                    <div class="kpi-subtitle">Dos resultados</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Pedidos</div>
+                    <div class="kpi-value" id="kpi-ped-p3">-</div>
+                    <div class="kpi-subtitle">Somados</div>
+                </div>
+            </div>
+
+            <!-- Tabela Completa -->
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>CNPJ</th>
+                            <th>Categoria Principal</th>
+                            <th>Cidade/UF</th>
+                            <th>Telefone</th>
+                            <th>Email</th>
+                            <th>Avaliação</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-p3">
+                        <tr><td colspan="9" style="text-align: center; padding: 20px;">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="fornecedores_dashboard_data.json"></script>
+    <script>
+        // ========== DADOS ==========
+        let dadosOriginais = [];
+        let dadosFiltradosP1 = [];
+        let dadosFiltradosP2 = [];
+        let dadosFiltradosP3 = [];
+        let charts = {};
+
+        // ========== CARREGAR DADOS ==========
+        async function carregarDados() {
+            try {
+                const response = await fetch('fornecedores_dashboard_data.json');
+                const dados = await response.json();
+                dadosOriginais = dados.fornecedores;
+            } catch (error) {
+                console.log('Usando dados de fallback');
+                dadosOriginais = gerarDadosFallback();
+            }
+
+            dadosFiltradosP1 = [...dadosOriginais];
+            dadosFiltradosP2 = [...dadosOriginais];
+            dadosFiltradosP3 = [...dadosOriginais];
+
+            popularFiltros();
+            atualizarPagina1();
+            atualizarPagina2();
+            atualizarPagina3();
+        }
+
+        function gerarDadosFallback() {
+            return [
+                {id: 'FORN-001', nome: 'MedSupply Distribuidora', cnpj: '12.345.678/0001-90', status: 'Ativo', categoria_principal: 'Medicamentos Gerais', categorias_fornecimento: ['Medicamentos Gerais', 'Material Hospitalar'], num_produtos: 2, total_pedidos: 76, prazo_entrega_medio: 7, avaliacao: 4.5, taxa_pontualidade: 85.5, ultima_compra: '15/01/2025', anos_parceria: 5, telefone: '(11) 98765-4321', email: 'contato@medsupply.com', cidade: 'São Paulo', estado: 'SP'}
+            ];
+        }
+
+        // ========== POPULAR FILTROS ==========
+        function popularFiltros() {
+            const categorias = [...new Set(dadosOriginais.flatMap(f => f.categorias_fornecimento))].sort();
+            const cidades = [...new Set(dadosOriginais.map(f => f.cidade))].sort();
+
+            popularSelect('filter-categoria-p1', categorias);
+            popularSelect('filter-cidade-p3', cidades);
+        }
+
+        function popularSelect(id, opcoes) {
+            const select = document.getElementById(id);
+            if (!select) return;
+            
+            opcoes.forEach(opcao => {
+                const option = document.createElement('option');
+                option.value = opcao;
+                option.textContent = opcao;
+                select.appendChild(option);
+            });
+        }
+
+        // ========== MUDAR PÁGINA ==========
+        function mudarPagina(num) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(`page${num}`).classList.add('active');
+            document.querySelectorAll('.tab')[num-1].classList.add('active');
+        }
+
+        // ========== PÁGINA 1 ==========
+        function aplicarFiltrosP1() {
+            const status = document.getElementById('filter-status-p1').value;
+            const categoria = document.getElementById('filter-categoria-p1').value;
+            const busca = document.getElementById('search-p1').value.toLowerCase();
+
+            dadosFiltradosP1 = dadosOriginais.filter(f => {
+                const matchStatus = status === 'todos' || f.status === status;
+                const matchCategoria = categoria === 'todos' || f.categorias_fornecimento.includes(categoria);
+                const matchBusca = f.nome.toLowerCase().includes(busca) || f.cnpj.includes(busca);
+                return matchStatus && matchCategoria && matchBusca;
+            });
+
+            atualizarPagina1();
+        }
+
+        function atualizarPagina1() {
+            // KPIs
+            const totalPedidos = dadosFiltradosP1.reduce((acc, f) => acc + f.total_pedidos, 0);
+            const avaliacaoMedia = (dadosFiltradosP1.reduce((acc, f) => acc + f.avaliacao, 0) / dadosFiltradosP1.length).toFixed(1);
+            const ativos = dadosFiltradosP1.filter(f => f.status === 'Ativo').length;
+
+            document.getElementById('kpi-total').textContent = dadosFiltradosP1.length;
+            document.getElementById('kpi-ativos').textContent = ativos;
+            document.getElementById('kpi-avaliacao').textContent = avaliacaoMedia;
+            document.getElementById('kpi-pedidos').textContent = totalPedidos;
+
+            // Gráfico Status
+            const statusCont = {};
+            dadosFiltradosP1.forEach(f => {
+                statusCont[f.status] = (statusCont[f.status] || 0) + 1;
+            });
+
+            if (charts.statusP1) charts.statusP1.destroy();
+            charts.statusP1 = new Chart(document.getElementById('chart-status-p1'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusCont),
+                    datasets: [{
+                        data: Object.values(statusCont),
+                        backgroundColor: ['#4a7c59', '#a84032', '#b8860b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#5a5a5a', font: { size: 11 } } }
+                    }
+                }
+            });
+
+            // Gráfico Pedidos (dados simulados)
+            const meses = ['Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set'];
+            const pedidosMensais = [65, 72, 78, 85, 92, 98];
+
+            if (charts.pedidosP1) charts.pedidosP1.destroy();
+            charts.pedidosP1 = new Chart(document.getElementById('chart-pedidos-p1'), {
+                type: 'line',
+                data: {
+                    labels: meses,
+                    datasets: [{
+                        data: pedidosMensais,
+                        borderColor: '#404040',
+                        backgroundColor: 'rgba(64, 64, 64, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: '#ececec' }, ticks: { color: '#8a8a8a', font: { size: 10 } } },
+                        x: { grid: { display: false }, ticks: { color: '#5a5a5a', font: { size: 11 } } }
+                    }
+                }
+            });
+
+            // Top 10
+            const top10 = [...dadosFiltradosP1].sort((a, b) => b.total_pedidos - a.total_pedidos).slice(0, 10);
+
+            if (charts.topP1) charts.topP1.destroy();
+            charts.topP1 = new Chart(document.getElementById('chart-top-p1'), {
+                type: 'bar',
+                data: {
+                    labels: top10.map(f => f.nome),
+                    datasets: [{
+                        data: top10.map(f => f.total_pedidos),
+                        backgroundColor: '#404040',
+                        borderRadius: 2
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#ececec' }, ticks: { color: '#8a8a8a', font: { size: 10 } } },
+                        y: { grid: { display: false }, ticks: { color: '#5a5a5a', font: { size: 10 } } }
+                    }
+                }
+            });
+
+            document.getElementById('badge-top-p1').textContent = `${top10.length} fornecedores`;
+        }
+
+        // ========== PÁGINA 2 ==========
+        function aplicarFiltrosP2() {
+            const avalMin = parseFloat(document.getElementById('filter-avaliacao-p2').value);
+            const pontMin = parseFloat(document.getElementById('filter-pontualidade-p2').value);
+            const busca = document.getElementById('search-p2').value.toLowerCase();
+
+            dadosFiltradosP2 = dadosOriginais.filter(f => {
+                const matchAval = f.avaliacao >= avalMin;
+                const matchPont = f.taxa_pontualidade >= pontMin;
+                const matchBusca = f.nome.toLowerCase().includes(busca);
+                return matchAval && matchPont && matchBusca;
+            });
+
+            atualizarPagina2();
+        }
+
+        function atualizarPagina2() {
+            // Gráfico Avaliações
+            const avaliacoes = [0, 0, 0, 0, 0, 0];
+            dadosFiltradosP2.forEach(f => {
+                const idx = Math.floor(f.avaliacao) - 1;
+                if (idx >= 0 && idx < 6) avaliacoes[idx]++;
+            });
+
+            if (charts.avalP2) charts.avalP2.destroy();
+            charts.avalP2 = new Chart(document.getElementById('chart-avaliacoes-p2'), {
+                type: 'bar',
+                data: {
+                    labels: ['1.0-1.9', '2.0-2.9', '3.0-3.9', '4.0-4.9', '5.0'],
+                    datasets: [{
+                        data: avaliacoes,
+                        backgroundColor: '#4a7c59',
+                        borderRadius: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: '#ececec' }, ticks: { color: '#8a8a8a', font: { size: 10 } } },
+                        x: { grid: { display: false }, ticks: { color: '#5a5a5a', font: { size: 11 } } }
+                    }
+                }
+            });
+
+            // Gráfico Pontualidade
+            const datasets = [{
+                label: 'Fornecedores',
+                data: dadosFiltradosP2.map(f => ({x: f.avaliacao, y: f.taxa_pontualidade})),
+                backgroundColor: '#4a6b7c'
+            }];
+
+            if (charts.pontP2) charts.pontP2.destroy();
+            charts.pontP2 = new Chart(document.getElementById('chart-pontualidade-p2'), {
+                type: 'scatter',
+                data: { datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: 'Avaliação', color: '#5a5a5a' }, grid: { color: '#ececec' }, ticks: { color: '#8a8a8a' } },
+                        y: { title: { display: true, text: 'Pontualidade (%)', color: '#5a5a5a' }, grid: { color: '#ececec' }, ticks: { color: '#8a8a8a' } }
+                    }
+                }
+            });
+
+            // Tabela
+            const tbody = document.getElementById('table-p2');
+            tbody.innerHTML = dadosFiltradosP2.map(f => `
                 <tr>
-                    <th>Fornecedor</th>
-                    <th>CNPJ</th>
-                    <th>Telefone</th>
-                    <th>E-mail</th>
-                    <th>Data</th>
-                    <th>Ações</th>
+                    <td><strong>${f.nome}</strong></td>
+                    <td><span class="rating">${f.avaliacao} ⭐</span></td>
+                    <td>${f.taxa_pontualidade.toFixed(1)}%</td>
+                    <td>${f.total_pedidos}</td>
+                    <td>${f.prazo_entrega_medio} dias</td>
+                    <td><span class="status-badge status-${f.status.toLowerCase().replace(' ', '')}">${f.status}</span></td>
                 </tr>
-            </thead>
-            <tbody id="tabelaFornecedores"></tbody>
-        </table>
-    </section>
+            `).join('');
+        }
 
-</div>
+        // ========== PÁGINA 3 ==========
+        function aplicarFiltrosP3() {
+            const nome = document.getElementById('search-nome-p3').value.toLowerCase();
+            const cnpj = document.getElementById('search-cnpj-p3').value;
+            const cidade = document.getElementById('filter-cidade-p3').value;
+            const status = document.getElementById('filter-status-p3').value;
 
-<script src="../Javascript/fornecedores.js"></script>
-<script>
-    lucide.createIcons();
-</script>
+            dadosFiltradosP3 = dadosOriginais.filter(f => {
+                const matchNome = f.nome.toLowerCase().includes(nome);
+                const matchCNPJ = f.cnpj.includes(cnpj);
+                const matchCidade = cidade === 'todos' || f.cidade === cidade;
+                const matchStatus = status === 'todos' || f.status === status;
+                return matchNome && matchCNPJ && matchCidade && matchStatus;
+            });
 
+            atualizarPagina3();
+        }
+
+        function atualizarPagina3() {
+            // KPIs
+            const avalMedia = (dadosFiltradosP3.reduce((acc, f) => acc + f.avaliacao, 0) / dadosFiltradosP3.length || 0).toFixed(1);
+            const pontMedia = (dadosFiltradosP3.reduce((acc, f) => acc + f.taxa_pontualidade, 0) / dadosFiltradosP3.length || 0).toFixed(1);
+            const totalPed = dadosFiltradosP3.reduce((acc, f) => acc + f.total_pedidos, 0);
+
+            document.getElementById('kpi-resultados-p3').textContent = dadosFiltradosP3.length;
+            document.getElementById('kpi-avg-aval-p3').textContent = avalMedia;
+            document.getElementById('kpi-avg-pont-p3').textContent = pontMedia + '%';
+            document.getElementById('kpi-ped-p3').textContent = totalPed;
+
+            // Tabela
+            const tbody = document.getElementById('table-p3');
+            tbody.innerHTML = dadosFiltradosP3.map(f => `
+                <tr>
+                    <td><span class="status-badge">${f.id}</span></td>
+                    <td><strong>${f.nome}</strong></td>
+                    <td>${f.cnpj}</td>
+                    <td>${f.categoria_principal}</td>
+                    <td>${f.cidade}/${f.estado}</td>
+                    <td>${f.telefone}</td>
+                    <td>${f.email}</td>
+                    <td><span class="rating">${f.avaliacao} ⭐</span></td>
+                    <td><span class="status-badge status-${f.status.toLowerCase().replace(' ', '')}">${f.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // ========== FUNÇÕES AUXILIARES ==========
+        function adicionarFornecedor() {
+            alert('Funcionalidade de adicionar fornecedor será implementada.');
+        }
+
+        function exportarDados() {
+            const csv = [
+                ['ID', 'Nome', 'CNPJ', 'Status', 'Avaliação', 'Pontualidade', 'Total Pedidos', 'Telefone', 'Email'],
+                ...dadosOriginais.map(f => [f.id, f.nome, f.cnpj, f.status, f.avaliacao, f.taxa_pontualidade, f.total_pedidos, f.telefone, f.email])
+            ].map(row => row.join(',')).join('\n');
+
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `fornecedores_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ========== INICIALIZAR ==========
+        Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
+        Chart.defaults.color = '#8a8a8a';
+        carregarDados();
+    </script>
 </body>
 </html>

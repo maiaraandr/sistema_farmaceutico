@@ -1,11 +1,17 @@
 from django.contrib import admin
-from django.urls import path
-from django.http import HttpResponse
-
-def home(request):
-    return HttpResponse("Sistema Farmacêutico rodando")
+from django.urls import path, include
 
 urlpatterns = [
-    path('', home),
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
+    path("api/", include("farmacia.urls")),
+]
+
+from django.contrib import admin
+from django.urls import path, include
+from django.views.generic import RedirectView
+
+urlpatterns = [
+    path("", RedirectView.as_view(url="/admin/", permanent=False)),
+    path("admin/", admin.site.urls),
+    path("api/", include("farmacia.urls")),
 ]
