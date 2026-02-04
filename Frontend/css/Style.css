@@ -39,6 +39,19 @@
     --gray-700: #374151;
     --gray-800: #1F2937;
     --gray-900: #111827;
+
+    /* Tons auxiliares do primário (usado em badges/inputs/botões) */
+    --primary-50: rgba(0, 102, 255, 0.06);
+    --primary-100: rgba(0, 102, 255, 0.10);
+
+    /* Pesos de fonte (alguns CSS teus usam essas vars) */
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+
+    /* Sombras extras (alguns CSS teus usam shadow-2xl) */
+    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
     
     /* Tipografia */
     --font-primary: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;

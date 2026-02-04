@@ -1,3 +1,4 @@
+<!-- recuperar_senha.html (ajustado: nome do arquivo + links internos) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -77,14 +78,10 @@
     <!-- JavaScript -->
     <script src="../Javascript/Storage.js"></script>
     <script>
-        // Inicializar ícones
         lucide.createIcons();
-
-        // Focar no campo email
         document.getElementById('email').focus();
 
-        // Formulário de recuperação
-        document.getElementById('recoveryForm').addEventListener('submit', async (e) => {
+        document.getElementById('recoveryForm').addEventListener('submit', (e) => {
             e.preventDefault();
             
             const email = document.getElementById('email').value.trim();
@@ -92,82 +89,62 @@
             const errorDiv = document.getElementById('recoveryError');
             const successDiv = document.getElementById('recoverySuccess');
             
-            // Esconder mensagens
             errorDiv.classList.add('hidden');
             successDiv.classList.add('hidden');
             
-            // Validar e-mail
             if (!validarEmail(email)) {
                 errorDiv.textContent = 'Por favor, digite um e-mail válido';
                 errorDiv.classList.remove('hidden');
                 return;
             }
             
-            // Verificar se e-mail existe
             const users = getUsers();
-            const usuario = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+            const usuario = users.find(u => (u.email || '').toLowerCase() === email.toLowerCase());
             
-            if (!usuario) {
-                // Por segurança, não informar se o e-mail existe ou não
-                // Mas vamos simular o envio mesmo assim
-                console.log('E-mail não encontrado, mas não vamos informar ao usuário');
-            }
-            
-            // Mostrar loading
             btn.disabled = true;
             btn.textContent = 'Enviando...';
             
-            // Simular envio de e-mail (delay de 2 segundos)
             setTimeout(() => {
-                // Salvar token de recuperação (simulado)
                 if (usuario) {
                     const token = gerarToken();
                     const recuperacao = {
                         email: email,
                         token: token,
-                        dataExpiracao: new Date(Date.now() + 3600000).toISOString(), // 1 hora
+                        dataExpiracao: new Date(Date.now() + 3600000).toISOString(),
                         usado: false
                     };
                     
-                    // Salvar no localStorage (em produção seria enviado por e-mail)
                     localStorage.setItem('recovery_token_' + email, JSON.stringify(recuperacao));
                     
-                    // Gerar link de recuperação
-                    const link = window.location.origin + window.location.pathname.replace('forgot-password.html', 'reset-password.html') + 
-                                '?token=' + token + '&email=' + encodeURIComponent(email);
-                    
-                    // Salvar link globalmente
+                    // AJUSTE: arquivo atual é recuperar_senha.html
+                    // Se você tiver o reset, troque "reset_password.html" pelo seu nome real também.
+                    const link = window.location.origin +
+                        window.location.pathname.replace('recuperar_senha.html', 'reset_password.html') +
+                        '?token=' + token + '&email=' + encodeURIComponent(email);
+
                     window.recoveryLink = link;
                     
-                    console.log('🔐 Token de recuperação gerado:', token);
-                    console.log('📧 E-mail seria enviado para:', email);
-                    console.log('🔗 Link de recuperação:', link);
-                    
-                    // Mostrar link na tela
                     document.getElementById('linkText').textContent = link;
                     document.getElementById('recoveryLink').classList.remove('hidden');
                     document.getElementById('recoveryForm').style.display = 'none';
                     
                     lucide.createIcons();
                 } else {
-                    // Mesmo sem usuário, mostrar mensagem genérica
                     successDiv.textContent = 'Se o e-mail estiver cadastrado, você receberá as instruções em alguns minutos.';
                     successDiv.classList.remove('hidden');
                     
                     btn.disabled = false;
                     btn.textContent = 'Enviar Instruções';
                 }
-                
             }, 2000);
         });
 
-        // Função para copiar link
         function copiarLink() {
             const linkText = document.getElementById('linkText').textContent;
+
             navigator.clipboard.writeText(linkText).then(() => {
                 alert('✅ Link copiado! Cole no navegador para redefinir sua senha.');
             }).catch(() => {
-                // Fallback se clipboard API não funcionar
                 const textarea = document.createElement('textarea');
                 textarea.value = linkText;
                 document.body.appendChild(textarea);
@@ -178,23 +155,18 @@
             });
         }
 
-        // Função para abrir link direto
         function abrirLink() {
-            if (window.recoveryLink) {
-                window.location.href = window.recoveryLink;
-            }
+            if (window.recoveryLink) window.location.href = window.recoveryLink;
         }
 
-        // Validar formato de e-mail
         function validarEmail(email) {
             const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return regex.test(email);
         }
 
-        // Gerar token aleatório
         function gerarToken() {
-            return Math.random().toString(36).substring(2) + 
-                   Date.now().toString(36) + 
+            return Math.random().toString(36).substring(2) +
+                   Date.now().toString(36) +
                    Math.random().toString(36).substring(2);
         }
     </script>

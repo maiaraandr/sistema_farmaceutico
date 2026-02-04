@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saída de Medicamentos | FarmaSys</title>
+    <title>Relatórios | FarmaSys</title>
 
     <!-- CSS base do sistema -->
     <link rel="stylesheet" href="../CSS/Style.css">
@@ -13,7 +13,7 @@
 
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Ajustes locais (tom azul do auth) -->
+    <!-- Ajustes locais (mesmo tom azul do auth) -->
     <style>
         :root{
             --brand: #2563eb;
@@ -71,31 +71,21 @@
             flex-wrap:wrap;
             align-items:center;
         }
+
+        .btn-primary{
+            background: var(--brand);
+            border-color: var(--brand);
+        }
+        .btn-primary:hover{
+            background: var(--brand-600);
+            border-color: var(--brand-600);
+        }
+
         .table-actions{
             display:flex;
             gap:10px;
             align-items:center;
             flex-wrap:wrap;
-        }
-
-        .btn-danger{
-            background: #ef4444;
-            border-color: #ef4444;
-            color: #fff;
-        }
-        .btn-danger:hover{
-            background: #dc2626;
-            border-color: #dc2626;
-        }
-
-        .btn-primary{
-            background: var(--brand);
-            border-color: var(--brand);
-            color:#fff;
-        }
-        .btn-primary:hover{
-            background: var(--brand-600);
-            border-color: var(--brand-600);
         }
 
         .badge-pill{
@@ -109,19 +99,8 @@
             border: 1px solid var(--gray-200);
             background: var(--gray-50);
         }
+        .badge-in{ background: rgba(34,197,94,.12); color:#16a34a; border-color: rgba(34,197,94,.25); }
         .badge-out{ background: rgba(239,68,68,.12); color:#dc2626; border-color: rgba(239,68,68,.25); }
-
-        .form-grid-2{
-            display:grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 12px;
-        }
-
-        .helper{
-            font-size: 12px;
-            color: var(--gray-600);
-            margin-top: 6px;
-        }
     </style>
 </head>
 <body>
@@ -155,13 +134,13 @@
                 <i data-lucide="package-plus"></i>
                 <span>Entrada</span>
             </a>
-
-            <a href="saida.html" class="nav-item active">
+            <a href="saida.html" class="nav-item">
                 <i data-lucide="package-minus"></i>
                 <span>Saída</span>
             </a>
 
-            <a href="relatorio.html" class="nav-item">
+            <!-- ATENÇÃO: seu arquivo atual chama relatorio.html (singular) -->
+            <a href="relatorio.html" class="nav-item active">
                 <i data-lucide="file-text"></i>
                 <span>Relatórios</span>
             </a>
@@ -181,10 +160,10 @@
         <header class="content-header">
             <div class="header-left">
                 <h1 class="page-title">
-                    <i data-lucide="package-minus"></i>
-                    Saída de Medicamentos
+                    <i data-lucide="file-text"></i>
+                    Relatórios
                 </h1>
-                <p class="page-subtitle">Registro de saída do estoque</p>
+                <p class="page-subtitle">Resumo consolidado de entradas e saídas</p>
             </div>
 
             <div class="header-right">
@@ -194,85 +173,34 @@
             </div>
         </header>
 
-        <!-- KPIs (opcional, mantém consistente com as outras telas) -->
+        <!-- KPIs -->
         <div class="kpi-mini-grid">
+            <div class="kpi-mini">
+                <div class="kpi-icon"><i data-lucide="package-plus"></i></div>
+                <div>
+                    <div class="kpi-label">Total de Entradas</div>
+                    <div class="kpi-value" id="totalEntradas">0</div>
+                </div>
+            </div>
+
             <div class="kpi-mini">
                 <div class="kpi-icon"><i data-lucide="package-minus"></i></div>
                 <div>
                     <div class="kpi-label">Total de Saídas</div>
-                    <div class="kpi-value" id="kpiSaidas">0</div>
+                    <div class="kpi-value" id="totalSaidas">0</div>
                 </div>
             </div>
 
             <div class="kpi-mini">
-                <div class="kpi-icon"><i data-lucide="calendar"></i></div>
+                <div class="kpi-icon"><i data-lucide="layers"></i></div>
                 <div>
-                    <div class="kpi-label">Hoje</div>
-                    <div class="kpi-value" id="kpiHoje">—</div>
-                </div>
-            </div>
-
-            <div class="kpi-mini">
-                <div class="kpi-icon"><i data-lucide="activity"></i></div>
-                <div>
-                    <div class="kpi-label">Último Registro</div>
-                    <div class="kpi-value" id="kpiUltimo">—</div>
+                    <div class="kpi-label">Saldo Atual</div>
+                    <div class="kpi-value" id="saldo">0</div>
                 </div>
             </div>
         </div>
 
-        <!-- Formulário -->
-        <section class="content-section">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title" style="display:flex;align-items:center;gap:10px;margin:0;">
-                        <i data-lucide="clipboard-edit"></i>
-                        Registrar Saída
-                    </h3>
-                </div>
-
-                <div class="card-body">
-                    <form id="formSaida">
-                        <div class="form-grid-2">
-                            <div class="form-group">
-                                <label>Medicamento</label>
-                                <input type="text" id="medicamento" class="form-input" placeholder="Nome do medicamento" required>
-                                <div class="helper">Dica: use o mesmo nome cadastrado em “Medicamentos”.</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Quantidade</label>
-                                <input type="number" id="quantidade" class="form-input" min="1" placeholder="Quantidade retirada" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Destino / Motivo</label>
-                                <input type="text" id="destino" class="form-input" placeholder="Uso interno, setor, descarte..." required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Data da Saída</label>
-                                <input type="text" id="dataSaida" class="form-input" disabled>
-                            </div>
-                        </div>
-
-                        <div class="form-actions" style="margin-top: 12px;">
-                            <button type="submit" class="btn btn-danger">
-                                <i data-lucide="check"></i>
-                                Registrar Saída
-                            </button>
-
-                            <a href="dashboard.html" class="btn btn-outline">
-                                <i data-lucide="arrow-left"></i>
-                                Voltar
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tabela -->
+        <!-- Tabela / Filtros -->
         <section class="content-section">
             <div class="card">
                 <div class="card-header">
@@ -280,25 +208,31 @@
                         <div class="filters-left">
                             <h3 class="card-title" style="display:flex;align-items:center;gap:10px;margin:0;">
                                 <i data-lucide="list"></i>
-                                Histórico de Saídas
+                                Histórico Consolidado
                             </h3>
 
-                            <span class="badge-pill badge-out" id="badgeSaidas">
+                            <span class="badge-pill" id="badgeTotalLinhas">
                                 <i data-lucide="hash" style="width:14px;height:14px;"></i>
-                                <span id="totalLinhasSaida">0</span> registros
+                                <span id="totalLinhas">0</span> registros
                             </span>
                         </div>
 
                         <div class="table-actions">
-                            <div class="search-box" style="max-width:340px;">
+                            <div class="search-box" style="max-width:360px;">
                                 <i data-lucide="search"></i>
-                                <input type="text" id="searchSaida" placeholder="Buscar por medicamento ou destino...">
+                                <input type="text" id="searchRelatorio" placeholder="Buscar por medicamento, fornecedor ou destino...">
                             </div>
 
-                            <button type="button" class="btn btn-primary" id="btnExportarSaida">
-                                <i data-lucide="download"></i>
-                                Exportar
-                            </button>
+                            <select id="filterTipo" class="filter-select" style="min-width: 180px;">
+                                <option value="">Todos os tipos</option>
+                                <option value="entrada">Entradas</option>
+                                <option value="saida">Saídas</option>
+                            </select>
+
+                            <a href="dashboard.html" class="btn btn-outline btn-sm">
+                                <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
+                                Voltar
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -308,18 +242,18 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
+                                    <th>Tipo</th>
                                     <th>Medicamento</th>
                                     <th>Quantidade</th>
-                                    <th>Destino</th>
-                                    <th>Data da Saída</th>
-                                    <th>Ações</th>
+                                    <th>Fornecedor / Destino</th>
+                                    <th>Data</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabelaSaida"></tbody>
+                            <tbody id="tabelaRelatorios"></tbody>
                         </table>
                     </div>
 
-                    <div class="pagination" id="paginationSaida"></div>
+                    <div class="pagination" id="paginationRelatorios"></div>
                 </div>
             </div>
         </section>
@@ -327,10 +261,12 @@
 </div>
 
 <script src="../Javascript/Storage.js"></script>
-<script src="../Javascript/autenticacao.js"></script> <!-- se protege a página -->
-<script src="../Javascript/saida.js"></script>
+<script src="../Javascript/relatorios.js"></script>
+
 <script>
   lucide.createIcons();
 </script>
+
+
 </body>
 </html>

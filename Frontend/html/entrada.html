@@ -2,95 +2,321 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entrada de Medicamentos | FarmaSys</title>
+
+    <!-- CSS base do sistema -->
     <link rel="stylesheet" href="../CSS/Style.css">
     <link rel="stylesheet" href="../CSS/Components.css">
+    <link rel="stylesheet" href="../CSS/dashboard.css">
+    <link rel="stylesheet" href="../CSS/Table_styles.css">
+
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Ajustes visuais locais (tom azul semelhante ao login/cadastro) -->
+    <style>
+        :root{
+            --brand: #2563eb;        /* azul */
+            --brand-600: #1d4ed8;
+            --brand-100: rgba(37, 99, 235, 0.12);
+        }
+
+        .page-title i{ color: var(--brand); }
+        .btn-primary{
+            background: var(--brand);
+            border-color: var(--brand);
+        }
+        .btn-primary:hover{
+            background: var(--brand-600);
+            border-color: var(--brand-600);
+        }
+
+        .subnav-actions{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+        }
+
+        .kpi-mini-grid{
+            display:grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .kpi-mini{
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 14px;
+            display:flex;
+            gap: 12px;
+            align-items:center;
+        }
+        .kpi-mini .kpi-icon{
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--brand-100);
+            color: var(--brand);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+        .kpi-mini .kpi-label{
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+        .kpi-mini .kpi-value{
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--gray-900);
+        }
+
+        .form-grid-entrada{
+            display:grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 14px;
+        }
+        .col-12{ grid-column: span 12; }
+        .col-6{ grid-column: span 6; }
+        .col-4{ grid-column: span 4; }
+        .col-3{ grid-column: span 3; }
+
+        @media (max-width: 900px){
+            .col-6,.col-4,.col-3{ grid-column: span 12; }
+        }
+
+        .hint{
+            font-size: 12px;
+            color: var(--gray-600);
+            margin-top: 6px;
+        }
+
+        .readonly{
+            background: var(--gray-50);
+            border-color: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .table-actions{
+            display:flex;
+            gap:8px;
+            align-items:center;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i data-lucide="pill"></i>
+                </div>
+                <span>FarmaSys</span>
+            </div>
+        </div>
 
-    <!-- Cabeçalho -->
-    <header class="page-header">
-        <h1>
-            <i data-lucide="package-plus"></i>
-            Entrada de Medicamentos
-        </h1>
-        <p>Registro de entrada de medicamentos no estoque</p>
-    </header>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="medicamentos.html" class="nav-item">
+                <i data-lucide="package"></i>
+                <span>Medicamentos</span>
+            </a>
+            <a href="fornecedores.html" class="nav-item">
+                <i data-lucide="truck"></i>
+                <span>Fornecedores</span>
+            </a>
+            <a href="entrada.html" class="nav-item active">
+                <i data-lucide="package-plus"></i>
+                <span>Entrada</span>
+            </a>
+            <a href="saida.html" class="nav-item">
+                <i data-lucide="package-minus"></i>
+                <span>Saída</span>
+            </a>
+            <a href="relatorios.html" class="nav-item">
+                <i data-lucide="file-text"></i>
+                <span>Relatórios</span>
+            </a>
+        </nav>
 
-    <!-- Formulário -->
-    <section class="card">
-        <form id="formEntrada" class="form-grid">
+        <div class="sidebar-footer">
+            <button class="nav-item" id="logoutBtn">
+                <i data-lucide="log-out"></i>
+                <span>Sair</span>
+            </button>
+        </div>
+    </aside>
 
-            <div class="form-group">
-                <label>Medicamento</label>
-                <input type="text" id="medicamento" required>
+    <!-- Main -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="content-header">
+            <div class="header-left">
+                <h1 class="page-title">
+                    <i data-lucide="package-plus"></i>
+                    Entrada de Medicamentos
+                </h1>
+                <p class="page-subtitle">Registre entradas no estoque com rastreabilidade</p>
             </div>
 
-            <div class="form-group">
-                <label>Quantidade</label>
-                <input type="number" id="quantidade" required>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="user-name" id="userName">Carregando...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- KPIs pequenos -->
+        <div class="kpi-mini-grid">
+            <div class="kpi-mini">
+                <div class="kpi-icon"><i data-lucide="calendar"></i></div>
+                <div>
+                    <div class="kpi-label">Data de hoje</div>
+                    <div class="kpi-value" id="kpiHoje">--/--/----</div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Fornecedor</label>
-                <input type="text" id="fornecedor" required>
+            <div class="kpi-mini">
+                <div class="kpi-icon"><i data-lucide="list-plus"></i></div>
+                <div>
+                    <div class="kpi-label">Entradas registradas</div>
+                    <div class="kpi-value" id="kpiTotalEntradas">0</div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Data de Validade</label>
-                <input type="date" id="validade" required>
+            <div class="kpi-mini">
+                <div class="kpi-icon"><i data-lucide="package"></i></div>
+                <div>
+                    <div class="kpi-label">Itens recebidos (somatório)</div>
+                    <div class="kpi-value" id="kpiTotalItens">0</div>
+                </div>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label>Data de Entrada</label>
-                <input type="text" id="dataEntrada" disabled>
+        <!-- Form -->
+        <section class="content-section">
+            <div class="card">
+                <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                    <h3 class="card-title" style="display:flex;align-items:center;gap:10px;margin:0;">
+                        <i data-lucide="clipboard-pen"></i>
+                        Registrar entrada
+                    </h3>
+
+                    <div class="subnav-actions">
+                        <a href="dashboard.html" class="btn btn-outline btn-sm">
+                            <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
+                            Voltar ao Dashboard
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <form id="formEntrada" class="form-grid-entrada">
+                        <div class="form-group col-6">
+                            <label for="medicamento" class="required">Medicamento</label>
+                            <input type="text" id="medicamento" class="form-input" placeholder="Ex.: Dipirona 500mg" required>
+                            <div class="hint">Informe o nome exatamente como cadastrado (ou conforme seu padrão).</div>
+                        </div>
+
+                        <div class="form-group col-3">
+                            <label for="quantidade" class="required">Quantidade</label>
+                            <input type="number" id="quantidade" class="form-input" min="1" placeholder="0" required>
+                        </div>
+
+                        <div class="form-group col-3">
+                            <label for="validade" class="required">Validade</label>
+                            <input type="date" id="validade" class="form-input" required>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label for="fornecedor" class="required">Fornecedor</label>
+                            <input type="text" id="fornecedor" class="form-input" placeholder="Ex.: MedSupply Distribuidora" required>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label for="dataEntrada">Data de Entrada</label>
+                            <input type="text" id="dataEntrada" class="form-input readonly" readonly>
+                            <div class="hint">Preenchido automaticamente no registro.</div>
+                        </div>
+
+                        <div class="form-group col-12" style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;">
+                            <button type="reset" class="btn btn-secondary">
+                                <i data-lucide="rotate-ccw"></i>
+                                Limpar
+                            </button>
+
+                            <button type="submit" class="btn btn-primary btn-primary">
+                                <i data-lucide="check"></i>
+                                Registrar Entrada
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
+        </section>
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-success">
-                    <i data-lucide="check"></i>
-                    Registrar Entrada
-                </button>
+        <!-- Tabela -->
+        <section class="content-section">
+            <div class="card">
+                <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                    <h3 class="card-title" style="display:flex;align-items:center;gap:10px;margin:0;">
+                        <i data-lucide="list"></i>
+                        Histórico de Entradas
+                    </h3>
 
-                <a href="dashboard.html" class="btn btn-secondary">
-                    <i data-lucide="arrow-left"></i>
-                    Voltar
-                </a>
+                    <div class="table-actions">
+                        <div class="search-box" style="max-width:360px;">
+                            <i data-lucide="search"></i>
+                            <input type="text" id="searchEntrada" placeholder="Buscar por medicamento ou fornecedor...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Medicamento</th>
+                                    <th>Quantidade</th>
+                                    <th>Fornecedor</th>
+                                    <th>Validade</th>
+                                    <th>Data de Entrada</th>
+                                    <th style="width: 120px;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaEntrada"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination" id="paginationEntrada"></div>
+                </div>
             </div>
-
-        </form>
-    </section>
-
-    <!-- Tabela -->
-    <section class="card">
-        <h2>
-            <i data-lucide="list"></i>
-            Histórico de Entradas
-        </h2>
-
-        <table class="styled-table">
-            <thead>
-                <tr>
-                    <th>Medicamento</th>
-                    <th>Quantidade</th>
-                    <th>Fornecedor</th>
-                    <th>Validade</th>
-                    <th>Data de Entrada</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody id="tabelaEntrada"></tbody>
-        </table>
-    </section>
-
+        </section>
+    </main>
 </div>
 
-<script src="../Javascript/entrada.js"></script>
-<script>
-    lucide.createIcons();
+    <script src="../Javascript/Storage.js"></script>
+    <script src="../Javascript/autenticacao.js"></script> <!-- se você protege a página -->
+    <script src="../Javascript/entrada.js"></script>
+    <script>
+         lucide.createIcons();
+    </script>
+
+    // KPI data de hoje
+    (function(){
+        const d = new Date();
+        const hoje = d.toLocaleDateString('pt-BR');
+        const el = document.getElementById('kpiHoje');
+        if (el) el.textContent = hoje;
+    })();
 </script>
 
 </body>
