@@ -7,6 +7,20 @@ const STORAGE_KEYS = {
   SESSION_TOKEN: "farm_session_token",
 };
 
+const DISABLE_SAMPLE_DATA = true;
+
+function safeJSONParse(str, fallback) {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return fallback;
+  }
+}
+
+function makeId() {
+  return Date.now() + Math.floor(Math.random() * 1000);
+}
+
 function saveToStorage(key, data) {
   try {
     localStorage.setItem(key, JSON.stringify(data));
@@ -19,8 +33,8 @@ function saveToStorage(key, data) {
 
 function loadFromStorage(key, defaultValue = null) {
   try {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : defaultValue;
+    const raw = localStorage.getItem(key);
+    return raw ? safeJSONParse(raw, defaultValue) : defaultValue;
   } catch (error) {
     console.error("Erro ao carregar do localStorage:", error);
     return defaultValue;
@@ -37,13 +51,16 @@ function removeFromStorage(key) {
   }
 }
 
-function clearStorage() {
+function clearStorage({ keepUsers = true } = {}) {
   try {
-    Object.values(STORAGE_KEYS).forEach((key) => {
-      if (key !== STORAGE_KEYS.CURRENT_USER && key !== STORAGE_KEYS.SESSION_TOKEN) {
-        localStorage.removeItem(key);
-      }
-    });
+    const keysToRemove = [
+      STORAGE_KEYS.PRODUTOS,
+      STORAGE_KEYS.FORNECEDORES,
+      STORAGE_KEYS.MOVIMENTACOES,
+    ];
+    if (!keepUsers) keysToRemove.push(STORAGE_KEYS.USERS);
+
+    keysToRemove.forEach((k) => localStorage.removeItem(k));
     return true;
   } catch (error) {
     console.error("Erro ao limpar localStorage:", error);
@@ -52,31 +69,31 @@ function clearStorage() {
 }
 
 function normalizeProduto(p) {
-  if (!p || typeof p !== "object") return p;
+  if (!p || typeof p !== "object") return null;
 
-  const estoqueAtual =
-    p.estoqueAtual ?? p.stock_atual ?? p.stockAtual ?? p.estoque_atual ?? 0;
+  const stock_atual = Number(
+    p.stock_atual ?? p.estoqueAtual ?? p.stockAtual ?? p.estoque_atual ?? 0
+  );
 
-  const estoqueMinimo =
-    p.estoqueMinimo ?? p.stock_minimo ?? p.stockMinimo ?? p.estoque_minimo ?? 0;
+  const stock_minimo = Number(
+    p.stock_minimo ?? p.estoqueMinimo ?? p.stockMinimo ?? p.estoque_minimo ?? 0
+  );
 
-  const fornecedorId =
-    p.fornecedorId ?? p.fornecedor_id ?? p.fornecedorID ?? null;
+  const fornecedor_id =
+    p.fornecedor_id ?? p.fornecedorId ?? p.fornecedorID ?? null;
 
   return {
     ...p,
-    estoqueAtual,
-    estoqueMinimo,
-    fornecedorId,
-    stock_atual: p.stock_atual ?? estoqueAtual,
-    stock_minimo: p.stock_minimo ?? estoqueMinimo,
-    fornecedor_id: p.fornecedor_id ?? fornecedorId,
+    stock_atual: isNaN(stock_atual) ? 0 : stock_atual,
+    stock_minimo: isNaN(stock_minimo) ? 0 : stock_minimo,
+    fornecedor_id,
+    ativo: p.ativo !== false, 
   };
 }
 
 function normalizeProdutosArray(arr) {
   if (!Array.isArray(arr)) return [];
-  return arr.map(normalizeProduto);
+  return arr.map(normalizeProduto).filter(Boolean);
 }
 
 function getUsers() {
@@ -84,13 +101,13 @@ function getUsers() {
 }
 
 function saveUsers(users) {
-  return saveToStorage(STORAGE_KEYS.USERS, users);
+  return saveToStorage(STORAGE_KEYS.USERS, Array.isArray(users) ? users : []);
 }
 
 function addUser(user) {
   const users = getUsers();
   users.push({
-    id: Date.now(),
+    id: makeId(),
     ...user,
     criadoEm: new Date().toISOString(),
   });
@@ -98,19 +115,21 @@ function addUser(user) {
 }
 
 function getProdutos() {
-  const produtos = loadFromStorage(STORAGE_KEYS.PRODUTOS, []);
-  return normalizeProdutosArray(produtos);
+  return normalizeProdutosArray(loadFromStorage(STORAGE_KEYS.PRODUTOS, []));
 }
 
 function saveProdutos(produtos) {
-  return saveToStorage(STORAGE_KEYS.PRODUTOS, normalizeProdutosArray(produtos));
+  return saveToStorage(
+    STORAGE_KEYS.PRODUTOS,
+    normalizeProdutosArray(produtos)
+  );
 }
 
 function addProduto(produto) {
   const produtos = getProdutos();
   produtos.push(
     normalizeProduto({
-      id: Date.now(),
+      id: makeId(),
       ...produto,
       ativo: true,
       criadoEm: new Date().toISOString(),
@@ -121,17 +140,16 @@ function addProduto(produto) {
 
 function updateProduto(id, dadosAtualizados) {
   const produtos = getProdutos();
-  const index = produtos.findIndex((p) => p.id === id);
+  const index = produtos.findIndex((p) => Number(p.id) === Number(id));
+  if (index === -1) return false;
 
-  if (index !== -1) {
-    produtos[index] = normalizeProduto({
-      ...produtos[index],
-      ...dadosAtualizados,
-      atualizadoEm: new Date().toISOString(),
-    });
-    return saveProdutos(produtos);
-  }
-  return false;
+  produtos[index] = normalizeProduto({
+    ...produtos[index],
+    ...dadosAtualizados,
+    atualizadoEm: new Date().toISOString(),
+  });
+
+  return saveProdutos(produtos);
 }
 
 function deleteProduto(id) {
@@ -139,41 +157,31 @@ function deleteProduto(id) {
 }
 
 function getProdutoById(id) {
-  const produtos = getProdutos();
-  return produtos.find((p) => p.id === id);
+  return getProdutos().find((p) => Number(p.id) === Number(id));
 }
 
-function getMedicamentos() {
-  return getProdutos();
-}
-function saveMedicamentos(medicamentos) {
-  return saveProdutos(medicamentos);
-}
-function addMedicamento(medicamento) {
-  return addProduto(medicamento);
-}
-function updateMedicamento(id, dados) {
-  return updateProduto(id, dados);
-}
-function deleteMedicamento(id) {
-  return deleteProduto(id);
-}
-function getMedicamentoById(id) {
-  return getProdutoById(id);
-}
+function getMedicamentos() { return getProdutos(); }
+function saveMedicamentos(m) { return saveProdutos(m); }
+function addMedicamento(m) { return addProduto(m); }
+function updateMedicamento(id, d) { return updateProduto(id, d); }
+function deleteMedicamento(id) { return deleteProduto(id); }
+function getMedicamentoById(id) { return getProdutoById(id); }
 
 function getFornecedores() {
-  return loadFromStorage(STORAGE_KEYS.FORNECEDORES, []);
+  return loadFromStorage(STORAGE_KEYS.FORNECEDORES, []).filter(Boolean);
 }
 
 function saveFornecedores(fornecedores) {
-  return saveToStorage(STORAGE_KEYS.FORNECEDORES, fornecedores);
+  return saveToStorage(
+    STORAGE_KEYS.FORNECEDORES,
+    Array.isArray(fornecedores) ? fornecedores : []
+  );
 }
 
 function addFornecedor(fornecedor) {
   const fornecedores = getFornecedores();
   fornecedores.push({
-    id: Date.now(),
+    id: makeId(),
     ...fornecedor,
     ativo: true,
     criadoEm: new Date().toISOString(),
@@ -183,17 +191,15 @@ function addFornecedor(fornecedor) {
 
 function updateFornecedor(id, dadosAtualizados) {
   const fornecedores = getFornecedores();
-  const index = fornecedores.findIndex((f) => f.id === id);
+  const index = fornecedores.findIndex((f) => Number(f.id) === Number(id));
+  if (index === -1) return false;
 
-  if (index !== -1) {
-    fornecedores[index] = {
-      ...fornecedores[index],
-      ...dadosAtualizados,
-      atualizadoEm: new Date().toISOString(),
-    };
-    return saveFornecedores(fornecedores);
-  }
-  return false;
+  fornecedores[index] = {
+    ...fornecedores[index],
+    ...dadosAtualizados,
+    atualizadoEm: new Date().toISOString(),
+  };
+  return saveFornecedores(fornecedores);
 }
 
 function deleteFornecedor(id) {
@@ -201,17 +207,20 @@ function deleteFornecedor(id) {
 }
 
 function getMovimentacoes() {
-  return loadFromStorage(STORAGE_KEYS.MOVIMENTACOES, []);
+  return loadFromStorage(STORAGE_KEYS.MOVIMENTACOES, []).filter(Boolean);
 }
 
 function saveMovimentacoes(movimentacoes) {
-  return saveToStorage(STORAGE_KEYS.MOVIMENTACOES, movimentacoes);
+  return saveToStorage(
+    STORAGE_KEYS.MOVIMENTACOES,
+    Array.isArray(movimentacoes) ? movimentacoes : []
+  );
 }
 
 function addMovimentacao(movimentacao) {
   const movimentacoes = getMovimentacoes();
   movimentacoes.push({
-    id: Date.now(),
+    id: makeId(),
     ...movimentacao,
     data: new Date().toISOString(),
   });
@@ -219,56 +228,21 @@ function addMovimentacao(movimentacao) {
 }
 
 function initializeSampleData() {
+  if (DISABLE_SAMPLE_DATA) return;
+
   const users = getUsers();
   if (users.length === 0) {
     saveUsers([
-      {
-        id: 1,
-        usuario: "admin",
-        senha: "admin123",
-        nome: "Administrador Principal",
-        tipo: "admin",
-      },
-      {
-        id: 2,
-        usuario: "caixa1",
-        senha: "caixa123",
-        nome: "João Silva",
-        tipo: "caixa",
-      },
+      { id: 1, usuario: "admin", senha: "admin123", nome: "Administrador", tipo: "admin" },
+      { id: 2, usuario: "caixa1", senha: "caixa123", nome: "Caixa", tipo: "caixa" },
     ]);
   }
 
   const fornecedores = getFornecedores();
   if (fornecedores.length === 0) {
     saveFornecedores([
-      {
-        id: 1,
-        nome: "Distribuidora Médica Central",
-        contato: "João Pereira",
-        telefone: "(11) 98765-4321",
-        email: "contato@dmcentral.com.br",
-        endereco: "Av. Principal, 123 - São Paulo, SP",
-        ativo: true,
-      },
-      {
-        id: 2,
-        nome: "Farmacêutica Global S.A.",
-        contato: "Maria González",
-        telefone: "(21) 97654-3210",
-        email: "vendas@farmaglobal.com.br",
-        endereco: "Rua do Comércio, 456 - Rio de Janeiro, RJ",
-        ativo: true,
-      },
-      {
-        id: 3,
-        nome: "Medicamentos do Sul",
-        contato: "Carlos Ramírez",
-        telefone: "(51) 96543-2109",
-        email: "pedidos@medsul.com.br",
-        endereco: "Av. Industrial, 789 - Porto Alegre, RS",
-        ativo: true,
-      },
+      { id: 1, nome: "Distribuidora X", ativo: true },
+      { id: 2, nome: "Fornecedor Y", ativo: true },
     ]);
   }
 
@@ -287,58 +261,10 @@ function initializeSampleData() {
         fornecedor_id: 1,
         ativo: true,
       },
-      {
-        id: 2,
-        sku: "IBU-400",
-        nome: "Ibuprofeno 400mg",
-        categoria: "Antiinflamatórios",
-        preco: 8.0,
-        stock_atual: 120,
-        stock_minimo: 80,
-        vencimento: "2026-03-14",
-        fornecedor_id: 1,
-        ativo: true,
-      },
-      {
-        id: 3,
-        sku: "AMO-500",
-        nome: "Amoxicilina 500mg",
-        categoria: "Antibióticos",
-        preco: 12.5,
-        stock_atual: 30,
-        stock_minimo: 40,
-        vencimento: "2025-11-29",
-        fornecedor_id: 2,
-        ativo: true,
-      },
-      {
-        id: 4,
-        sku: "OME-20",
-        nome: "Omeprazol 20mg",
-        categoria: "Antiácidos",
-        preco: 10.0,
-        stock_atual: 8,
-        stock_minimo: 30,
-        vencimento: "2025-11-30",
-        fornecedor_id: 2,
-        ativo: true,
-      },
-      {
-        id: 5,
-        sku: "LOR-10",
-        nome: "Loratadina 10mg",
-        categoria: "Anti-histamínicos",
-        preco: 6.5,
-        stock_atual: 95,
-        stock_minimo: 50,
-        vencimento: "2026-06-19",
-        fornecedor_id: 3,
-        ativo: true,
-      },
     ]);
   }
 
-  console.log("✅ Storage inicializado (sem sobrescrever dados existentes).");
+  console.log("✅ Storage inicializado com dados de exemplo.");
 }
 
 if (typeof window !== "undefined") {

@@ -3,977 +3,343 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard de Fornecedores - Sistema Hospitalar</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <title>Fornecedores | FarmaSys</title>
+
+  <!-- CSS do sistema (mesmo padrão da Entrada) -->
+  <link rel="stylesheet" href="../CSS/Style.css">
+  <link rel="stylesheet" href="../CSS/Components.css">
+  <link rel="stylesheet" href="../CSS/dashboard.css">
+  <link rel="stylesheet" href="../CSS/Table_styles.css">
+
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg-primary: #fafafa;
-      --bg-secondary: #ffffff;
-      --bg-tertiary: #f5f5f5;
-      --text-primary: #2c2c2c;
-      --text-secondary: #5a5a5a;
-      --text-tertiary: #8a8a8a;
-      --border: #e0e0e0;
-      --border-light: #ececec;
-      --accent: #404040;
-      --accent-hover: #2c2c2c;
-      --success: #4a7c59;
-      --warning: #b8860b;
-      --danger: #a84032;
-      --info: #4a6b7c;
-      --shadow: rgba(0,0,0,0.08);
+    :root{
+      --brand: #2563eb;
+      --brand-600: #1d4ed8;
+      --brand-100: rgba(37, 99, 235, 0.12);
     }
 
-    body {
-      font-family: 'IBM Plex Sans', sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      line-height: 1.6;
+    .page-title i{ color: var(--brand); }
+    .btn-primary{
+      background: var(--brand);
+      border-color: var(--brand);
+    }
+    .btn-primary:hover{
+      background: var(--brand-600);
+      border-color: var(--brand-600);
     }
 
-    .container { max-width: 1800px; margin: 0 auto; padding: 24px; }
-
-    .dashboard-header {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 20px 24px;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
+    .subnav-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
     }
 
-    .header-title { display: flex; align-items: center; gap: 12px; }
-
-    .header-icon {
+    .kpi-mini-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .kpi-mini{
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 14px;
+      display:flex;
+      gap: 12px;
+      align-items:center;
+    }
+    .kpi-mini .kpi-icon{
       width: 40px;
       height: 40px;
-      background: var(--accent);
-      color: white;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
+      border-radius: 10px;
+      background: var(--brand-100);
+      color: var(--brand);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .kpi-mini .kpi-label{
+      font-size: 12px;
+      color: var(--gray-600);
+    }
+    .kpi-mini .kpi-value{
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--gray-900);
     }
 
-    .header-title h1 { font-size: 20px; font-weight: 600; color: var(--text-primary); }
-    .header-title p { font-size: 12px; color: var(--text-tertiary); font-family: 'IBM Plex Mono', monospace; }
+    /* Grid do formulário (parecido com Entrada) */
+    .form-grid-fornecedor{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+    .col-12{ grid-column: span 12; }
+    .col-6{ grid-column: span 6; }
+    .col-4{ grid-column: span 4; }
+    .col-3{ grid-column: span 3; }
 
-    .header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
-    .tabs {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      margin-bottom: 20px;
-      display: flex;
-      padding: 4px;
-      gap: 4px;
+    @media (max-width: 900px){
+      .col-6,.col-4,.col-3{ grid-column: span 12; }
     }
 
-    .tab {
-      flex: 1;
-      padding: 12px 16px;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      border-radius: 2px;
-      font-family: 'IBM Plex Sans', sans-serif;
+    .table-actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap: wrap;
     }
 
-    .tab:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-    .tab.active { background: var(--accent); color: white; }
-
-    .page-content { display: none; }
-    .page-content.active { display: block; animation: fadeIn 0.3s ease; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    .card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 20px;
-      transition: all 0.2s;
-    }
-    .card:hover { box-shadow: 0 2px 8px var(--shadow); }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border-light);
-    }
-
-    .card-title {
-      font-size: 13px;
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--gray-200);
+      background: var(--gray-50);
+      color: var(--gray-800);
       font-weight: 600;
-      color: var(--text-primary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
-
-    .card-badge {
-      background: var(--bg-tertiary);
-      color: var(--text-secondary);
-      padding: 4px 10px;
-      border-radius: 2px;
-      font-size: 11px;
-      font-weight: 500;
-      font-family: 'IBM Plex Mono', monospace;
+    .status-pill.ativo{
+      background: rgba(16,185,129,.12);
+      border-color: rgba(16,185,129,.25);
+      color: rgb(6,95,70);
     }
-
-    .kpi-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: 4px;
-      padding: 20px;
-      transition: all 0.2s;
-    }
-    .kpi-card:hover { border-left-color: var(--text-primary); box-shadow: 0 2px 8px var(--shadow); }
-
-    .kpi-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-    }
-
-    .kpi-value {
-      font-size: 32px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 4px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .kpi-subtitle { font-size: 12px; color: var(--text-secondary); }
-
-    .chart-container { position: relative; height: 300px; width: 100%; }
-
-    .filters-section {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-
-    .filters-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 16px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .filters-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-    }
-
-    .filter-group { display: flex; flex-direction: column; gap: 6px; }
-
-    .filter-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .filter-select, .search-input {
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      border-radius: 2px;
-      font-size: 13px;
-      color: var(--text-primary);
-      font-family: 'IBM Plex Sans', sans-serif;
-      transition: all 0.2s;
-    }
-
-    .filter-select:hover, .search-input:hover { border-color: var(--accent); }
-    .filter-select:focus, .search-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(64, 64, 64, 0.1);
-    }
-
-    .search-input::placeholder { color: var(--text-tertiary); }
-
-    .table-wrapper {
-      overflow-x: auto;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      margin-bottom: 16px;
-    }
-
-    .data-table { width: 100%; border-collapse: collapse; }
-    .data-table thead { background: var(--bg-tertiary); }
-
-    .data-table th {
-      text-align: left;
-      padding: 12px 16px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-
-    .data-table tbody td {
-      padding: 12px 16px;
-      font-size: 13px;
-      color: var(--text-primary);
-      border-bottom: 1px solid var(--border-light);
-      white-space: nowrap;
-    }
-
-    .data-table tbody tr:hover { background: var(--bg-tertiary); }
-
-    .status-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 2px;
-      font-size: 11px;
-      font-weight: 500;
-      font-family: 'IBM Plex Mono', monospace;
-      background: var(--bg-tertiary);
-      color: var(--text-secondary);
-    }
-
-    .status-ativo { background: rgba(74,124,89,0.15); color: var(--success); }
-    .status-inativo { background: rgba(168,64,50,0.15); color: var(--danger); }
-    .status-emanalise { background: rgba(184,134,11,0.15); color: var(--warning); }
-
-    .rating { color: var(--warning); font-size: 14px; font-family: 'IBM Plex Mono', monospace; }
-
-    .btn {
-      padding: 10px 20px;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: 'IBM Plex Sans', sans-serif;
-      white-space: nowrap;
-    }
-
-    .btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
-
-    .btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
-    .btn-primary:hover { background: var(--accent-hover); }
-
-    .info-box {
-      background: var(--bg-tertiary);
-      border-left: 3px solid var(--info);
-      padding: 16px;
-      border-radius: 2px;
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-    }
-    .info-box strong { color: var(--text-primary); }
-
-    @media (max-width: 768px) {
-      .container { padding: 16px; }
-      .grid-2, .grid-4 { grid-template-columns: 1fr; }
-      .filters-grid { grid-template-columns: 1fr; }
-      .tabs { flex-direction: column; }
-      .chart-container { height: 250px; }
+    .status-pill.inativo{
+      background: rgba(239,68,68,.10);
+      border-color: rgba(239,68,68,.22);
+      color: rgb(127,29,29);
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
 
-    <div class="dashboard-header">
-      <div class="header-title">
-        <div class="header-icon">🏢</div>
+<div class="dashboard-layout">
+  <!-- SIDEBAR igual à Entrada -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <i data-lucide="pill"></i>
+        </div>
+        <span>FarmaSys</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item">
+        <i data-lucide="layout-dashboard"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="medicamentos.html" class="nav-item">
+        <i data-lucide="package"></i>
+        <span>Medicamentos</span>
+      </a>
+      <a href="fornecedores.html" class="nav-item active">
+        <i data-lucide="truck"></i>
+        <span>Fornecedores</span>
+      </a>
+      <a href="entrada.html" class="nav-item">
+        <i data-lucide="package-plus"></i>
+        <span>Entrada</span>
+      </a>
+      <a href="saida.html" class="nav-item">
+        <i data-lucide="package-minus"></i>
+        <span>Saída</span>
+      </a>
+      <a href="relatorios.html" class="nav-item">
+        <i data-lucide="file-text"></i>
+        <span>Relatórios</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="nav-item" id="logoutBtn">
+        <i data-lucide="log-out"></i>
+        <span>Sair</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO -->
+  <main class="main-content">
+    <!-- Header padrão -->
+    <header class="content-header">
+      <div class="header-left">
+        <h1 class="page-title">
+          <i data-lucide="truck"></i>
+          Fornecedores
+        </h1>
+        <p class="page-subtitle">Cadastre, edite e consulte fornecedores do sistema</p>
+      </div>
+
+      <div class="header-right">
+        <div class="user-info">
+          <span class="user-name" id="userName">Carregando...</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- KPIs (mesmo estilo Entrada) -->
+    <div class="kpi-mini-grid">
+      <div class="kpi-mini">
+        <div class="kpi-icon"><i data-lucide="users"></i></div>
         <div>
-          <h1>Gestão de Fornecedores</h1>
-          <p>Hospital Municipal / Cadastro e Performance</p>
+          <div class="kpi-label">Total</div>
+          <div class="kpi-value" id="kpiTotal">0</div>
         </div>
       </div>
 
-      <div class="header-actions">
-        <!-- BOTÃO VOLTAR -->
-        <button class="btn" onclick="voltarDashboard()"> Voltar ao Dashboard</button>
-        <!-- Botão para adicionar novo fornecedor -->
-        <button class="btn" onclick="adicionarFornecedor()">➕ Novo Fornecedor</button>
-        <!-- Botão para exportar dados -->
-        <button class="btn btn-primary" onclick="exportarDados()">📥 Exportar</button>
+      <div class="kpi-mini">
+        <div class="kpi-icon"><i data-lucide="badge-check"></i></div>
+        <div>
+          <div class="kpi-label">Ativos</div>
+          <div class="kpi-value" id="kpiAtivos">0</div>
+        </div>
+      </div>
+
+      <div class="kpi-mini">
+        <div class="kpi-icon"><i data-lucide="badge-x"></i></div>
+        <div>
+          <div class="kpi-label">Inativos</div>
+          <div class="kpi-value" id="kpiInativos">0</div>
+        </div>
       </div>
     </div>
 
-    <div class="tabs">
-      <button class="tab active" onclick="mudarPagina(1)">Visão Geral</button>
-      <button class="tab" onclick="mudarPagina(2)">Performance e Avaliações</button>
-      <button class="tab" onclick="mudarPagina(3)">Cadastro Completo</button>
-    </div>
-
-    <!-- Página 1 -->
-    <div class="page-content active" id="page1">
-      <div class="info-box">
-        <strong>Dashboard de Fornecedores:</strong> Gerencie fornecedores, acompanhe performance, avaliações e histórico de pedidos.
-      </div>
-
-      <div class="grid-4">
-        <div class="kpi-card">
-          <div class="kpi-label">Total de Fornecedores</div>
-          <div class="kpi-value" id="kpi-total">-</div>
-          <div class="kpi-subtitle">Cadastrados no sistema</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Fornecedores Ativos</div>
-          <div class="kpi-value" id="kpi-ativos">-</div>
-          <div class="kpi-subtitle">Em operação</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Avaliação Média</div>
-          <div class="kpi-value" id="kpi-avaliacao">-</div>
-          <div class="kpi-subtitle">De 5.0 estrelas</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Total de Pedidos</div>
-          <div class="kpi-value" id="kpi-pedidos">-</div>
-          <div class="kpi-subtitle">Nos últimos 6 meses</div>
-        </div>
-      </div>
-
-      <div class="filters-section">
-        <div class="filters-title">🔍 Filtros</div>
-        <div class="filters-grid">
-          <div class="filter-group">
-            <label class="filter-label">Status</label>
-            <select class="filter-select" id="filter-status-p1" onchange="aplicarFiltrosP1()">
-              <option value="todos">Todos</option>
-              <option value="Ativo">Ativos</option>
-              <option value="Inativo">Inativos</option>
-              <option value="Em Análise">Em Análise</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label class="filter-label">Categoria</label>
-            <select class="filter-select" id="filter-categoria-p1" onchange="aplicarFiltrosP1()">
-              <option value="todos">Todas</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label class="filter-label">Buscar Fornecedor</label>
-            <input type="text" class="search-input" id="search-p1" placeholder="Nome ou CNPJ..." oninput="aplicarFiltrosP1()" />
-          </div>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Distribuição por Status</div>
-            <div class="card-badge">Donut</div>
-          </div>
-          <div class="chart-container">
-            <canvas id="chart-status-p1"></canvas>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Pedidos Mensais</div>
-            <div class="card-badge">Linha</div>
-          </div>
-          <div class="chart-container">
-            <canvas id="chart-pedidos-p1"></canvas>
-          </div>
-        </div>
-      </div>
-
+    <!-- Card: Cadastro -->
+    <section class="content-section">
       <div class="card">
-        <div class="card-header">
-          <div class="card-title">Top 10 Fornecedores por Pedidos</div>
-          <div class="card-badge" id="badge-top-p1">-</div>
-        </div>
-        <div class="chart-container">
-          <canvas id="chart-top-p1"></canvas>
-        </div>
-      </div>
-    </div>
+        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <h3 class="card-title" style="display:flex;align-items:center;gap:10px;margin:0;">
+            <i data-lucide="building-2"></i>
+            Cadastrar fornecedor
+          </h3>
 
-    <!-- Página 2 -->
-    <div class="page-content" id="page2">
-      <div class="filters-section">
-        <div class="filters-title">🔍 Filtros de Performance</div>
-        <div class="filters-grid">
-          <div class="filter-group">
-            <label class="filter-label">Avaliação Mínima</label>
-            <select class="filter-select" id="filter-avaliacao-p2" onchange="aplicarFiltrosP2()">
-              <option value="0">Todas</option>
-              <option value="4.5">4.5+ estrelas</option>
-              <option value="4.0">4.0+ estrelas</option>
-              <option value="3.5">3.5+ estrelas</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label class="filter-label">Pontualidade Mínima</label>
-            <select class="filter-select" id="filter-pontualidade-p2" onchange="aplicarFiltrosP2()">
-              <option value="0">Todas</option>
-              <option value="90">90%+</option>
-              <option value="80">80%+</option>
-              <option value="70">70%+</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label class="filter-label">Buscar</label>
-            <input type="text" class="search-input" id="search-p2" placeholder="Nome..." oninput="aplicarFiltrosP2()" />
-          </div>
-        </div>
-      </div>
+          <div class="subnav-actions">
+            <a href="dashboard.html" class="btn btn-outline btn-sm">
+              <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
+              Voltar ao Dashboard
+            </a>
 
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Distribuição de Avaliações</div>
-            <div class="card-badge">Histograma</div>
-          </div>
-          <div class="chart-container">
-            <canvas id="chart-avaliacoes-p2"></canvas>
+            <button class="btn btn-outline btn-sm" type="button" onclick="exportarFornecedoresCSV?.()">
+              <i data-lucide="download" style="width:16px;height:16px;"></i>
+              Exportar
+            </button>
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Taxa de Pontualidade</div>
-            <div class="card-badge">Dispersão</div>
-          </div>
-          <div class="chart-container">
-            <canvas id="chart-pontualidade-p2"></canvas>
-          </div>
-        </div>
-      </div>
+        <div class="card-body">
+          <form id="formFornecedor" class="form-grid-fornecedor">
+            <div class="form-group col-6">
+              <label for="nome" class="required">Nome</label>
+              <input id="nome" type="text" class="form-input" placeholder="Ex.: MedSupply Distribuidora" required>
+            </div>
 
-      <div class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Fornecedor</th>
-              <th>Avaliação</th>
-              <th>Pontualidade</th>
-              <th>Total Pedidos</th>
-              <th>Prazo Médio</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="table-p2">
-            <tr><td colspan="6" style="text-align:center; padding:20px;">Carregando...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+            <div class="form-group col-3">
+              <label for="cnpj">CNPJ (opcional)</label>
+              <input id="cnpj" type="text" class="form-input" placeholder="00.000.000/0001-00">
+            </div>
 
-    <!-- Página 3 -->
-    <div class="page-content" id="page3">
-      <div class="filters-section">
-        <div class="filters-title">🔍 Busca Avançada</div>
-        <div class="filters-grid">
-          <div class="filter-group">
-            <label class="filter-label">Nome</label>
-            <input type="text" class="search-input" id="search-nome-p3" placeholder="Nome..." oninput="aplicarFiltrosP3()" />
-          </div>
-          <div class="filter-group">
-            <label class="filter-label">CNPJ</label>
-            <input type="text" class="search-input" id="search-cnpj-p3" placeholder="00.000.000/0001-00" oninput="aplicarFiltrosP3()" />
-          </div>
-          <div class="filter-group">
-            <label class="filter-label">Cidade</label>
-            <select class="filter-select" id="filter-cidade-p3" onchange="aplicarFiltrosP3()">
-              <option value="todos">Todas</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label class="filter-label">Status</label>
-            <select class="filter-select" id="filter-status-p3" onchange="aplicarFiltrosP3()">
-              <option value="todos">Todos</option>
-              <option value="Ativo">Ativo</option>
-              <option value="Inativo">Inativo</option>
-              <option value="Em Análise">Em Análise</option>
-            </select>
-          </div>
+            <div class="form-group col-3">
+              <label for="telefone">Telefone</label>
+              <input id="telefone" type="text" class="form-input" placeholder="(00) 90000-0000">
+            </div>
+
+            <div class="form-group col-6">
+              <label for="email">E-mail</label>
+              <input id="email" type="email" class="form-input" placeholder="contato@fornecedor.com">
+            </div>
+
+            <div class="form-group col-6">
+              <label for="endereco">Endereço</label>
+              <input id="endereco" type="text" class="form-input" placeholder="Rua..., nº..., Bairro...">
+            </div>
+
+            <div class="form-group col-3">
+              <label for="ativo">Status</label>
+              <select id="ativo" class="form-input">
+                <option value="true">Ativo</option>
+                <option value="false">Inativo</option>
+              </select>
+            </div>
+
+            <div class="form-group col-9" style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;align-items:end;">
+              <button type="reset" class="btn btn-secondary">
+                <i data-lucide="rotate-ccw"></i>
+                Limpar
+              </button>
+
+              <button type="submit" class="btn btn-primary btn-primary">
+                <i data-lucide="check"></i>
+                Salvar fornecedor
+              </button>
+            </div>
+          </form>
         </div>
       </div>
+    </section>
 
-      <div class="grid-4">
-        <div class="kpi-card">
-          <div class="kpi-label">Resultados</div>
-          <div class="kpi-value" id="kpi-resultados-p3">-</div>
-          <div class="kpi-subtitle">Fornecedores encontrados</div>
+    <!-- Card: Lista -->
+    <section class="content-section">
+      <div class="card">
+        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <h3 class="card-title" style="display:flex;align-items:center;gap:10px;margin:0;">
+            <i data-lucide="list"></i>
+            Lista de fornecedores
+          </h3>
+
+          <div class="table-actions">
+            <div class="search-box" style="max-width:360px;">
+              <i data-lucide="search"></i>
+              <input type="text" id="buscaFornecedor" placeholder="Buscar por nome/CNPJ...">
+            </div>
+          </div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Avaliação Média</div>
-          <div class="kpi-value" id="kpi-avg-aval-p3">-</div>
-          <div class="kpi-subtitle">Dos resultados</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Pontualidade Média</div>
-          <div class="kpi-value" id="kpi-avg-pont-p3">-</div>
-          <div class="kpi-subtitle">Dos resultados</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Total Pedidos</div>
-          <div class="kpi-value" id="kpi-ped-p3">-</div>
-          <div class="kpi-subtitle">Somados</div>
+
+        <div class="card-body">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>CNPJ</th>
+                  <th>Telefone</th>
+                  <th>E-mail</th>
+                  <th>Status</th>
+                  <th style="width: 140px;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaFornecedores">
+                <tr>
+                  <td colspan="6" style="text-align:center;color:var(--gray-600);padding:18px;">
+                    Nenhum fornecedor cadastrado.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="paginationFornecedores"></div>
         </div>
       </div>
+    </section>
 
-      <div class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>CNPJ</th>
-              <th>Categoria Principal</th>
-              <th>Cidade/UF</th>
-              <th>Telefone</th>
-              <th>Email</th>
-              <th>Avaliação</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="table-p3">
-            <tr><td colspan="9" style="text-align:center; padding:20px;">Carregando...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+  </main>
+</div>
 
-  </div>
+<script src="../Javascript/Storage.js"></script>
+<script src="../Javascript/autenticacao.js"></script>
+<script src="../Javascript/fornecedores.js"></script>
+<script>
+  lucide.createIcons();
+</script>
 
-  <script>
-    const DADOS_FORNECEDORES = [{"id":"FORN-001","nome":"MedSupply Distribuidora","cnpj":"72.955.609/0001-21","status":"Inativo","categoria_principal":"Material Hospitalar","categorias_fornecimento":["Material Hospitalar","Equipamentos Médicos","Equipamentos de Proteção","Medicamentos Gerais","Medicamentos Controlados","Insumos Farmacêuticos","Material Descartável","Soluções e Soros"],"num_produtos":8,"total_pedidos":76,"prazo_entrega_medio":14,"avaliacao":3.5,"taxa_pontualidade":86.8,"ultima_compra":"13/12/2025","anos_parceria":7,"telefone":"(11) 92678-7422","email":"medsupply@email.com","cidade":"Porto Alegre","estado":"SP"},{"id":"FORN-002","nome":"FarmaTotal Ltda","cnpj":"26.644.919/0001-10","status":"Ativo","categoria_principal":"Insumos Farmacêuticos","categorias_fornecimento":["Insumos Farmacêuticos","Medicamentos Controlados","Equipamentos de Proteção","Equipamentos Médicos","Medicamentos Gerais","Material Hospitalar","Material Descartável"],"num_produtos":7,"total_pedidos":96,"prazo_entrega_medio":8,"avaliacao":4.5,"taxa_pontualidade":79.2,"ultima_compra":"12/01/2026","anos_parceria":3,"telefone":"(89) 95281-7374","email":"farmatotal@email.com","cidade":"Rio de Janeiro","estado":"DF"},{"id":"FORN-003","nome":"HospitalPro Equipamentos","cnpj":"83.692.916/0001-23","status":"Ativo","categoria_principal":"Equipamentos Médicos","categorias_fornecimento":["Equipamentos Médicos","Soluções e Soros","Medicamentos Controlados","Equipamentos de Proteção","Insumos Farmacêuticos"],"num_produtos":5,"total_pedidos":34,"prazo_entrega_medio":9,"avaliacao":4.6,"taxa_pontualidade":88.2,"ultima_compra":"13/12/2025","anos_parceria":3,"telefone":"(79) 91219-4625","email":"hospitalproequi@email.com","cidade":"São Paulo","estado":"PR"},{"id":"FORN-004","nome":"MediLink Comércio","cnpj":"81.983.765/0001-23","status":"Ativo","categoria_principal":"Medicamentos Gerais","categorias_fornecimento":["Medicamentos Gerais","Soluções e Soros","Medicamentos Controlados","Equipamentos de Proteção","Insumos Farmacêuticos","Material Descartável","Material Hospitalar","Equipamentos Médicos"],"num_produtos":8,"total_pedidos":119,"prazo_entrega_medio":15,"avaliacao":4.6,"taxa_pontualidade":77.3,"ultima_compra":"15/11/2025","anos_parceria":4,"telefone":"(71) 93940-2376","email":"medilink@email.com","cidade":"Porto Alegre","estado":"RJ"},{"id":"FORN-005","nome":"VitalMed Importadora","cnpj":"64.567.460/0001-31","status":"Ativo","categoria_principal":"Equipamentos de Proteção","categorias_fornecimento":["Equipamentos de Proteção","Soluções e Soros","Material Hospitalar","Material Descartável","Medicamentos Gerais","Equipamentos Médicos","Insumos Farmacêuticos"],"num_produtos":7,"total_pedidos":28,"prazo_entrega_medio":11,"avaliacao":4.8,"taxa_pontualidade":67.9,"ultima_compra":"20/12/2025","anos_parceria":10,"telefone":"(43) 97521-8579","email":"vitalmed@email.com","cidade":"Brasília","estado":"SP"},{"id":"FORN-006","nome":"PharmaExpress Distribuidora","cnpj":"65.484.151/0001-61","status":"Ativo","categoria_principal":"Medicamentos Controlados","categorias_fornecimento":["Medicamentos Controlados","Soluções e Soros","Material Descartável","Material Hospitalar","Medicamentos Gerais","Equipamentos Médicos","Equipamentos de Proteção","Insumos Farmacêuticos"],"num_produtos":8,"total_pedidos":77,"prazo_entrega_medio":13,"avaliacao":4.6,"taxa_pontualidade":75.3,"ultima_compra":"25/01/2026","anos_parceria":2,"telefone":"(78) 91555-1136","email":"pharmaexpress@email.com","cidade":"Rio de Janeiro","estado":"MG"},{"id":"FORN-007","nome":"HealthSupplies Brasil","cnpj":"78.591.731/0001-99","status":"Ativo","categoria_principal":"Equipamentos de Proteção","categorias_fornecimento":["Equipamentos de Proteção","Material Descartável","Soluções e Soros","Insumos Farmacêuticos","Medicamentos Gerais"],"num_produtos":5,"total_pedidos":87,"prazo_entrega_medio":11,"avaliacao":4.2,"taxa_pontualidade":97.7,"ultima_compra":"28/01/2026","anos_parceria":1,"telefone":"(20) 92096-6097","email":"healthsuppliesb@email.com","cidade":"Rio de Janeiro","estado":"PR"},{"id":"FORN-008","nome":"BioMed Comercial","cnpj":"28.765.142/0001-59","status":"Ativo","categoria_principal":"Soluções e Soros","categorias_fornecimento":["Soluções e Soros","Medicamentos Gerais","Insumos Farmacêuticos","Equipamentos de Proteção"],"num_produtos":4,"total_pedidos":106,"prazo_entrega_medio":5,"avaliacao":3.5,"taxa_pontualidade":73.6,"ultima_compra":"19/01/2026","anos_parceria":10,"telefone":"(25) 99090-4862","email":"biomed@email.com","cidade":"Curitiba","estado":"PR"},{"id":"FORN-009","nome":"MedEquip Soluções","cnpj":"18.844.282/0001-88","status":"Ativo","categoria_principal":"Medicamentos Controlados","categorias_fornecimento":["Medicamentos Controlados","Medicamentos Gerais","Material Descartável","Insumos Farmacêuticos","Equipamentos de Proteção","Soluções e Soros"],"num_produtos":6,"total_pedidos":105,"prazo_entrega_medio":7,"avaliacao":3.5,"taxa_pontualidade":77.1,"ultima_compra":"04/01/2026","anos_parceria":5,"telefone":"(17) 99366-7400","email":"medequipsoluçõe@email.com","cidade":"São Paulo","estado":"RS"},{"id":"FORN-010","nome":"FarmáciaPro Atacado","cnpj":"95.806.268/0001-51","status":"Ativo","categoria_principal":"Soluções e Soros","categorias_fornecimento":["Soluções e Soros","Medicamentos Controlados","Equipamentos Médicos","Material Hospitalar","Medicamentos Gerais","Material Descartável","Insumos Farmacêuticos"],"num_produtos":7,"total_pedidos":113,"prazo_entrega_medio":7,"avaliacao":4.5,"taxa_pontualidade":99.1,"ultima_compra":"25/01/2026","anos_parceria":5,"telefone":"(39) 93876-4671","email":"farmáciaproatac@email.com","cidade":"Belo Horizonte","estado":"RS"},{"id":"FORN-011","nome":"MedTech Distribuidora","cnpj":"79.433.211/0001-70","status":"Ativo","categoria_principal":"Material Descartável","categorias_fornecimento":["Material Descartável","Insumos Farmacêuticos","Equipamentos de Proteção","Equipamentos Médicos"],"num_produtos":4,"total_pedidos":40,"prazo_entrega_medio":11,"avaliacao":4.8,"taxa_pontualidade":70.0,"ultima_compra":"29/11/2025","anos_parceria":8,"telefone":"(89) 94690-5002","email":"medtech@email.com","cidade":"Curitiba","estado":"BA"},{"id":"FORN-012","nome":"VidaSaúde Comércio","cnpj":"99.761.430/0001-40","status":"Ativo","categoria_principal":"Medicamentos Controlados","categorias_fornecimento":["Medicamentos Controlados","Material Descartável","Medicamentos Gerais","Soluções e Soros"],"num_produtos":4,"total_pedidos":111,"prazo_entrega_medio":15,"avaliacao":4.8,"taxa_pontualidade":78.4,"ultima_compra":"07/11/2025","anos_parceria":9,"telefone":"(18) 94115-7242","email":"vidasaúde@email.com","cidade":"Rio de Janeiro","estado":"BA"},{"id":"FORN-013","nome":"MedStock Fornecedora","cnpj":"97.380.194/0001-54","status":"Ativo","categoria_principal":"Material Descartável","categorias_fornecimento":["Material Descartável","Medicamentos Controlados","Medicamentos Gerais","Equipamentos Médicos","Equipamentos de Proteção","Insumos Farmacêuticos","Soluções e Soros","Material Hospitalar"],"num_produtos":8,"total_pedidos":68,"prazo_entrega_medio":9,"avaliacao":4.8,"taxa_pontualidade":91.2,"ultima_compra":"24/11/2025","anos_parceria":3,"telefone":"(35) 94729-4774","email":"medstockfornece@email.com","cidade":"São Paulo","estado":"DF"},{"id":"FORN-014","nome":"BioSupply Importações","cnpj":"39.244.905/0001-99","status":"Ativo","categoria_principal":"Insumos Farmacêuticos","categorias_fornecimento":["Insumos Farmacêuticos","Material Hospitalar","Equipamentos de Proteção","Soluções e Soros","Material Descartável"],"num_produtos":5,"total_pedidos":69,"prazo_entrega_medio":2,"avaliacao":5.0,"taxa_pontualidade":87.0,"ultima_compra":"01/12/2025","anos_parceria":4,"telefone":"(97) 96425-2433","email":"biosupplyimport@email.com","cidade":"Porto Alegre","estado":"BA"},{"id":"FORN-015","nome":"HealthCare Distribuidora","cnpj":"85.776.171/0001-56","status":"Em Análise","categoria_principal":"Insumos Farmacêuticos","categorias_fornecimento":["Insumos Farmacêuticos","Material Descartável","Medicamentos Controlados","Equipamentos Médicos","Equipamentos de Proteção"],"num_produtos":5,"total_pedidos":17,"prazo_entrega_medio":2,"avaliacao":3.5,"taxa_pontualidade":88.2,"ultima_compra":"20/12/2025","anos_parceria":5,"telefone":"(77) 95951-6292","email":"healthcare@email.com","cidade":"Belo Horizonte","estado":"SP"}];
-  </script>
-
-  <script>
-
-    Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
-    Chart.defaults.color = '#8a8a8a';
-
-    let dadosOriginais = [];
-    let dadosFiltradosP1 = [];
-    let dadosFiltradosP2 = [];
-    let dadosFiltradosP3 = [];
-    const charts = {};
-
-    function normalizarTexto(str) {
-      return (str || '')
-        .toString()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // remove acentos
-        .replace(/\s+/g, '')            // remove espaços
-        .toLowerCase()
-        .trim();
-    }
-
-    function statusClass(status) {
-      // "Em Análise" => "emanalise"
-      return `status-${normalizarTexto(status)}`;
-    }
-
-    function destruirChart(ref) {
-      if (ref && typeof ref.destroy === 'function') ref.destroy();
-    }
-
-    function safeAvg(sum, n) {
-      return n > 0 ? (sum / n) : 0;
-    }
-
-    // botão para voltar ao dashboard -->
-    function voltarDashboard() {
-      const destino = 'dashboard.html';
-
-      window.location.href = destino;
-
-      setTimeout(() => {
-        if (document.visibilityState === 'visible') {
-          try { history.back(); } catch (e) {}
-        }
-      }, 400);
-    }
-
-    const CIDADES_BRASIL = [
-      {cidade: 'Belém', estado: 'PA'},
-      {cidade: 'São Paulo', estado: 'SP'},
-      {cidade: 'Rio de Janeiro', estado: 'RJ'},
-      {cidade: 'Brasília', estado: 'DF'},
-      {cidade: 'Curitiba', estado: 'PR'},
-      {cidade: 'Belo Horizonte', estado: 'MG'},
-      {cidade: 'Porto Alegre', estado: 'RS'}
-    ];
-
-    function popularSelect(id, opcoes) {
-      const select = document.getElementById(id);
-      if (!select) return;
-
-      opcoes.forEach(opcao => {
-        const option = document.createElement('option');
-        option.value = opcao;
-        option.textContent = opcao;
-        select.appendChild(option);
-      });
-    }
-
-    function popularSelectCidades(id, cidades) {
-      const select = document.getElementById(id);
-      if (!select) return;
-
-      cidades
-        .sort((a, b) => a.cidade.localeCompare(b.cidade))
-        .forEach(local => {
-          const option = document.createElement('option');
-          option.value = local.cidade;
-          option.textContent = `${local.cidade} - ${local.estado}`;
-          select.appendChild(option);
-        });
-    }
-
-    function popularFiltros() {
-      const categorias = [...new Set(dadosOriginais.flatMap(f => f.categorias_fornecimento || []))].sort();
-      popularSelect('filter-categoria-p1', categorias);
-      popularSelectCidades('filter-cidade-p3', CIDADES_BRASIL);
-    }
-
-      //TELA DE NAVEGAÇÃO ENTRE PÁGINAS
-    function mudarPagina(num) {
-      document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-
-      document.getElementById(`page${num}`).classList.add('active');
-      document.querySelectorAll('.tab')[num - 1].classList.add('active');
-    }
-
-    // Página 1 - visão geral
-    function aplicarFiltrosP1() {
-      const status = document.getElementById('filter-status-p1').value;
-      const categoria = document.getElementById('filter-categoria-p1').value;
-      const busca = document.getElementById('search-p1').value.toLowerCase();
-
-      dadosFiltradosP1 = dadosOriginais.filter(f => {
-        const matchStatus = status === 'todos' || f.status === status;
-        const matchCategoria = categoria === 'todos' || (f.categorias_fornecimento || []).includes(categoria);
-        const matchBusca = (f.nome || '').toLowerCase().includes(busca) || (f.cnpj || '').includes(busca);
-        return matchStatus && matchCategoria && matchBusca;
-      });
-
-      atualizarPagina1();
-    }
-
-    function atualizarPagina1() {
-      const n = dadosFiltradosP1.length;
-
-      const totalPedidos = dadosFiltradosP1.reduce((acc, f) => acc + (Number(f.total_pedidos) || 0), 0);
-      const somaAval = dadosFiltradosP1.reduce((acc, f) => acc + (Number(f.avaliacao) || 0), 0);
-      const ativos = dadosFiltradosP1.filter(f => f.status === 'Ativo').length;
-      const avaliacaoMedia = safeAvg(somaAval, n).toFixed(1);
-
-      document.getElementById('kpi-total').textContent = n;
-      document.getElementById('kpi-ativos').textContent = ativos;
-      document.getElementById('kpi-avaliacao').textContent = n ? avaliacaoMedia : '0.0';
-      document.getElementById('kpi-pedidos').textContent = totalPedidos;
-
-      const statusCont = {};
-      dadosFiltradosP1.forEach(f => { statusCont[f.status] = (statusCont[f.status] || 0) + 1; });
-
-      destruirChart(charts.statusP1);
-      charts.statusP1 = new Chart(document.getElementById('chart-status-p1'), {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(statusCont),
-          datasets: [{
-            data: Object.values(statusCont),
-            backgroundColor: ['#4a7c59', '#a84032', '#b8860b'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'right', labels: { color: '#5a5a5a', font: { size: 11 } } }
-          }
-        }
-      });
-
-      // Pedidos Mensais (simulado)
-      const meses = ['Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set'];
-      const pedidosMensais = [65, 72, 78, 85, 92, 98];
-
-      destruirChart(charts.pedidosP1);
-      charts.pedidosP1 = new Chart(document.getElementById('chart-pedidos-p1'), {
-        type: 'line',
-        data: {
-          labels: meses,
-          datasets: [{
-            data: pedidosMensais,
-            borderColor: '#404040',
-            backgroundColor: 'rgba(64, 64, 64, 0.1)',
-            fill: true,
-            tension: 0.4,
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { grid: { color: '#ececec' }, ticks: { color: '#8a8a8a', font: { size: 10 } } },
-            x: { grid: { display: false }, ticks: { color: '#5a5a5a', font: { size: 11 } } }
-          }
-        }
-      });
-
-      const top10 = [...dadosFiltradosP1].sort((a, b) => (b.total_pedidos || 0) - (a.total_pedidos || 0)).slice(0, 10);
-
-      destruirChart(charts.topP1);
-      charts.topP1 = new Chart(document.getElementById('chart-top-p1'), {
-        type: 'bar',
-        data: {
-          labels: top10.map(f => f.nome),
-          datasets: [{
-            data: top10.map(f => f.total_pedidos || 0),
-            backgroundColor: '#404040',
-            borderRadius: 2
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { color: '#ececec' }, ticks: { color: '#8a8a8a', font: { size: 10 } } },
-            y: { grid: { display: false }, ticks: { color: '#5a5a5a', font: { size: 10 } } }
-          }
-        }
-      });
-
-      document.getElementById('badge-top-p1').textContent = `${top10.length} fornecedores`;
-    }
-
-    // página 2 - performance
-    function aplicarFiltrosP2() {
-      const avalMin = parseFloat(document.getElementById('filter-avaliacao-p2').value);
-      const pontMin = parseFloat(document.getElementById('filter-pontualidade-p2').value);
-      const busca = document.getElementById('search-p2').value.toLowerCase();
-
-      dadosFiltradosP2 = dadosOriginais.filter(f => {
-        const aval = Number(f.avaliacao) || 0;
-        const pont = Number(f.taxa_pontualidade) || 0;
-        const matchAval = aval >= avalMin;
-        const matchPont = pont >= pontMin;
-        const matchBusca = (f.nome || '').toLowerCase().includes(busca);
-        return matchAval && matchPont && matchBusca;
-      });
-
-      atualizarPagina2();
-    }
-
-    function atualizarPagina2() {
-      const binsLabels = ['1.0-1.9', '2.0-2.9', '3.0-3.9', '4.0-4.9', '5.0'];
-      const bins = [0, 0, 0, 0, 0];
-
-      dadosFiltradosP2.forEach(f => {
-        const a = Number(f.avaliacao) || 0;
-        if (a >= 5) bins[4]++;
-        else if (a >= 4) bins[3]++;
-        else if (a >= 3) bins[2]++;
-        else if (a >= 2) bins[1]++;
-        else if (a >= 1) bins[0]++;
-      });
-
-      destruirChart(charts.avalP2);
-      charts.avalP2 = new Chart(document.getElementById('chart-avaliacoes-p2'), {
-        type: 'bar',
-        data: { labels: binsLabels, datasets: [{ data: bins, backgroundColor: '#4a7c59', borderRadius: 2 }] },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { grid: { color: '#ececec' }, ticks: { color: '#8a8a8a', font: { size: 10 } } },
-            x: { grid: { display: false }, ticks: { color: '#5a5a5a', font: { size: 11 } } }
-          }
-        }
-      });
-
-      destruirChart(charts.pontP2);
-      charts.pontP2 = new Chart(document.getElementById('chart-pontualidade-p2'), {
-        type: 'scatter',
-        data: {
-          datasets: [{
-            label: 'Fornecedores',
-            data: dadosFiltradosP2.map(f => ({ x: Number(f.avaliacao) || 0, y: Number(f.taxa_pontualidade) || 0 })),
-            backgroundColor: '#4a6b7c'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { title: { display: true, text: 'Avaliação', color: '#5a5a5a' }, grid: { color: '#ececec' }, ticks: { color: '#8a8a8a' } },
-            y: { title: { display: true, text: 'Pontualidade (%)', color: '#5a5a5a' }, grid: { color: '#ececec' }, ticks: { color: '#8a8a8a' } }
-          }
-        }
-      });
-
-      const tbody = document.getElementById('table-p2');
-      if (!dadosFiltradosP2.length) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">Nenhum fornecedor encontrado.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = dadosFiltradosP2.map(f => `
-        <tr>
-          <td><strong>${f.nome}</strong></td>
-          <td><span class="rating">${Number(f.avaliacao).toFixed(1)} ⭐</span></td>
-          <td>${Number(f.taxa_pontualidade).toFixed(1)}%</td>
-          <td>${Number(f.total_pedidos) || 0}</td>
-          <td>${Number(f.prazo_entrega_medio) || 0} dias</td>
-          <td><span class="status-badge ${statusClass(f.status)}">${f.status}</span></td>
-        </tr>
-      `).join('');
-    }
-
-    // página 3 - busca avançada
-    function aplicarFiltrosP3() {
-      const nome = document.getElementById('search-nome-p3').value.toLowerCase();
-      const cnpj = document.getElementById('search-cnpj-p3').value;
-      const cidade = document.getElementById('filter-cidade-p3').value;
-      const status = document.getElementById('filter-status-p3').value;
-
-      dadosFiltradosP3 = dadosOriginais.filter(f => {
-        const matchNome = (f.nome || '').toLowerCase().includes(nome);
-        const matchCNPJ = (f.cnpj || '').includes(cnpj);
-        const matchCidade = cidade === 'todos' || f.cidade === cidade;
-        const matchStatus = status === 'todos' || f.status === status;
-        return matchNome && matchCNPJ && matchCidade && matchStatus;
-      });
-
-      atualizarPagina3();
-    }
-
-    function atualizarPagina3() {
-      const n = dadosFiltradosP3.length;
-
-      const somaAval = dadosFiltradosP3.reduce((acc, f) => acc + (Number(f.avaliacao) || 0), 0);
-      const somaPont = dadosFiltradosP3.reduce((acc, f) => acc + (Number(f.taxa_pontualidade) || 0), 0);
-      const totalPed = dadosFiltradosP3.reduce((acc, f) => acc + (Number(f.total_pedidos) || 0), 0);
-
-      document.getElementById('kpi-resultados-p3').textContent = n;
-      document.getElementById('kpi-avg-aval-p3').textContent = safeAvg(somaAval, n).toFixed(1);
-      document.getElementById('kpi-avg-pont-p3').textContent = `${safeAvg(somaPont, n).toFixed(1)}%`;
-      document.getElementById('kpi-ped-p3').textContent = totalPed;
-
-      const tbody = document.getElementById('table-p3');
-      if (!n) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px;">Nenhum fornecedor encontrado.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = dadosFiltradosP3.map(f => `
-        <tr>
-          <td><span class="status-badge">${f.id}</span></td>
-          <td><strong>${f.nome}</strong></td>
-          <td>${f.cnpj}</td>
-          <td>${f.categoria_principal}</td>
-          <td>${f.cidade}/${f.estado}</td>
-          <td>${f.telefone}</td>
-          <td>${f.email}</td>
-          <td><span class="rating">${Number(f.avaliacao).toFixed(1)} ⭐</span></td>
-          <td><span class="status-badge ${statusClass(f.status)}">${f.status}</span></td>
-        </tr>
-      `).join('');
-    }
-      // Ações dos botões
-    function adicionarFornecedor() {
-      alert('Funcionalidade de adicionar fornecedor será implementada.');
-    }
-
-    function exportarDados() {
-      const csv = [
-        ['ID', 'Nome', 'CNPJ', 'Status', 'Avaliação', 'Pontualidade', 'Total Pedidos', 'Telefone', 'Email'],
-        ...dadosOriginais.map(f => [
-          f.id, f.nome, f.cnpj, f.status, f.avaliacao, f.taxa_pontualidade, f.total_pedidos, f.telefone, f.email
-        ])
-      ].map(row => row.join(',')).join('\n');
-
-      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `fornecedores_${new Date().toISOString().split('T')[0]}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-
-      // inicialização
-    function carregarDados() {
-      dadosOriginais = Array.isArray(DADOS_FORNECEDORES) ? DADOS_FORNECEDORES : [];
-      dadosFiltradosP1 = [...dadosOriginais];
-      dadosFiltradosP2 = [...dadosOriginais];
-      dadosFiltradosP3 = [...dadosOriginais];
-
-      popularFiltros();
-      atualizarPagina1();
-      atualizarPagina2();
-      atualizarPagina3();
-    }
-
-    carregarDados();
-  </script>
 </body>
 </html>
