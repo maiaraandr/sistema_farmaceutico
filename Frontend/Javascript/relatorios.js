@@ -1,10 +1,3 @@
-/**
- * ========================================
- * RELATÓRIOS - LÓGICA (LocalStorage)
- * ========================================
- * Depende de: Storage.js
- */
-
 document.addEventListener("DOMContentLoaded", () => {
   if (
     typeof getMovimentacoes !== "function"
@@ -82,8 +75,6 @@ function atualizarResumo(entradas, saidas) {
   document.getElementById("totalSaidas").textContent = saidas;
   document.getElementById("saldo").textContent = entradas - saidas;
 }
-
-/* ================= Helpers ================= */
 
 function formatarDataBR(dateStr) {
   const d = new Date(dateStr);

@@ -1,19 +1,5 @@
-/**
- * ========================================
- * SISTEMA FARMACÊUTICO - ESTILOS GLOBAIS
- * ========================================
- * Design: Profissional Médico/Farmacêutico
- * Tema: Clean, confiável, moderno
- */
-
-/* ========================================
-   IMPORTAÇÃO DE FONTES
-   ======================================== */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ========================================
-   VARIÁVEIS CSS
-   ======================================== */
 :root {
     /* Cores Principais */
     --primary: #0066FF;
@@ -40,20 +26,13 @@
     --gray-800: #1F2937;
     --gray-900: #111827;
 
-    /* Tons auxiliares do primário (usado em badges/inputs/botões) */
     --primary-50: rgba(0, 102, 255, 0.06);
     --primary-100: rgba(0, 102, 255, 0.10);
-
-    /* Pesos de fonte (alguns CSS teus usam essas vars) */
     --font-medium: 500;
     --font-semibold: 600;
     --font-bold: 700;
-
-    /* Sombras extras (alguns CSS teus usam shadow-2xl) */
     --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 
-    
-    /* Tipografia */
     --font-primary: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-secondary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     
@@ -78,14 +57,12 @@
     --space-10: 2.5rem;    /* 40px */
     --space-12: 3rem;      /* 48px */
     
-    /* Sombras */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
     
-    /* Border Radius */
     --radius-sm: 0.25rem;  /* 4px */
     --radius: 0.5rem;      /* 8px */
     --radius-md: 0.75rem;  /* 12px */
@@ -97,9 +74,6 @@
     --transition-slow: all 0.3s ease;
 }
 
-/* ========================================
-   RESET E BASE
-   ======================================== */
 *,
 *::before,
 *::after {
@@ -124,9 +98,6 @@ body {
     overflow-x: hidden;
 }
 
-/* ========================================
-   TIPOGRAFIA
-   ======================================== */
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-primary);
     font-weight: 600;
@@ -157,9 +128,6 @@ a:hover {
     color: var(--primary-dark);
 }
 
-/* ========================================
-   UTILITÁRIOS
-   ======================================== */
 .container {
     width: 100%;
     max-width: 1400px;
@@ -212,9 +180,6 @@ a:hover {
 .mb-4 { margin-bottom: var(--space-4); }
 .mb-6 { margin-bottom: var(--space-6); }
 
-/* ========================================
-   ANIMAÇÕES
-   ======================================== */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -254,9 +219,6 @@ a:hover {
     animation: slideInRight 0.3s ease forwards;
 }
 
-/* ========================================
-   SCROLLBAR CUSTOMIZADO
-   ======================================== */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -275,9 +237,7 @@ a:hover {
     background: var(--gray-500);
 }
 
-/* ========================================
-   RESPONSIVIDADE
-   ======================================== */
+
 @media (max-width: 768px) {
     :root {
         --text-4xl: 1.875rem;  /* 30px */
@@ -290,9 +250,6 @@ a:hover {
     }
 }
 
-/* ========================================
-   CLASSES DE DISPLAY
-   ======================================== */
 .hidden {
     display: none !important;
 }
@@ -305,9 +262,6 @@ a:hover {
     display: inline-block;
 }
 
-/* ========================================
-   SELEÇÃO DE TEXTO
-   ======================================== */
 ::selection {
     background-color: var(--primary-light);
     color: var(--white);

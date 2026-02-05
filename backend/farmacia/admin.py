@@ -1,7 +1,6 @@
 from django.contrib import admin
 from .models import Medicamento
 
-# remove registro anterior, caso exista
 try:
     admin.site.unregister(Medicamento)
 except admin.sites.NotRegistered:

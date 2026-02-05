@@ -1,42 +1,26 @@
-/**
- * ========================================
- * DASHBOARD - LÓGICA (compatível com dashboard.html enviado)
- * ========================================
- * Depende de: Storage.js + autenticacao.js
- */
-
 (function () {
   // Protege a página (se não tiver logado, volta pro login)
   if (typeof protectPage === "function") protectPage();
 
-  // Garante ícones
   if (typeof lucide !== "undefined") lucide.createIcons();
 
-  // Logout
   const btnLogout = document.getElementById("logoutBtn");
   if (btnLogout && typeof logout === "function") {
     btnLogout.addEventListener("click", logout);
   }
 
-  // Carregar tudo
   loadUserInfo();
   loadDashboardNumbers();
   renderAlerts();
   renderExpiringTable();
 })();
 
-/**
- * Carregar nome do usuário no header
- */
 function loadUserInfo() {
   const user = typeof getCurrentUser === "function" ? getCurrentUser() : null;
   const el = document.getElementById("userName");
   if (el) el.textContent = user?.nome ? user.nome : "Usuário";
 }
 
-/**
- * Preencher os 4 cards do topo (IDs do seu HTML)
- */
 function loadDashboardNumbers() {
   const produtos = (typeof getProdutos === "function" ? getProdutos() : []).filter(
     (p) => p.ativo !== false
@@ -68,9 +52,6 @@ function loadDashboardNumbers() {
   setText("valorTotal", formatarMoeda(valorTotal));
 }
 
-/**
- * Renderizar alertas em #alertasContainer (substitui os alertas fixos)
- */
 function renderAlerts() {
   const container = document.getElementById("alertasContainer");
   if (!container) return;
@@ -93,7 +74,6 @@ function renderAlerts() {
 
   const hasAny = lowStock.length > 0 || expiring30.length > 0;
 
-  // Se não tiver nada, mostra só “sistema ok”
   if (!hasAny) {
     container.innerHTML = `
       <div class="alert alert-success">
@@ -146,7 +126,6 @@ function renderAlerts() {
     `);
   }
 
-  // “Sistema atualizado” sempre por último
   html.push(`
     <div class="alert alert-success">
       <div class="alert-icon">
@@ -163,9 +142,6 @@ function renderAlerts() {
   lucide.createIcons();
 }
 
-/**
- * Renderizar tabela "Medicamentos Próximos ao Vencimento" em #vencimentoContainer
- */
 function renderExpiringTable() {
   const tbody = document.getElementById("vencimentoContainer");
   if (!tbody) return;
@@ -220,8 +196,6 @@ function renderExpiringTable() {
 
   lucide.createIcons();
 }
-
-/* ===================== Helpers ===================== */
 
 function setText(id, text) {
   const el = document.getElementById(id);

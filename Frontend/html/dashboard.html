@@ -1,4 +1,3 @@
-<!-- dashboard.html (revisado: apenas correções de conexão para “Medicamentos”) -->
 <!doctype html>
 <html lang="pt-BR">
   <head>
@@ -13,7 +12,6 @@
   </head>
   <body>
     <div class="dashboard-layout">
-      <!-- Sidebar -->
       <aside class="sidebar">
         <div class="sidebar-header">
           <div class="logo">
@@ -30,7 +28,6 @@
             <span>Dashboard</span>
           </a>
 
-          <!-- ERA produtos.html -->
           <a href="medicamentos.html" class="nav-item">
             <i data-lucide="package"></i>
             <span>Medicamentos</span>
@@ -50,8 +47,6 @@
             <i data-lucide="package-minus"></i>
             <span>Saída</span>
           </a>
-
-          <!-- ERA relatorios.html -->
           <a href="relatorio.html" class="nav-item">
             <i data-lucide="file-text"></i>
             <span>Relatórios</span>
@@ -65,10 +60,7 @@
           </button>
         </div>
       </aside>
-
-      <!-- Main Content -->
       <main class="main-content">
-        <!-- Header -->
         <header class="content-header animate-fadeIn">
           <div class="header-left">
             <h1 class="page-title">
@@ -83,8 +75,6 @@
             </div>
           </div>
         </header>
-
-        <!-- Stats Cards -->
         <div class="stats-grid animate-slideInRight">
           <!-- Total Medicamentos -->
           <div class="stat-card hover-lift">
@@ -103,7 +93,6 @@
               </span>
             </div>
           </div>
-
           <!-- Estoque Baixo -->
           <div class="stat-card hover-lift">
             <div class="stat-icon stat-icon-warning">
@@ -121,8 +110,7 @@
               </span>
             </div>
           </div>
-
-          <!-- Próximos ao Vencimento -->
+          <!-- Próximos do Vencimento -->
           <div class="stat-card hover-lift">
             <div class="stat-icon stat-icon-danger">
               <i data-lucide="calendar-x"></i>
@@ -136,7 +124,6 @@
               </span>
             </div>
           </div>
-
           <!-- Valor Total -->
           <div class="stat-card hover-lift">
             <div class="stat-icon stat-icon-success">
@@ -155,8 +142,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Charts Row -->
         <div class="charts-row animate-fadeIn">
           <!-- Gráfico de Movimentações -->
           <div class="card hover-scale">
@@ -170,7 +155,6 @@
               <canvas id="chartMovimentacoes" height="80"></canvas>
             </div>
           </div>
-
           <!-- Gráfico de Categorias -->
           <div class="card hover-scale">
             <div class="card-header">
@@ -184,7 +168,6 @@
             </div>
           </div>
         </div>
-
         <!-- Alertas Importantes -->
         <div class="content-section animate-slideInLeft">
           <div class="section-header">
@@ -193,7 +176,6 @@
               Alertas Importantes
             </h2>
           </div>
-
           <div id="alertasContainer">
             <div class="alert alert-warning">
               <div class="alert-icon">
@@ -203,7 +185,6 @@
                 <div class="alert-title">Estoque Baixo</div>
                 <div class="alert-message">
                   3 medicamentos estão com estoque abaixo do mínimo recomendado.
-                  <!-- ALTERAÇÃO: produtos.html -> medicamentos.html -->
                   <a
                     href="medicamentos.html"
                     class="text-primary font-semibold"
@@ -222,7 +203,6 @@
                 <div class="alert-title">Medicamentos Vencendo</div>
                 <div class="alert-message">
                   5 medicamentos vencem nos próximos 30 dias.
-                  <!-- ALTERAÇÃO: produtos.html -> medicamentos.html -->
                   <a
                     href="medicamentos.html"
                     class="text-primary font-semibold"
@@ -246,16 +226,13 @@
             </div>
           </div>
         </div>
-
-        <!-- Medicamentos Próximos ao Vencimento -->
+        <!-- Medicamentos Próximos do Vencimento -->
         <div class="content-section animate-fadeIn">
           <div class="section-header">
             <h2 class="section-title">
               <i data-lucide="calendar-clock"></i>
               Medicamentos Próximos ao Vencimento
             </h2>
-
-            <!-- ALTERAÇÃO: produtos.html -> medicamentos.html -->
             <a href="medicamentos.html" class="btn btn-outline btn-sm">
               Ver todos
               <i
@@ -264,7 +241,6 @@
               ></i>
             </a>
           </div>
-
           <div class="table-card">
             <table class="table-modern">
               <thead>
@@ -321,7 +297,7 @@
       </main>
     </div>
 
-    <!-- JavaScript -->
+    <!-- Ligação com o JavaScript -->
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/dashboard.js"></script>
 

@@ -1,10 +1,3 @@
-/**
- * ========================================
- * SAÍDA - LÓGICA (LocalStorage + Estoque)
- * ========================================
- * Depende de: Storage.js
- */
-
 (function () {
   // Checagem de dependências
   const depsOk =
@@ -25,14 +18,11 @@
   const dataSaidaInput = document.getElementById("dataSaida");
   if (dataSaidaInput) dataSaidaInput.value = hojeBR();
 
-  // Render inicial
   renderSaidas();
 
-  // Submit
   const form = document.getElementById("formSaida");
   if (form) form.addEventListener("submit", onSubmitSaida);
 
-  // Ícones
   if (typeof lucide !== "undefined") lucide.createIcons();
 })();
 
@@ -44,13 +34,12 @@ function onSubmitSaida(e) {
   const destino = getValue("destino");
   const dataSaida = document.getElementById("dataSaida")?.value || hojeBR();
 
-  // Validações
   if (!medicamentoDigitado || !destino || !quantidade || quantidade <= 0) {
     alert("Preencha todos os campos corretamente (quantidade deve ser maior que 0).");
     return;
   }
 
-  // Procurar produto existente (mais tolerante)
+  // Procurar produto existente 
   const produtos = getProdutos().filter((p) => p.ativo !== false);
 
   const buscado = medicamentoDigitado.toLowerCase().trim();
@@ -80,7 +69,7 @@ function onSubmitSaida(e) {
     return;
   }
 
-  // Atualiza estoque (subtrai)
+  // Atualiza estoque 
   updateProduto(produto.id, {
     stock_atual: estoqueAtual - quantidade
   });
@@ -95,7 +84,6 @@ function onSubmitSaida(e) {
     dataBR: dataSaida
   });
 
-  // Limpa form e renova data
   document.getElementById("formSaida")?.reset();
   const dataSaidaInput = document.getElementById("dataSaida");
   if (dataSaidaInput) dataSaidaInput.value = hojeBR();
@@ -156,7 +144,6 @@ function excluirSaida(movId) {
   const mov = movs.find((m) => m.id === movId);
   if (!mov) return;
 
-  // Reverter estoque (devolve a quantidade)
   const produto = getProdutoById(mov.produto_id);
   if (produto) {
     const atual = Number(produto.stock_atual ?? 0);
@@ -164,15 +151,12 @@ function excluirSaida(movId) {
     updateProduto(produto.id, { stock_atual: atual + qtd });
   }
 
-  // Remove movimentação do histórico
   const atualizados = movs.filter((m) => m.id !== movId);
   saveMovimentacoes(atualizados);
 
   renderSaidas();
   if (typeof lucide !== "undefined") lucide.createIcons();
 }
-
-/* ===================== Helpers ===================== */
 
 function getValue(id) {
   const el = document.getElementById(id);

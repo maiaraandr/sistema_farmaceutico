@@ -1,13 +1,3 @@
-/**
- * ========================================
- * STORAGE - LocalStorage Manager
- * ========================================
- * Gerencia todos os dados no localStorage
- */
-
-// ========================================
-// CHAVES DO LOCALSTORAGE
-// ========================================
 const STORAGE_KEYS = {
   USERS: "farm_users",
   PRODUTOS: "farm_produtos",
@@ -16,10 +6,6 @@ const STORAGE_KEYS = {
   CURRENT_USER: "farm_current_user",
   SESSION_TOKEN: "farm_session_token",
 };
-
-// ========================================
-// FUNÇÕES GENÉRICAS
-// ========================================
 
 function saveToStorage(key, data) {
   try {
@@ -65,14 +51,9 @@ function clearStorage() {
   }
 }
 
-// ========================================
-// NORMALIZAÇÃO (COMPATIBILIDADE DE CAMPOS)
-// ========================================
-
 function normalizeProduto(p) {
   if (!p || typeof p !== "object") return p;
 
-  // Normaliza variações de nomes (mantém os originais e cria equivalentes)
   const estoqueAtual =
     p.estoqueAtual ?? p.stock_atual ?? p.stockAtual ?? p.estoque_atual ?? 0;
 
@@ -84,11 +65,9 @@ function normalizeProduto(p) {
 
   return {
     ...p,
-    // aliases padronizados
     estoqueAtual,
     estoqueMinimo,
     fornecedorId,
-    // também mantém os nomes "stock_*" atualizados para não quebrar scripts antigos
     stock_atual: p.stock_atual ?? estoqueAtual,
     stock_minimo: p.stock_minimo ?? estoqueMinimo,
     fornecedor_id: p.fornecedor_id ?? fornecedorId,
@@ -99,10 +78,6 @@ function normalizeProdutosArray(arr) {
   if (!Array.isArray(arr)) return [];
   return arr.map(normalizeProduto);
 }
-
-// ========================================
-// USUÁRIOS
-// ========================================
 
 function getUsers() {
   return loadFromStorage(STORAGE_KEYS.USERS, []);
@@ -121,10 +96,6 @@ function addUser(user) {
   });
   return saveUsers(users);
 }
-
-// ========================================
-// PRODUTOS (MEDICAMENTOS)
-// ========================================
 
 function getProdutos() {
   const produtos = loadFromStorage(STORAGE_KEYS.PRODUTOS, []);
@@ -172,9 +143,6 @@ function getProdutoById(id) {
   return produtos.find((p) => p.id === id);
 }
 
-/**
- * Aliases para evitar quebra se seu JS usa "medicamentos"
- */
 function getMedicamentos() {
   return getProdutos();
 }
@@ -193,10 +161,6 @@ function deleteMedicamento(id) {
 function getMedicamentoById(id) {
   return getProdutoById(id);
 }
-
-// ========================================
-// FORNECEDORES
-// ========================================
 
 function getFornecedores() {
   return loadFromStorage(STORAGE_KEYS.FORNECEDORES, []);
@@ -236,10 +200,6 @@ function deleteFornecedor(id) {
   return updateFornecedor(id, { ativo: false });
 }
 
-// ========================================
-// MOVIMENTAÇÕES
-// ========================================
-
 function getMovimentacoes() {
   return loadFromStorage(STORAGE_KEYS.MOVIMENTACOES, []);
 }
@@ -258,12 +218,7 @@ function addMovimentacao(movimentacao) {
   return saveMovimentacoes(movimentacoes);
 }
 
-// ========================================
-// INICIALIZAÇÃO COM DADOS DE EXEMPLO (SEM SOBRESCREVER)
-// ========================================
-
 function initializeSampleData() {
-  // Inicializa CADA conjunto só se estiver vazio
   const users = getUsers();
   if (users.length === 0) {
     saveUsers([

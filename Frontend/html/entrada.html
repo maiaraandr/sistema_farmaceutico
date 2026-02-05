@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Entrada de Medicamentos | FarmaSys</title>
 
-    <!-- CSS base do sistema -->
+    <!-- CSS do sistema -->
     <link rel="stylesheet" href="../CSS/Style.css">
     <link rel="stylesheet" href="../CSS/Components.css">
     <link rel="stylesheet" href="../CSS/dashboard.css">
@@ -13,10 +13,9 @@
 
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Ajustes visuais locais (tom azul semelhante ao login/cadastro) -->
     <style>
         :root{
-            --brand: #2563eb;        /* azul */
+            --brand: #2563eb;      
             --brand-600: #1d4ed8;
             --brand-100: rgba(37, 99, 235, 0.12);
         }
@@ -108,7 +107,6 @@
 <body>
 
 <div class="dashboard-layout">
-    <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="logo">
@@ -154,9 +152,7 @@
         </div>
     </aside>
 
-    <!-- Main -->
     <main class="main-content">
-        <!-- Header -->
         <header class="content-header">
             <div class="header-left">
                 <h1 class="page-title">
@@ -173,7 +169,6 @@
             </div>
         </header>
 
-        <!-- KPIs pequenos -->
         <div class="kpi-mini-grid">
             <div class="kpi-mini">
                 <div class="kpi-icon"><i data-lucide="calendar"></i></div>
@@ -200,7 +195,6 @@
             </div>
         </div>
 
-        <!-- Form -->
         <section class="content-section">
             <div class="card">
                 <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
@@ -304,7 +298,7 @@
 </div>
 
     <script src="../Javascript/Storage.js"></script>
-    <script src="../Javascript/autenticacao.js"></script> <!-- se você protege a página -->
+    <script src="../Javascript/autenticacao.js"></script> 
     <script src="../Javascript/entrada.js"></script>
     <script>
          lucide.createIcons();

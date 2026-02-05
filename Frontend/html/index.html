@@ -11,7 +11,6 @@
     <div class="auth-page">
         <div class="auth-container">
             <div class="login-box">
-                <!-- Ícone -->
                 <div class="auth-icon">
                     <i data-lucide="pill"></i>
                 </div>
@@ -68,13 +67,10 @@
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/autenticacao.js"></script>
     <script>
-        // Inicializar ícones
         lucide.createIcons();
 
-        // Focar no campo usuário
         document.getElementById('username').focus();
 
-        // Toggle de senha
         document.getElementById('togglePassword').addEventListener('click', function() {
             const input = document.getElementById('password');
             const icon = this.querySelector('i');
@@ -98,10 +94,8 @@
             const btn = document.getElementById('loginBtn');
             const errorDiv = document.getElementById('loginError');
             
-            // Esconder erro
             errorDiv.classList.add('hidden');
             
-            // Mostrar loading
             btn.disabled = true;
             btn.textContent = 'Entrando...';
             

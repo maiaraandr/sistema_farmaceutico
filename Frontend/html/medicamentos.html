@@ -9,13 +9,11 @@
   <link rel="stylesheet" href="../CSS/Components.css">
   <link rel="stylesheet" href="../CSS/dashboard.css">
   <link rel="stylesheet" href="../CSS/Table_styles.css">
-  <!-- se você separou este arquivo: -->
   <link rel="stylesheet" href="../CSS/medicamentos.css">
 
 
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Estilos mínimos só para os novos KPIs/botões (não quebra seu layout atual) -->
   <style>
     .header-actions-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .btn-ghost {
@@ -58,7 +56,6 @@
 
 <body>
   <div class="dashboard-layout">
-    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo">
@@ -75,7 +72,6 @@
           <span>Dashboard</span>
         </a>
 
-        <!-- ✅ trocado -->
         <a href="medicamentos.html" class="nav-item active">
           <i data-lucide="package"></i>
           <span>Medicamentos</span>
@@ -107,9 +103,7 @@
       </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
-      <!-- Header -->
       <header class="content-header">
         <div class="header-left">
           <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menu">
@@ -123,7 +117,7 @@
         </div>
 
         <div class="header-actions-right">
-          <!-- ✅ botão voltar -->
+          <!-- botão voltar -->
           <button class="btn-ghost" type="button" onclick="window.location.href='index.html'">
             <i data-lucide="arrow-left"></i>
             Voltar ao Dashboard
@@ -135,7 +129,6 @@
         </div>
       </header>
 
-      <!-- KPIs (✅ novo) -->
       <section class="content-section">
         <div class="kpi-row">
           <div class="kpi-card-mini">
@@ -195,7 +188,6 @@
           </div>
 
           <div class="actions-right">
-            <!-- ✅ novo -->
             <button class="btn-ghost" id="btnExportarCSV" type="button">
               <i data-lucide="download"></i>
               Exportar CSV
@@ -235,7 +227,6 @@
     </main>
   </div>
 
-  <!-- Modal Produto (mantido) -->
   <div class="modal" id="modalProduto">
     <div class="modal-overlay" id="modalOverlay"></div>
     <div class="modal-content modal-lg">
@@ -336,7 +327,6 @@
     </div>
   </div>
 
-  <!-- Modal Excluir (mantido) -->
   <div class="modal" id="modalExcluir">
     <div class="modal-overlay" id="modalExcluirOverlay"></div>
     <div class="modal-content modal-sm">

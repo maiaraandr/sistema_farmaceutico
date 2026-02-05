@@ -37,7 +37,6 @@
 
     .container { max-width: 1800px; margin: 0 auto; padding: 24px; }
 
-    /* Header */
     .dashboard-header {
       background: var(--bg-secondary);
       border: 1px solid var(--border);
@@ -70,7 +69,6 @@
 
     .header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
-    /* Tabs */
     .tabs {
       background: var(--bg-secondary);
       border: 1px solid var(--border);
@@ -98,7 +96,6 @@
     .tab:hover { background: var(--bg-tertiary); color: var(--text-primary); }
     .tab.active { background: var(--accent); color: white; }
 
-    /* Page Content */
     .page-content { display: none; }
     .page-content.active { display: block; animation: fadeIn 0.3s ease; }
 
@@ -107,7 +104,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Grid Layouts */
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -122,7 +118,6 @@
       margin-bottom: 16px;
     }
 
-    /* Cards */
     .card {
       background: var(--bg-secondary);
       border: 1px solid var(--border);
@@ -159,7 +154,6 @@
       font-family: 'IBM Plex Mono', monospace;
     }
 
-    /* KPI Card */
     .kpi-card {
       background: var(--bg-secondary);
       border: 1px solid var(--border);
@@ -189,10 +183,8 @@
 
     .kpi-subtitle { font-size: 12px; color: var(--text-secondary); }
 
-    /* Chart Container */
     .chart-container { position: relative; height: 300px; width: 100%; }
 
-    /* Filters */
     .filters-section {
       background: var(--bg-secondary);
       border: 1px solid var(--border);
@@ -246,7 +238,6 @@
 
     .search-input::placeholder { color: var(--text-tertiary); }
 
-    /* Table */
     .table-wrapper {
       overflow-x: auto;
       background: var(--bg-secondary);
@@ -280,7 +271,6 @@
 
     .data-table tbody tr:hover { background: var(--bg-tertiary); }
 
-    /* Status Badge */
     .status-badge {
       display: inline-block;
       padding: 4px 10px;
@@ -296,10 +286,8 @@
     .status-inativo { background: rgba(168,64,50,0.15); color: var(--danger); }
     .status-emanalise { background: rgba(184,134,11,0.15); color: var(--warning); }
 
-    /* Rating */
     .rating { color: var(--warning); font-size: 14px; font-family: 'IBM Plex Mono', monospace; }
 
-    /* Buttons */
     .btn {
       padding: 10px 20px;
       border: 1px solid var(--border);
@@ -343,7 +331,6 @@
 <body>
   <div class="container">
 
-    <!-- Header -->
     <div class="dashboard-header">
       <div class="header-title">
         <div class="header-icon">🏢</div>
@@ -354,22 +341,22 @@
       </div>
 
       <div class="header-actions">
-        <!-- ✅ BOTÃO VOLTAR -->
+        <!-- BOTÃO VOLTAR -->
         <button class="btn" onclick="voltarDashboard()"> Voltar ao Dashboard</button>
-
+        <!-- Botão para adicionar novo fornecedor -->
         <button class="btn" onclick="adicionarFornecedor()">➕ Novo Fornecedor</button>
+        <!-- Botão para exportar dados -->
         <button class="btn btn-primary" onclick="exportarDados()">📥 Exportar</button>
       </div>
     </div>
 
-    <!-- Tabs Navigation -->
     <div class="tabs">
       <button class="tab active" onclick="mudarPagina(1)">Visão Geral</button>
       <button class="tab" onclick="mudarPagina(2)">Performance e Avaliações</button>
       <button class="tab" onclick="mudarPagina(3)">Cadastro Completo</button>
     </div>
 
-    <!-- PÁGINA 1 -->
+    <!-- Página 1 -->
     <div class="page-content active" id="page1">
       <div class="info-box">
         <strong>Dashboard de Fornecedores:</strong> Gerencie fornecedores, acompanhe performance, avaliações e histórico de pedidos.
@@ -456,7 +443,7 @@
       </div>
     </div>
 
-    <!-- PÁGINA 2 -->
+    <!-- Página 2 -->
     <div class="page-content" id="page2">
       <div class="filters-section">
         <div class="filters-title">🔍 Filtros de Performance</div>
@@ -527,7 +514,7 @@
       </div>
     </div>
 
-    <!-- PÁGINA 3 -->
+    <!-- Página 3 -->
     <div class="page-content" id="page3">
       <div class="filters-section">
         <div class="filters-title">🔍 Busca Avançada</div>
@@ -610,24 +597,16 @@
   </script>
 
   <script>
-    // =========================
-    // CONFIG GERAL
-    // =========================
+
     Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
     Chart.defaults.color = '#8a8a8a';
 
-    // =========================
-    // DADOS / ESTADO
-    // =========================
     let dadosOriginais = [];
     let dadosFiltradosP1 = [];
     let dadosFiltradosP2 = [];
     let dadosFiltradosP3 = [];
     const charts = {};
 
-    // =========================
-    // HELPERS
-    // =========================
     function normalizarTexto(str) {
       return (str || '')
         .toString()
@@ -651,17 +630,12 @@
       return n > 0 ? (sum / n) : 0;
     }
 
-    // =========================
-    // VOLTAR AO DASHBOARD (✅ novo)
-    // =========================
+    // botão para voltar ao dashboard -->
     function voltarDashboard() {
-      // Troque para o nome correto da sua tela principal:
       const destino = 'dashboard.html';
 
-      // tenta ir para o arquivo
       window.location.href = destino;
 
-      // fallback (caso não exista / esteja em outra rota)
       setTimeout(() => {
         if (document.visibilityState === 'visible') {
           try { history.back(); } catch (e) {}
@@ -669,11 +643,6 @@
       }, 400);
     }
 
-    // =========================
-    // POPULAR FILTROS
-    // =========================
-    // Lista reduzida aqui só para não deixar o arquivo enorme.
-    // Se quiser manter sua lista completa, pode colar aqui e vai funcionar igual.
     const CIDADES_BRASIL = [
       {cidade: 'Belém', estado: 'PA'},
       {cidade: 'São Paulo', estado: 'SP'},
@@ -716,9 +685,7 @@
       popularSelectCidades('filter-cidade-p3', CIDADES_BRASIL);
     }
 
-    // =========================
-    // NAVEGAÇÃO
-    // =========================
+      //TELA DE NAVEGAÇÃO ENTRE PÁGINAS
     function mudarPagina(num) {
       document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -727,9 +694,7 @@
       document.querySelectorAll('.tab')[num - 1].classList.add('active');
     }
 
-    // =========================
-    // PÁGINA 1
-    // =========================
+    // Página 1 - visão geral
     function aplicarFiltrosP1() {
       const status = document.getElementById('filter-status-p1').value;
       const categoria = document.getElementById('filter-categoria-p1').value;
@@ -748,7 +713,6 @@
     function atualizarPagina1() {
       const n = dadosFiltradosP1.length;
 
-      // KPIs (com proteção)
       const totalPedidos = dadosFiltradosP1.reduce((acc, f) => acc + (Number(f.total_pedidos) || 0), 0);
       const somaAval = dadosFiltradosP1.reduce((acc, f) => acc + (Number(f.avaliacao) || 0), 0);
       const ativos = dadosFiltradosP1.filter(f => f.status === 'Ativo').length;
@@ -759,7 +723,6 @@
       document.getElementById('kpi-avaliacao').textContent = n ? avaliacaoMedia : '0.0';
       document.getElementById('kpi-pedidos').textContent = totalPedidos;
 
-      // Gráfico Status
       const statusCont = {};
       dadosFiltradosP1.forEach(f => { statusCont[f.status] = (statusCont[f.status] || 0) + 1; });
 
@@ -812,7 +775,6 @@
         }
       });
 
-      // Top 10
       const top10 = [...dadosFiltradosP1].sort((a, b) => (b.total_pedidos || 0) - (a.total_pedidos || 0)).slice(0, 10);
 
       destruirChart(charts.topP1);
@@ -841,9 +803,7 @@
       document.getElementById('badge-top-p1').textContent = `${top10.length} fornecedores`;
     }
 
-    // =========================
-    // PÁGINA 2
-    // =========================
+    // página 2 - performance
     function aplicarFiltrosP2() {
       const avalMin = parseFloat(document.getElementById('filter-avaliacao-p2').value);
       const pontMin = parseFloat(document.getElementById('filter-pontualidade-p2').value);
@@ -862,7 +822,6 @@
     }
 
     function atualizarPagina2() {
-      // Histograma corrigido: 5 bins
       const binsLabels = ['1.0-1.9', '2.0-2.9', '3.0-3.9', '4.0-4.9', '5.0'];
       const bins = [0, 0, 0, 0, 0];
 
@@ -890,7 +849,6 @@
         }
       });
 
-      // Dispersão
       destruirChart(charts.pontP2);
       charts.pontP2 = new Chart(document.getElementById('chart-pontualidade-p2'), {
         type: 'scatter',
@@ -912,7 +870,6 @@
         }
       });
 
-      // Tabela (com status class robusto)
       const tbody = document.getElementById('table-p2');
       if (!dadosFiltradosP2.length) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">Nenhum fornecedor encontrado.</td></tr>`;
@@ -931,9 +888,7 @@
       `).join('');
     }
 
-    // =========================
-    // PÁGINA 3
-    // =========================
+    // página 3 - busca avançada
     function aplicarFiltrosP3() {
       const nome = document.getElementById('search-nome-p3').value.toLowerCase();
       const cnpj = document.getElementById('search-cnpj-p3').value;
@@ -983,10 +938,7 @@
         </tr>
       `).join('');
     }
-
-    // =========================
-    // AÇÕES
-    // =========================
+      // Ações dos botões
     function adicionarFornecedor() {
       alert('Funcionalidade de adicionar fornecedor será implementada.');
     }
@@ -1008,9 +960,7 @@
       URL.revokeObjectURL(url);
     }
 
-    // =========================
-    // INICIALIZAÇÃO
-    // =========================
+      // inicialização
     function carregarDados() {
       dadosOriginais = Array.isArray(DADOS_FORNECEDORES) ? DADOS_FORNECEDORES : [];
       dadosFiltradosP1 = [...dadosOriginais];

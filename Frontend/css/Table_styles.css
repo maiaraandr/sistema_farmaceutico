@@ -1,12 +1,3 @@
-/**
- * ==========================================
- * ESTILOS ADICIONAIS - TABELAS E MODAIS
- * ==========================================
- */
-
-/* ========================================
-   ACTIONS BAR
-   ======================================== */
 .actions-bar {
     display: flex;
     gap: var(--space-4);
@@ -67,9 +58,6 @@
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* ========================================
-   TABELA
-   ======================================== */
 .table-container {
     overflow-x: auto;
     background: white;
@@ -119,9 +107,6 @@
     font-family: 'Courier New', monospace;
 }
 
-/* ========================================
-   BADGES
-   ======================================== */
 .badge {
     display: inline-block;
     padding: 4px 10px;
@@ -156,9 +141,6 @@
     color: var(--gray-700);
 }
 
-/* ========================================
-   ACTION BUTTONS
-   ======================================== */
 .action-buttons {
     display: flex;
     gap: var(--space-2);
@@ -202,9 +184,6 @@
     color: white;
 }
 
-/* ========================================
-   PAGINAÇÃO
-   ======================================== */
 .pagination {
     display: flex;
     justify-content: center;
@@ -243,9 +222,6 @@
     cursor: not-allowed;
 }
 
-/* ========================================
-   MODAL
-   ======================================== */
 .modal {
     position: fixed;
     top: 0;
@@ -359,9 +335,6 @@
     border-top: 1px solid var(--gray-200);
 }
 
-/* ========================================
-   FORM
-   ======================================== */
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -409,9 +382,6 @@ textarea.form-input {
     font-family: inherit;
 }
 
-/* ========================================
-   BOTÕES
-   ======================================== */
 .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -471,9 +441,6 @@ textarea.form-input {
     background: #dc2626;
 }
 
-/* ========================================
-   RESPONSIVIDADE
-   ======================================== */
 @media (max-width: 768px) {
     .actions-bar {
         flex-direction: column;

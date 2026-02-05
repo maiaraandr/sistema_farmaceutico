@@ -1,17 +1,3 @@
-/* ========================================
-   MEDICAMENTOS - ESTILOS (REVISAO + LIGAÇÕES)
-   ✅ Compatível com o seu HTML atual (actions-bar, search-box, filter-group...)
-   ✅ Mantém suporte para as classes deste arquivo (actions-toolbar, search-container...)
-   ✅ Corrige/garante estilos usados pelo seu JS: .action-buttons, .btn-icon, .btn-icon-*
-   ✅ Modais e form-grid alinhados ao seu HTML
-   ======================================== */
-
-/* ----------------------------------------
-   ALIAS / COMPATIBILIDADE DE CLASSES
-   (seu HTML usa actions-bar/search-box/filter-group)
-   ---------------------------------------- */
-
-/* Toolbar (actions-bar = actions-toolbar) */
 .actions-bar,
 .actions-toolbar {
     background: var(--white, #ffffff);
@@ -26,7 +12,6 @@
     border: 1px solid var(--gray-200, #e5e7eb);
 }
 
-/* Search (search-box = search-container) */
 .search-box,
 .search-container {
     position: relative;
@@ -44,7 +29,6 @@
     height: 20px;
 }
 
-/* Seu HTML: input#searchInput */
 .search-box input,
 .search-input {
     width: 100%;
@@ -64,7 +48,6 @@
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
-/* Filters (filter-group = filters-group) */
 .filter-group,
 .filters-group {
     display: flex;
@@ -72,7 +55,6 @@
     align-items: center;
 }
 
-/* Seus selects já têm .filter-select */
 .filter-select {
     padding: 10px 12px;
     border: 2px solid var(--gray-300, #d1d5db);
@@ -91,9 +73,6 @@
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
-/* ----------------------------------------
-   QUICK STATS (opcional)
-   ---------------------------------------- */
 .quick-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -152,9 +131,6 @@
     font-weight: 700;
 }
 
-/* ----------------------------------------
-   TABELA (mantém seu HTML: table-container + data-table)
-   ---------------------------------------- */
 .table-container {
     width: 100%;
     overflow-x: auto;
@@ -197,7 +173,6 @@
     background: var(--gray-50, #f9fafb);
 }
 
-/* Linha com animação opcional */
 .table-row-animated {
     animation: fadeInRow 0.25s ease;
 }
@@ -206,9 +181,6 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ----------------------------------------
-   BOTÕES DE AÇÃO (seu JS usa .action-buttons + .btn-icon + .btn-icon-*)
-   ---------------------------------------- */
 .action-buttons,
 .action-buttons-inline {
     display: flex;
@@ -238,7 +210,6 @@
     height: 16px;
 }
 
-/* Primário */
 .btn-icon-primary {
     background: rgba(37, 99, 235, 0.12);
     color: var(--primary, #2563eb);
@@ -249,7 +220,6 @@
     transform: scale(1.06);
 }
 
-/* Info (caso use) */
 .btn-icon-info {
     background: var(--gray-100, #f3f4f6);
     color: var(--gray-700, #374151);
@@ -260,7 +230,6 @@
     transform: scale(1.06);
 }
 
-/* Danger */
 .btn-icon-danger {
     background: rgba(239, 68, 68, 0.12);
     color: var(--error, #ef4444);
@@ -271,9 +240,6 @@
     transform: scale(1.06);
 }
 
-/* ----------------------------------------
-   PAGINAÇÃO (seu HTML usa #pagination com .pagination e .pagination-btn)
-   ---------------------------------------- */
 .pagination-container {
     display: flex;
     justify-content: space-between;
@@ -326,9 +292,6 @@
     cursor: not-allowed;
 }
 
-/* ----------------------------------------
-   MODAL (compatível com seu HTML atual)
-   ---------------------------------------- */
 .modal {
     position: fixed;
     inset: 0;
@@ -417,9 +380,6 @@
     gap: 10px;
 }
 
-/* ----------------------------------------
-   FORM (compatível com seu HTML: .form-grid + .form-group + .form-input + .full-width)
-   ---------------------------------------- */
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -470,9 +430,6 @@
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
-/* ----------------------------------------
-   EMPTY STATE (opcional)
-   ---------------------------------------- */
 .empty-state {
     text-align: center;
     padding: 42px 18px;
@@ -499,9 +456,6 @@
     margin: 0 auto;
 }
 
-/* ----------------------------------------
-   RESPONSIVO
-   ---------------------------------------- */
 @media (max-width: 1024px) {
     .actions-bar,
     .actions-toolbar {

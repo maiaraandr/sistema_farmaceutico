@@ -1,8 +1,3 @@
-/**
- * ========================================
- * DESIGN AZUL MODERNO - INSPIRADO NO MODELO
- * ========================================
- */
 
 * {
     margin: 0;
@@ -21,7 +16,6 @@ body {
     overflow-x: hidden;
 }
 
-/* Efeito de ondas no fundo */
 body::before {
     content: '';
     position: absolute;
@@ -38,9 +32,6 @@ body::before {
     to { transform: translate(-50px, -50px); }
 }
 
-/* ========================================
-   PÁGINA DE AUTENTICAÇÃO
-   ======================================== */
 .auth-page {
     width: 100%;
     min-height: 100vh;
@@ -61,9 +52,6 @@ body::before {
     max-width: 500px;
 }
 
-/* ========================================
-   BOX DE LOGIN E CADASTRO
-   ======================================== */
 .login-box,
 .register-box {
     background-color: transparent;
@@ -71,7 +59,6 @@ body::before {
     width: 100%;
 }
 
-/* Ícone no topo */
 .auth-icon {
     width: 100px;
     height: 100px;
@@ -91,7 +78,6 @@ body::before {
     color: #fff;
 }
 
-/* Título */
 .login-title,
 .register-title {
     font-size: 24px;
@@ -101,16 +87,12 @@ body::before {
     margin-bottom: 40px;
     letter-spacing: 1px;
 }
-
-/* ========================================
-   CAMPOS DE FORMULÁRIO
-   ======================================== */
 .form-field {
     margin-bottom: 20px;
 }
 
 .form-field label {
-    display: none; /* Esconde labels, usamos placeholders */
+    display: none; 
 }
 
 .form-field input {
@@ -139,7 +121,6 @@ body::before {
     border-color: rgba(255, 255, 255, 0.6);
 }
 
-/* Ícones nos inputs */
 .input-wrapper {
     position: relative;
 }
@@ -153,7 +134,6 @@ body::before {
     pointer-events: none;
 }
 
-/* Campos menores no cadastro */
 .form-field.small input {
     width: 100%;
 }
@@ -164,9 +144,6 @@ body::before {
     }
 }
 
-/* ========================================
-   TOGGLE DE SENHA
-   ======================================== */
 .password-wrapper {
     position: relative;
     width: 100%;
@@ -194,9 +171,6 @@ body::before {
     color: #fff;
 }
 
-/* ========================================
-   BOTÕES
-   ======================================== */
 .btn-primary {
     display: block;
     width: 100%;
@@ -229,9 +203,6 @@ body::before {
     cursor: not-allowed;
 }
 
-/* ========================================
-   LINKS
-   ======================================== */
 .auth-link {
     text-align: center;
     margin-top: 20px;
@@ -252,9 +223,6 @@ body::before {
     border-bottom-color: rgba(255, 255, 255, 0.3);
 }
 
-/* ========================================
-   MENSAGENS
-   ======================================== */
 .message {
     padding: 14px;
     margin-bottom: 20px;
@@ -280,9 +248,6 @@ body::before {
     display: none;
 }
 
-/* ========================================
-   RESPONSIVIDADE
-   ======================================== */
 @media (max-width: 768px) {
     .auth-page {
         padding: 20px 15px;
@@ -328,9 +293,6 @@ body::before {
     }
 }
 
-/* ========================================
-   ANIMAÇÕES
-   ======================================== */
 @keyframes fadeIn {
     from {
         opacity: 0;

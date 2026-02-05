@@ -1,9 +1,3 @@
-/* ========================================
-   REGISTER - LAYOUT DIVIDIDO (AUTH SPLIT)
-   Escopo: só funciona quando o body tiver class="auth-split"
-   ======================================== */
-
-/* Container principal (vem do teu HTML com .auth-container) */
 .auth-split .auth-container {
     min-height: 100vh;
     display: flex;
@@ -12,7 +6,6 @@
     overflow: hidden;
 }
 
-/* Efeito de fundo */
 .auth-split .auth-container::before {
     content: '';
     position: absolute;
@@ -45,7 +38,6 @@
     to   { transform: translate(-50px, -50px); }
 }
 
-/* Lado Esquerdo */
 .auth-split .auth-left {
     flex: 1;
     display: flex;
@@ -66,7 +58,6 @@
     backdrop-filter: blur(10px);
 }
 
-/* Separador */
 .auth-split .auth-divider {
     width: 3px;
     background: linear-gradient(
@@ -79,7 +70,6 @@
     z-index: 1;
 }
 
-/* Lado Direito */
 .auth-split .auth-right {
     flex: 1;
     display: flex;
@@ -100,13 +90,11 @@
     backdrop-filter: blur(10px);
 }
 
-/* Cabeçalho */
 .auth-split .auth-header {
     text-align: center;
     margin-bottom: 32px;
 }
 
-/* Logo (suporta <i data-lucide> e <svg>) */
 .auth-split .auth-logo {
     width: 80px;
     height: 80px;
@@ -145,7 +133,6 @@
     margin: 0;
 }
 
-/* Form */
 .auth-split .auth-form {
     margin-bottom: 16px;
 }
@@ -154,7 +141,6 @@
     margin-bottom: 16px;
 }
 
-/* Botão principal */
 .auth-split .auth-btn {
     width: 100%;
     padding: 16px;
@@ -199,7 +185,6 @@
     opacity: 0.7;
 }
 
-/* Link */
 .auth-split .auth-link {
     text-align: center;
     margin-top: 16px;
@@ -219,7 +204,6 @@
     text-decoration: underline;
 }
 
-/* Grid */
 .auth-split .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -232,7 +216,6 @@
     }
 }
 
-/* Responsivo */
 @media (max-width: 1024px) {
     .auth-split .auth-container {
         flex-direction: column;
@@ -254,7 +237,6 @@
     }
 }
 
-/* Mensagem de sucesso (se tu usar essa classe) */
 .auth-split .success-message {
     background-color: rgba(16, 185, 129, 0.10);
     border-left: 4px solid #10b981;

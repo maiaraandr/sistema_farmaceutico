@@ -1,12 +1,4 @@
-/**
- * ========================================
- * ENTRADA - LÓGICA (LocalStorage + Estoque)
- * ========================================
- * Depende de: Storage.js
- */
-
 (function () {
-  // Checagem de dependências
   const depsOk =
     typeof getProdutos === "function" &&
     typeof updateProduto === "function" &&
@@ -16,23 +8,19 @@
     typeof saveMovimentacoes === "function";
 
   if (!depsOk) {
-    console.error("❌ Storage.js não foi carregado ou funções ausentes.");
+    console.error(" Storage.js não foi carregado ou funções ausentes.");
     alert("Erro: Storage.js não carregou. Verifique se ele está antes do entrada.js no HTML.");
     return;
   }
 
-  // Data de entrada (hoje)
   const dataEntradaInput = document.getElementById("dataEntrada");
   if (dataEntradaInput) dataEntradaInput.value = hojeBR();
 
-  // Render inicial
   renderEntradas();
 
-  // Submit
   const form = document.getElementById("formEntrada");
   if (form) form.addEventListener("submit", onSubmitEntrada);
 
-  // Ícones
   if (typeof lucide !== "undefined") lucide.createIcons();
 })();
 
@@ -45,18 +33,15 @@ function onSubmitEntrada(e) {
   const validade = getValue("validade");
   const dataEntrada = document.getElementById("dataEntrada")?.value || hojeBR();
 
-  // Validações
   if (!medicamentoDigitado || !fornecedor || !validade || !quantidade || quantidade <= 0) {
     alert("Preencha todos os campos corretamente (quantidade deve ser maior que 0).");
     return;
   }
 
-  // Procurar produto existente (mais tolerante)
   const produtos = getProdutos().filter((p) => p.ativo !== false);
 
   const buscado = medicamentoDigitado.toLowerCase().trim();
 
-  // tenta match exato; se não achar, tenta por "contém"
   let produto = produtos.find((p) => (p.nome || "").toLowerCase().trim() === buscado);
   if (!produto) {
     produto = produtos.find((p) => (p.nome || "").toLowerCase().includes(buscado));
@@ -70,13 +55,12 @@ function onSubmitEntrada(e) {
     return;
   }
 
-  // Atualiza estoque + vencimento
+  // Atualiza estoque e vencimento
   updateProduto(produto.id, {
     stock_atual: Number(produto.stock_atual ?? 0) + quantidade,
     vencimento: validade
   });
 
-  // Salva movimentação
   addMovimentacao({
     tipo: "entrada",
     produto_id: produto.id,
@@ -87,12 +71,10 @@ function onSubmitEntrada(e) {
     dataBR: dataEntrada
   });
 
-  // Limpa form e renova data
   document.getElementById("formEntrada")?.reset();
   const dataEntradaInput = document.getElementById("dataEntrada");
   if (dataEntradaInput) dataEntradaInput.value = hojeBR();
 
-  // Atualiza tabela
   renderEntradas();
   if (typeof lucide !== "undefined") lucide.createIcons();
 }
@@ -151,7 +133,6 @@ function excluirEntrada(movId) {
   const mov = movs.find((m) => m.id === movId);
   if (!mov) return;
 
-  // Reverter estoque
   const produto = getProdutoById(mov.produto_id);
   if (produto) {
     const atual = Number(produto.stock_atual ?? 0);
@@ -159,15 +140,12 @@ function excluirEntrada(movId) {
     updateProduto(produto.id, { stock_atual: Math.max(0, atual - qtd) });
   }
 
-  // Remove movimentação
   const atualizados = movs.filter((m) => m.id !== movId);
   saveMovimentacoes(atualizados);
 
   renderEntradas();
   if (typeof lucide !== "undefined") lucide.createIcons();
 }
-
-/* ===================== Helpers ===================== */
 
 function getValue(id) {
   const el = document.getElementById(id);

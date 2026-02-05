@@ -1,9 +1,3 @@
-/**
- * ========================================
- * TELA DE LOGIN
- * ========================================
- */
-
 .login-page {
     min-height: 100vh;
     display: flex;
@@ -23,7 +17,6 @@
     overflow: hidden;
 }
 
-/* Efeito de partículas de fundo */
 .login-page::before {
     content: '';
     position: absolute;
@@ -58,7 +51,6 @@
     backdrop-filter: blur(10px);
 }
 
-/* Logo e cabeçalho */
 .login-header {
     text-align: center;
     margin-bottom: var(--space-8);
@@ -107,7 +99,6 @@
     margin: 0;
 }
 
-/* Formulário */
 .login-form {
     margin-bottom: var(--space-6);
 }
@@ -168,7 +159,6 @@
     transform: translateY(0);
 }
 
-/* Credenciais de teste */
 .login-demo {
     background-color: var(--gray-50);
     border-radius: var(--radius);
@@ -211,7 +201,6 @@
     color: var(--primary);
 }
 
-/* Mensagens de erro */
 .login-error {
     background-color: rgba(239, 68, 68, 0.1);
     color: var(--error);
@@ -231,7 +220,6 @@
     75% { transform: translateX(10px); }
 }
 
-/* Opções extras */
 .login-options {
     display: flex;
     justify-content: space-between;
@@ -263,7 +251,6 @@
     text-decoration: underline;
 }
 
-/* Loading state */
 .login-btn.loading {
     pointer-events: none;
     opacity: 0.7;
@@ -284,7 +271,6 @@
     animation: spin 0.6s linear infinite;
 }
 
-/* Responsividade */
 @media (max-width: 480px) {
     .login-card {
         padding: var(--space-8) var(--space-6);

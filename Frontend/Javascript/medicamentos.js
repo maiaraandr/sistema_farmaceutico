@@ -504,9 +504,6 @@ function exportarCSV(lista) {
   URL.revokeObjectURL(url);
 }
 
-// ==========================================
-// HELPERS
-// ==========================================
 function escapeHTML(str) {
   return String(str ?? "")
     .replaceAll("&", "&amp;")
@@ -516,15 +513,10 @@ function escapeHTML(str) {
     .replaceAll("'", "&#039;");
 }
 
-// ==========================================
-// AUTH
-// ==========================================
 function verificarAutenticacao() {
-  // precisa do autenticacao.js carregado antes
   const currentUser = typeof getCurrentUser === "function" ? getCurrentUser() : null;
 
   if (!currentUser) {
-    // Ajuste de path: use o seu real (você usa ../html/...)
     window.location.href = "../html/index.html";
     return;
   }
