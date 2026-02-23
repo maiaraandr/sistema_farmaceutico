@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="../CSS/Style.css" />
     <link rel="stylesheet" href="../CSS/Components.css" />
     <link rel="stylesheet" href="../CSS/dashboard.css" />
+    <link rel="stylesheet" href="../CSS/farmaui.css" />
+    <link rel="stylesheet" href="../CSS/table_style.css" />
+
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   </head>
@@ -15,51 +18,40 @@
       <aside class="sidebar">
         <div class="sidebar-header">
           <div class="logo">
-            <div class="logo-icon">
-              <i data-lucide="pill"></i>
-            </div>
-            <span>FarmaSys</span>
+            <div class="logo-icon"><i data-lucide="pill"></i></div>
+            <span>GestMed</span>
           </div>
         </div>
-
         <nav class="sidebar-nav">
-          <a href="dashboard.html" class="nav-item active">
-            <i data-lucide="layout-dashboard"></i>
-            <span>Dashboard</span>
-          </a>
-
-          <a href="medicamentos.html" class="nav-item">
-            <i data-lucide="package"></i>
-            <span>Medicamentos</span>
-          </a>
-
-          <a href="fornecedores.html" class="nav-item">
-            <i data-lucide="truck"></i>
-            <span>Fornecedores</span>
-          </a>
-
-          <a href="entrada.html" class="nav-item">
-            <i data-lucide="package-plus"></i>
-            <span>Entrada</span>
-          </a>
-
-          <a href="saida.html" class="nav-item">
-            <i data-lucide="package-minus"></i>
-            <span>Saída</span>
-          </a>
-          <a href="relatorio.html" class="nav-item">
-            <i data-lucide="file-text"></i>
-            <span>Relatórios</span>
-          </a>
+          <a href="dashboard.html" class="nav-item active"
+            ><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a
+          >
+          <a href="medicamentos.html" class="nav-item"
+            ><i data-lucide="package"></i><span>Medicamentos</span></a
+          >
+          <a href="fornecedores.html" class="nav-item"
+            ><i data-lucide="truck"></i><span>Fornecedores</span></a
+          >
+          <a href="entrada.html" class="nav-item"
+            ><i data-lucide="package-plus"></i><span>Entrada</span></a
+          >
+          <a href="saida.html" class="nav-item"
+            ><i data-lucide="package-minus"></i><span>Saída</span></a
+          >
+          <a href="relatorio.html" class="nav-item"
+            ><i data-lucide="file-text"></i><span>Relatórios</span></a
+          >
+          <a href="importacao.html" class="nav-item"
+            ><i data-lucide="upload"></i><span>Importação</span></a
+          >
         </nav>
-
         <div class="sidebar-footer">
           <button class="nav-item" id="logoutBtn">
-            <i data-lucide="log-out"></i>
-            <span>Sair</span>
+            <i data-lucide="log-out"></i><span>Sair</span>
           </button>
         </div>
       </aside>
+
       <main class="main-content">
         <header class="content-header animate-fadeIn">
           <div class="header-left">
@@ -75,75 +67,58 @@
             </div>
           </div>
         </header>
-        <div class="stats-grid animate-slideInRight">
-          <!-- Total Medicamentos -->
-          <div class="stat-card hover-lift">
-            <div class="stat-icon stat-icon-primary">
-              <i data-lucide="package"></i>
+
+        <!-- KPI Cards — padrão kpi-card-mini -->
+        <section class="content-section animate-slideInRight">
+          <div class="kpi-row">
+            <div
+              class="kpi-card-mini"
+              data-tooltip="Total de medicamentos cadastrados"
+            >
+              <div class="label">
+                <i data-lucide="package"></i> Total de Medicamentos
+              </div>
+              <div class="value" id="totalProdutos">0</div>
+              <div class="sub">Cadastrados no sistema</div>
             </div>
-            <div class="stat-content">
-              <span class="stat-label">Total de Medicamentos</span>
-              <span class="stat-value" id="totalProdutos">0</span>
-              <span class="stat-change positive">
-                <i
-                  data-lucide="trending-up"
-                  style="width: 14px; height: 14px"
-                ></i>
-                +12% este mês
-              </span>
+
+            <div
+              class="kpi-card-mini"
+              data-tooltip="Clique para ver medicamentos com estoque baixo"
+            >
+              <div class="label">
+                <i data-lucide="alert-triangle"></i> Estoque Baixo
+              </div>
+              <div class="value" id="estoqueBaixo">0</div>
+              <div class="sub">Abaixo do mínimo</div>
             </div>
-          </div>
-          <!-- Estoque Baixo -->
-          <div class="stat-card hover-lift">
-            <div class="stat-icon stat-icon-warning">
-              <i data-lucide="alert-triangle"></i>
+
+            <div
+              class="kpi-card-mini"
+              data-tooltip="Clique para ver próximos vencimentos"
+            >
+              <div class="label">
+                <i data-lucide="calendar-x"></i> Próximos ao Vencimento
+              </div>
+              <div class="value" id="proximoVencimento">0</div>
+              <div class="sub">Vencem em até 60 dias</div>
             </div>
-            <div class="stat-content">
-              <span class="stat-label">Estoque Baixo</span>
-              <span class="stat-value" id="estoqueBaixo">0</span>
-              <span class="stat-change">
-                <i
-                  data-lucide="alert-circle"
-                  style="width: 14px; height: 14px"
-                ></i>
-                Requer atenção
-              </span>
-            </div>
-          </div>
-          <!-- Próximos do Vencimento -->
-          <div class="stat-card hover-lift">
-            <div class="stat-icon stat-icon-danger">
-              <i data-lucide="calendar-x"></i>
-            </div>
-            <div class="stat-content">
-              <span class="stat-label">Próximos ao Vencimento</span>
-              <span class="stat-value" id="proximoVencimento">0</span>
-              <span class="stat-change negative">
-                <i data-lucide="clock" style="width: 14px; height: 14px"></i>
-                Últimos 90 dias
-              </span>
-            </div>
-          </div>
-          <!-- Valor Total -->
-          <div class="stat-card hover-lift">
-            <div class="stat-icon stat-icon-success">
-              <i data-lucide="dollar-sign"></i>
-            </div>
-            <div class="stat-content">
-              <span class="stat-label">Valor Total em Estoque</span>
-              <span class="stat-value" id="valorTotal">R$ 0,00</span>
-              <span class="stat-change positive">
-                <i
-                  data-lucide="trending-up"
-                  style="width: 14px; height: 14px"
-                ></i>
-                +8% este mês
-              </span>
+
+            <div
+              class="kpi-card-mini"
+              data-tooltip="Valor total do estoque atual"
+            >
+              <div class="label">
+                <i data-lucide="dollar-sign"></i> Valor Total em Estoque
+              </div>
+              <div class="value" id="valorTotal">R$ 0,00</div>
+              <div class="sub">Quantidade × valor unitário</div>
             </div>
           </div>
-        </div>
+        </section>
+
+        <!-- Gráficos -->
         <div class="charts-row animate-fadeIn">
-          <!-- Gráfico de Movimentações -->
           <div class="card hover-scale">
             <div class="card-header">
               <h3 class="card-title">
@@ -155,7 +130,6 @@
               <canvas id="chartMovimentacoes" height="80"></canvas>
             </div>
           </div>
-          <!-- Gráfico de Categorias -->
           <div class="card hover-scale">
             <div class="card-header">
               <h3 class="card-title">
@@ -168,55 +142,41 @@
             </div>
           </div>
         </div>
-        <!-- Alertas Importantes -->
+
+        <!-- Alertas -->
         <div class="content-section animate-slideInLeft">
           <div class="section-header">
             <h2 class="section-title">
-              <i data-lucide="bell"></i>
-              Alertas Importantes
+              <i data-lucide="bell"></i> Alertas Importantes
             </h2>
           </div>
           <div id="alertasContainer">
             <div class="alert alert-warning">
-              <div class="alert-icon">
-                <i data-lucide="alert-triangle"></i>
-              </div>
+              <div class="alert-icon"><i data-lucide="alert-triangle"></i></div>
               <div class="alert-content">
                 <div class="alert-title">Estoque Baixo</div>
                 <div class="alert-message">
                   3 medicamentos estão com estoque abaixo do mínimo recomendado.
-                  <a
-                    href="medicamentos.html"
-                    class="text-primary font-semibold"
-                  >
-                    Ver detalhes →</a
+                  <a href="medicamentos.html" class="text-primary font-semibold"
+                    >Ver detalhes →</a
                   >
                 </div>
               </div>
             </div>
-
             <div class="alert alert-danger">
-              <div class="alert-icon">
-                <i data-lucide="calendar-x"></i>
-              </div>
+              <div class="alert-icon"><i data-lucide="calendar-x"></i></div>
               <div class="alert-content">
                 <div class="alert-title">Medicamentos Vencendo</div>
                 <div class="alert-message">
-                  5 medicamentos vencem nos próximos 30 dias.
-                  <a
-                    href="medicamentos.html"
-                    class="text-primary font-semibold"
-                  >
-                    Verificar →</a
+                  5 medicamentos vencem nos próximos 60 dias.
+                  <a href="relatorio.html" class="text-primary font-semibold"
+                    >Verificar →</a
                   >
                 </div>
               </div>
             </div>
-
             <div class="alert alert-success">
-              <div class="alert-icon">
-                <i data-lucide="check-circle"></i>
-              </div>
+              <div class="alert-icon"><i data-lucide="check-circle"></i></div>
               <div class="alert-content">
                 <div class="alert-title">Sistema Atualizado</div>
                 <div class="alert-message">
@@ -226,20 +186,18 @@
             </div>
           </div>
         </div>
-        <!-- Medicamentos Próximos do Vencimento -->
+
+        <!-- Tabela vencimentos -->
         <div class="content-section animate-fadeIn">
           <div class="section-header">
             <h2 class="section-title">
-              <i data-lucide="calendar-clock"></i>
-              Medicamentos Próximos ao Vencimento
+              <i data-lucide="calendar-clock"></i> Medicamentos Próximos ao
+              Vencimento
             </h2>
-            <a href="medicamentos.html" class="btn btn-outline btn-sm">
-              Ver todos
-              <i
-                data-lucide="arrow-right"
-                style="width: 16px; height: 16px"
-              ></i>
-            </a>
+            <a href="relatorio.html" class="btn btn-outline btn-sm"
+              >Ver todos
+              <i data-lucide="arrow-right" style="width: 16px; height: 16px"></i
+            ></a>
           </div>
           <div class="table-card">
             <table class="table-modern">
@@ -297,13 +255,26 @@
       </main>
     </div>
 
-    <!-- Ligação com o JavaScript -->
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/dashboard.js"></script>
 
     <script>
       lucide.createIcons();
 
+      // ── KPI cards interativos ──
+      document.querySelectorAll('.kpi-card-mini').forEach((card) => {
+        card.addEventListener('click', () => {
+          const jaAtivo = card.classList.contains('active');
+          document
+            .querySelectorAll('.kpi-card-mini')
+            .forEach((c) => c.classList.remove('active', 'pulse'));
+          card.classList.add('pulse');
+          setTimeout(() => card.classList.remove('pulse'), 500);
+          if (!jaAtivo) card.classList.add('active');
+        });
+      });
+
+      // ── Gráficos ──
       const ctx1 = document
         .getElementById('chartMovimentacoes')
         .getContext('2d');
@@ -316,7 +287,7 @@
               label: 'Entradas',
               data: [12, 19, 15, 25, 22, 30, 28],
               borderColor: '#3b82f6',
-              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              backgroundColor: 'rgba(59,130,246,0.1)',
               tension: 0.4,
               fill: true,
             },
@@ -324,7 +295,7 @@
               label: 'Saídas',
               data: [8, 12, 10, 15, 18, 20, 16],
               borderColor: '#ef4444',
-              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              backgroundColor: 'rgba(239,68,68,0.1)',
               tension: 0.4,
               fill: true,
             },

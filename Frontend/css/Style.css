@@ -5,6 +5,11 @@
     --primary: #0066FF;
     --primary-dark: #0052CC;
     --primary-light: #3385FF;
+
+    /* Compatibilidade: páginas que usam --brand */
+    --brand: var(--primary);
+    --brand-600: var(--primary-dark);
+    --brand-100: var(--primary-100);
     
     /* Cores de Status */
     --success: #10B981;
@@ -272,3 +277,91 @@ a:hover {
     color: var(--white);
 }
 
+/* =========================================================
+   KPI / CARDS INTERATIVOS (somente páginas com .ui-soft)
+   ========================================================= */
+
+.ui-soft .kpi-mini,
+.ui-soft .stat-card {
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.ui-soft .kpi-mini:hover,
+.ui-soft .stat-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--primary);
+  box-shadow: 0 12px 28px rgba(0, 102, 255, 0.15);
+}
+
+.ui-soft .kpi-mini::before,
+.ui-soft .stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(90deg, transparent, rgba(0, 102, 255, 0.08), transparent);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+
+.ui-soft .kpi-mini:hover::before,
+.ui-soft .stat-card:hover::before {
+  transform: translateX(120%);
+}
+
+.ui-soft .kpi-mini.active,
+.ui-soft .stat-card.active {
+  border-color: var(--primary) !important;
+  background: rgba(0, 102, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.12);
+}
+
+/* Remove negrito de qualquer número dentro de spans e divs */
+.stat-value,
+.kpi-value {
+    font-weight: 700;
+}
+
+/* ── Search box padronizado — ícone + input lado a lado ── */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 260px;
+  max-width: 360px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-box:focus-within {
+  border-color: #0066ff;
+  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.12);
+}
+
+.search-box i,
+.search-box svg {
+  width: 16px;
+  height: 16px;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.search-box input {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  font-size: 13px;
+  color: #111827;
+  width: 100%;
+}
+
+.search-box input::placeholder {
+  color: #9ca3af;
+}

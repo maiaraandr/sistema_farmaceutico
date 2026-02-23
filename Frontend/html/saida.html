@@ -1,329 +1,287 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Saída de Medicamentos | FarmaSys</title>
-
-    <!-- CSS base do sistema -->
-    <link rel="stylesheet" href="../CSS/Style.css">
-    <link rel="stylesheet" href="../CSS/Components.css">
-    <link rel="stylesheet" href="../CSS/dashboard.css">
-    <link rel="stylesheet" href="../CSS/Table_styles.css">
-
+    <link rel="stylesheet" href="../CSS/Style.css" />
+    <link rel="stylesheet" href="../CSS/Components.css" />
+    <link rel="stylesheet" href="../CSS/dashboard.css" />
+    <link rel="stylesheet" href="../CSS/farmaui.css" />
+    <link rel="stylesheet" href="../CSS/table_style.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
-
     <style>
-        :root{
-            --brand: #2563eb;
-            --brand-600: #1d4ed8;
-            --brand-100: rgba(37, 99, 235, 0.12);
-        }
-
-        .page-title i{ color: var(--brand); }
-
-        .kpi-mini-grid{
-            display:grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 14px;
-            margin-bottom: 14px;
-        }
-        .kpi-mini{
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: 12px;
-            padding: 14px;
-            display:flex;
-            gap: 12px;
-            align-items:center;
-        }
-        .kpi-mini .kpi-icon{
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: var(--brand-100);
-            color: var(--brand);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-        }
-        .kpi-mini .kpi-label{
-            font-size: 12px;
-            color: var(--gray-600);
-        }
-        .kpi-mini .kpi-value{
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--gray-900);
-        }
-
-        .filters-row{
-            display:flex;
-            gap:12px;
-            flex-wrap:wrap;
-            align-items:center;
-            justify-content:space-between;
-        }
-        .filters-left{
-            display:flex;
-            gap:10px;
-            flex-wrap:wrap;
-            align-items:center;
-        }
-        .table-actions{
-            display:flex;
-            gap:10px;
-            align-items:center;
-            flex-wrap:wrap;
-        }
-
-        .btn-danger{
-            background: #ef4444;
-            border-color: #ef4444;
-            color: #fff;
-        }
-        .btn-danger:hover{
-            background: #dc2626;
-            border-color: #dc2626;
-        }
-
-        .btn-primary{
-            background: var(--brand);
-            border-color: var(--brand);
-            color:#fff;
-        }
-        .btn-primary:hover{
-            background: var(--brand-600);
-            border-color: var(--brand-600);
-        }
-
-        .badge-pill{
-            display:inline-flex;
-            align-items:center;
-            gap:6px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 600;
-            border: 1px solid var(--gray-200);
-            background: var(--gray-50);
-        }
-        .badge-out{ background: rgba(239,68,68,.12); color:#dc2626; border-color: rgba(239,68,68,.25); }
-
-        .form-grid-2{
-            display:grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 12px;
-        }
-
-        .helper{
-            font-size: 12px;
-            color: var(--gray-600);
-            margin-top: 6px;
-        }
+      .filters-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .filters-left {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .table-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .form-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 12px;
+      }
+      .helper {
+        font-size: 12px;
+        color: var(--gray-600, #4b5563);
+        margin-top: 6px;
+      }
+      .badge-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid var(--gray-200, #e5e7eb);
+        background: var(--gray-50, #f9fafb);
+      }
+      .badge-out {
+        background: rgba(239, 68, 68, 0.12);
+        color: #dc2626;
+        border-color: rgba(239, 68, 68, 0.25);
+      }
     </style>
-</head>
-<body>
-
-<div class="dashboard-layout">
-    <aside class="sidebar">
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <aside class="sidebar">
         <div class="sidebar-header">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i data-lucide="pill"></i>
-                </div>
-                <span>FarmaSys</span>
-            </div>
+          <div class="logo">
+            <div class="logo-icon"><i data-lucide="pill"></i></div>
+            <span>GestMed</span>
+          </div>
         </div>
-
         <nav class="sidebar-nav">
-            <a href="dashboard.html" class="nav-item">
-                <i data-lucide="layout-dashboard"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="medicamentos.html" class="nav-item">
-                <i data-lucide="package"></i>
-                <span>Medicamentos</span>
-            </a>
-            <a href="fornecedores.html" class="nav-item">
-                <i data-lucide="truck"></i>
-                <span>Fornecedores</span>
-            </a>
-            <a href="entrada.html" class="nav-item">
-                <i data-lucide="package-plus"></i>
-                <span>Entrada</span>
-            </a>
-
-            <a href="saida.html" class="nav-item active">
-                <i data-lucide="package-minus"></i>
-                <span>Saída</span>
-            </a>
-
-            <a href="relatorio.html" class="nav-item">
-                <i data-lucide="file-text"></i>
-                <span>Relatórios</span>
-            </a>
+          <a href="dashboard.html" class="nav-item"
+            ><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a
+          >
+          <a href="medicamentos.html" class="nav-item"
+            ><i data-lucide="package"></i><span>Medicamentos</span></a
+          >
+          <a href="fornecedores.html" class="nav-item"
+            ><i data-lucide="truck"></i><span>Fornecedores</span></a
+          >
+          <a href="entrada.html" class="nav-item"
+            ><i data-lucide="package-plus"></i><span>Entrada</span></a
+          >
+          <a href="saida.html" class="nav-item active"
+            ><i data-lucide="package-minus"></i><span>Saída</span></a
+          >
+          <a href="relatorio.html" class="nav-item"
+            ><i data-lucide="file-text"></i><span>Relatórios</span></a
+          >
+          <a href="importacao.html" class="nav-item"
+            ><i data-lucide="upload"></i><span>Importação</span></a
+          >
         </nav>
-
         <div class="sidebar-footer">
-            <button class="nav-item" id="logoutBtn">
-                <i data-lucide="log-out"></i>
-                <span>Sair</span>
-            </button>
+          <button class="nav-item" id="logoutBtn">
+            <i data-lucide="log-out"></i><span>Sair</span>
+          </button>
         </div>
-    </aside>
+      </aside>
 
-    <main class="main-content">
+      <main class="main-content">
         <header class="content-header">
-            <div class="header-left">
-                <h1 class="page-title">
-                    <i data-lucide="package-minus"></i>
-                    Saída de Medicamentos
-                </h1>
-                <p class="page-subtitle">Registro de saída do estoque</p>
+          <div class="header-left">
+            <h1 class="page-title">
+              <i data-lucide="package-minus"></i> Saída de Medicamentos
+            </h1>
+            <p class="page-subtitle">Registro de saída do estoque</p>
+          </div>
+          <div class="header-right">
+            <div class="user-info">
+              <span class="user-name" id="userName">Carregando...</span>
             </div>
-
-            <div class="header-right">
-                <div class="user-info">
-                    <span class="user-name" id="userName">Carregando...</span>
-                </div>
-            </div>
+          </div>
         </header>
 
-        <div class="kpi-mini-grid">
-            <div class="kpi-mini">
-                <div class="kpi-icon"><i data-lucide="package-minus"></i></div>
-                <div>
-                    <div class="kpi-label">Total de Saídas</div>
-                    <div class="kpi-value" id="kpiSaidas">0</div>
-                </div>
+        <!-- KPI Cards -->
+        <div class="kpi-row">
+          <div class="kpi-card-mini" data-tooltip="Total de saídas registradas">
+            <div class="label">
+              <i data-lucide="package-minus"></i> Total de Saídas
             </div>
-
-            <div class="kpi-mini">
-                <div class="kpi-icon"><i data-lucide="calendar"></i></div>
-                <div>
-                    <div class="kpi-label">Hoje</div>
-                    <div class="kpi-value" id="kpiHoje">—</div>
-                </div>
+            <div class="value" id="kpiSaidas">0</div>
+            <div class="sub">No histórico</div>
+          </div>
+          <div class="kpi-card-mini" data-tooltip="Data atual do sistema">
+            <div class="label"><i data-lucide="calendar"></i> Hoje</div>
+            <div class="value" id="kpiHoje">—</div>
+            <div class="sub">Data atual</div>
+          </div>
+          <div
+            class="kpi-card-mini"
+            data-tooltip="Medicamento do último registro"
+          >
+            <div class="label">
+              <i data-lucide="activity"></i> Último Registro
             </div>
-
-            <div class="kpi-mini">
-                <div class="kpi-icon"><i data-lucide="activity"></i></div>
-                <div>
-                    <div class="kpi-label">Último Registro</div>
-                    <div class="kpi-value" id="kpiUltimo">—</div>
-                </div>
-            </div>
+            <div class="value" id="kpiUltimo">—</div>
+            <div class="sub">Saída mais recente</div>
+          </div>
         </div>
 
+        <!-- Formulário -->
         <section class="content-section">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title" style="display:flex;align-items:center;gap:10px;margin:0;">
-                        <i data-lucide="clipboard-edit"></i>
-                        Registrar Saída
-                    </h3>
-                </div>
-
-                <div class="card-body">
-                    <form id="formSaida">
-                        <div class="form-grid-2">
-                            <div class="form-group">
-                                <label>Medicamento</label>
-                                <input type="text" id="medicamento" class="form-input" placeholder="Nome do medicamento" required>
-                                <div class="helper">Dica: use o mesmo nome cadastrado em “Medicamentos”.</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Quantidade</label>
-                                <input type="number" id="quantidade" class="form-input" min="1" placeholder="Quantidade retirada" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Destino / Motivo</label>
-                                <input type="text" id="destino" class="form-input" placeholder="Uso interno, setor, descarte..." required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Data da Saída</label>
-                                <input type="text" id="dataSaida" class="form-input" disabled>
-                            </div>
-                        </div>
-
-                        <div class="form-actions" style="margin-top: 12px;">
-                            <button type="submit" class="btn btn-danger">
-                                <i data-lucide="check"></i>
-                                Registrar Saída
-                            </button>
-
-                            <a href="dashboard.html" class="btn btn-outline">
-                                <i data-lucide="arrow-left"></i>
-                                Voltar
-                            </a>
-                        </div>
-                    </form>
-                </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title" style="margin: 0">
+                <i data-lucide="clipboard-edit"></i> Registrar Saída
+              </h3>
             </div>
+            <div class="card-body">
+              <form id="formSaida">
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label>Medicamento</label>
+                    <input
+                      type="text"
+                      id="medicamento"
+                      class="form-input"
+                      placeholder="Nome do medicamento"
+                      required
+                    />
+                    <div class="helper">
+                      Dica: use o mesmo nome cadastrado em "Medicamentos".
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Quantidade</label>
+                    <input
+                      type="number"
+                      id="quantidade"
+                      class="form-input"
+                      min="1"
+                      placeholder="Quantidade retirada"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Destino / Motivo</label>
+                    <input
+                      type="text"
+                      id="destino"
+                      class="form-input"
+                      placeholder="Uso interno, setor, descarte..."
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Data da Saída</label>
+                    <input
+                      type="text"
+                      id="dataSaida"
+                      class="form-input"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div
+                  class="form-actions"
+                  style="margin-top: 12px; display: flex; gap: 10px"
+                >
+                  <button type="submit" class="btn btn-danger">
+                    <i data-lucide="check"></i> Registrar Saída
+                  </button>
+                  <a href="dashboard.html" class="btn btn-outline"
+                    ><i data-lucide="arrow-left"></i> Voltar</a
+                  >
+                </div>
+              </form>
+            </div>
+          </div>
         </section>
 
+        <!-- Tabela -->
         <section class="content-section">
-            <div class="card">
-                <div class="card-header">
-                    <div class="filters-row">
-                        <div class="filters-left">
-                            <h3 class="card-title" style="display:flex;align-items:center;gap:10px;margin:0;">
-                                <i data-lucide="list"></i>
-                                Histórico de Saídas
-                            </h3>
-
-                            <span class="badge-pill badge-out" id="badgeSaidas">
-                                <i data-lucide="hash" style="width:14px;height:14px;"></i>
-                                <span id="totalLinhasSaida">0</span> registros
-                            </span>
-                        </div>
-
-                        <div class="table-actions">
-                            <div class="search-box" style="max-width:340px;">
-                                <i data-lucide="search"></i>
-                                <input type="text" id="searchSaida" placeholder="Buscar por medicamento ou destino...">
-                            </div>
-
-                            <button type="button" class="btn btn-primary" id="btnExportarSaida">
-                                <i data-lucide="download"></i>
-                                Exportar
-                            </button>
-                        </div>
-                    </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="filters-row">
+                <div class="filters-left">
+                  <h3 class="card-title" style="margin: 0">
+                    <i data-lucide="list"></i> Histórico de Saídas
+                  </h3>
+                  <span class="badge-pill badge-out" id="badgeSaidas">
+                    <i data-lucide="hash" style="width: 14px; height: 14px"></i>
+                    <span id="totalLinhasSaida">0</span> registros
+                  </span>
                 </div>
-
-                <div class="card-body">
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Medicamento</th>
-                                    <th>Quantidade</th>
-                                    <th>Destino</th>
-                                    <th>Data da Saída</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabelaSaida"></tbody>
-                        </table>
-                    </div>
-
-                    <div class="pagination" id="paginationSaida"></div>
+                <div class="table-actions">
+                  <div class="search-box" style="max-width: 340px">
+                    <i data-lucide="search"></i>
+                    <input
+                      type="text"
+                      id="searchSaida"
+                      placeholder="Buscar por medicamento ou destino..."
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm"
+                    id="btnExportarSaida"
+                  >
+                    <i data-lucide="download"></i> Exportar
+                  </button>
                 </div>
+              </div>
             </div>
+            <div class="card-body">
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Medicamento</th>
+                      <th>Quantidade</th>
+                      <th>Destino</th>
+                      <th>Data da Saída</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabelaSaida"></tbody>
+                </table>
+              </div>
+              <div class="pagination" id="paginationSaida"></div>
+            </div>
+          </div>
         </section>
-    </main>
-</div>
+      </main>
+    </div>
 
-<script src="../Javascript/Storage.js"></script>
-<script src="../Javascript/autenticacao.js"></script>
-<script src="../Javascript/saida.js"></script>
-<script>
-  lucide.createIcons();
-</script>
-</body>
+    <script src="../Javascript/Storage.js"></script>
+    <script src="../Javascript/autenticacao.js"></script>
+    <script src="../Javascript/saida.js"></script>
+    <script>
+      lucide.createIcons();
+
+      // KPI interatividade
+      document.querySelectorAll('.kpi-card-mini').forEach((card) => {
+        card.addEventListener('click', () => {
+          const jaAtivo = card.classList.contains('active');
+          document
+            .querySelectorAll('.kpi-card-mini')
+            .forEach((c) => c.classList.remove('active', 'pulse'));
+          card.classList.add('pulse');
+          setTimeout(() => card.classList.remove('pulse'), 500);
+          if (!jaAtivo) card.classList.add('active');
+        });
+      });
+    </script>
+  </body>
 </html>

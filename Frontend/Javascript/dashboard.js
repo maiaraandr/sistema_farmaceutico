@@ -102,7 +102,7 @@ function renderAlerts() {
           <div class="alert-title">Estoque Baixo</div>
           <div class="alert-message">
             ${lowStock.length} medicamento(s) estão com estoque abaixo do mínimo recomendado.
-            <a href="produtos.html" class="text-primary font-semibold"> Ver detalhes →</a>
+            <a href="relatorio.html" class="text-primary font-semibold"> Ver detalhes →</a>
           </div>
         </div>
       </div>
@@ -119,7 +119,7 @@ function renderAlerts() {
           <div class="alert-title">Medicamentos Vencendo</div>
           <div class="alert-message">
             ${expiring30.length} medicamento(s) vencem nos próximos 30 dias.
-            <a href="produtos.html" class="text-primary font-semibold"> Verificar →</a>
+            <a href="relatorio.html" class="text-primary font-semibold"> Verificar →</a>
           </div>
         </div>
       </div>

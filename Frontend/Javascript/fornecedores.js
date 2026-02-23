@@ -1,34 +1,36 @@
 (function () {
-  const form = document.getElementById("formFornecedor");
-  const busca = document.getElementById("buscaFornecedor");
+  const form = document.getElementById('formFornecedor');
+  const busca = document.getElementById('buscaFornecedor');
 
   // estado local para edição
   window.__fornecedorEditandoId = null;
 
+  // eventos
+  if (form) form.addEventListener('submit', onSubmitFornecedor);
+  if (busca) busca.addEventListener('input', renderFornecedores);
+
+  // render inicial
   renderFornecedores();
 
-  if (form) form.addEventListener("submit", onSubmitFornecedor);
-  if (busca) busca.addEventListener("input", renderFornecedores);
-
-  if (typeof lucide !== "undefined") lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 })();
 
 function voltarDashboard() {
-  window.location.href = "dashboard.html";
+  window.location.href = 'dashboard.html';
 }
 
 function onSubmitFornecedor(e) {
   e.preventDefault();
 
-  const nome = getVal("nome");
-  const cnpj = getVal("cnpj");
-  const telefone = getVal("telefone");
-  const email = getVal("email");
-  const endereco = getVal("endereco");
-  const ativo = document.getElementById("ativo").value === "true";
+  const nome = getVal('nome');
+  const cnpj = getVal('cnpj');
+  const telefone = getVal('telefone');
+  const email = getVal('email');
+  const endereco = getVal('endereco');
+  const ativo = document.getElementById('ativo')?.value === 'true';
 
   if (!nome) {
-    alert("Informe o nome do fornecedor.");
+    alert('Informe o nome do fornecedor.');
     return;
   }
 
@@ -36,37 +38,61 @@ function onSubmitFornecedor(e) {
 
   if (idEditando) {
     // ATUALIZAR
-    atualizarFornecedorSafe(idEditando, { nome, cnpj, telefone, email, endereco, ativo });
+    atualizarFornecedorSafe(idEditando, {
+      nome,
+      cnpj,
+      telefone,
+      email,
+      endereco,
+      ativo,
+      atualizadoEm: new Date().toISOString(),
+    });
     limparEdicao();
   } else {
     // CRIAR
-    addFornecedor({ nome, cnpj, telefone, email, endereco, ativo });
+    if (typeof addFornecedor === 'function') {
+      addFornecedor({ nome, cnpj, telefone, email, endereco, ativo });
+    } else {
+      // fallback se não existir addFornecedor
+      const lista = getFornecedoresSafe();
+      lista.push({
+        id: Date.now(),
+        nome,
+        cnpj,
+        telefone,
+        email,
+        endereco,
+        ativo,
+        criadoEm: new Date().toISOString(),
+      });
+      setFornecedoresSafe(lista);
+    }
     resetFormPadrao();
   }
 
   renderFornecedores();
-  if (typeof lucide !== "undefined") lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function renderFornecedores() {
-  const tbody = document.getElementById("tabelaFornecedores");
+  const tbody = document.getElementById('tabelaFornecedores');
   if (!tbody) return;
 
-  const termo = (document.getElementById("buscaFornecedor")?.value || "")
+  const termo = (document.getElementById('buscaFornecedor')?.value || '')
     .toLowerCase()
     .trim();
 
-  const fornecedores = getFornecedores()
-    .filter(f => f && f.ativo !== undefined)
-    .filter(f => {
+  const fornecedores = getFornecedoresSafe()
+    .filter((f) => f && typeof f.ativo !== 'undefined')
+    .filter((f) => {
       if (!termo) return true;
-      const nome = (f.nome || "").toLowerCase();
-      const cnpj = (f.cnpj || "").toLowerCase();
+      const nome = (f.nome || '').toLowerCase();
+      const cnpj = (f.cnpj || '').toLowerCase();
       return nome.includes(termo) || cnpj.includes(termo);
     })
-    .sort((a, b) => (a.nome || "").localeCompare(b.nome || ""));
+    .sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
 
-  atualizarKPIs();
+  atualizarKPIs(fornecedores);
 
   if (fornecedores.length === 0) {
     tbody.innerHTML = `
@@ -76,47 +102,55 @@ function renderFornecedores() {
         </td>
       </tr>
     `;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
     return;
   }
 
-  tbody.innerHTML = fornecedores.map(f => `
-    <tr>
-      <td>${escapeHtml(f.nome || "—")}</td>
-      <td>${escapeHtml(f.cnpj || "—")}</td>
-      <td>${escapeHtml(f.telefone || "—")}</td>
-      <td>${escapeHtml(f.email || "—")}</td>
-      <td>
-        <span class="status-pill ${f.ativo ? "ativo" : "inativo"}">
-          <i data-lucide="${f.ativo ? "badge-check" : "badge-x"}" style="width:14px;height:14px;"></i>
-          ${f.ativo ? "Ativo" : "Inativo"}
-        </span>
-      </td>
-      <td>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-outline btn-sm" type="button" onclick="editarFornecedor(${Number(f.id)})">
-            <i data-lucide="pencil"></i> Editar
-          </button>
-          <button class="btn btn-danger btn-sm" type="button" onclick="excluirFornecedor(${Number(f.id)})">
-            <i data-lucide="trash-2"></i> Excluir
-          </button>
-        </div>
-      </td>
-    </tr>
-  `).join("");
+  tbody.innerHTML = fornecedores
+    .map(
+      (f) => `
+      <tr>
+        <td>${escapeHtml(f.nome || '—')}</td>
+        <td>${escapeHtml(f.cnpj || '—')}</td>
+        <td>${escapeHtml(f.telefone || '—')}</td>
+        <td>${escapeHtml(f.email || '—')}</td>
+        <td>
+          <span class="status-pill ${f.ativo ? 'ativo' : 'inativo'}">
+            <i data-lucide="${f.ativo ? 'badge-check' : 'badge-x'}" style="width:14px;height:14px;"></i>
+            ${f.ativo ? 'Ativo' : 'Inativo'}
+          </span>
+        </td>
+        <td>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" type="button" onclick="editarFornecedor(${Number(f.id)})">
+              <i data-lucide="pencil"></i> Editar
+            </button>
+            <button class="btn btn-danger btn-sm" type="button" onclick="excluirFornecedor(${Number(f.id)})">
+              <i data-lucide="trash-2"></i> Excluir
+            </button>
+          </div>
+        </td>
+      </tr>
+    `
+    )
+    .join('');
 
-  if (typeof lucide !== "undefined") lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-function atualizarKPIs() {
-  const todos = getFornecedores().filter(f => f && f.ativo !== undefined);
+function atualizarKPIs(listaFiltrada) {
+  // KPIs devem refletir a lista exibida (filtrada), como você espera na prática
+  const lista = Array.isArray(listaFiltrada)
+    ? listaFiltrada
+    : getFornecedoresSafe();
 
-  const total = todos.length;
-  const ativos = todos.filter(f => f.ativo === true).length;
-  const inativos = todos.filter(f => f.ativo === false).length;
+  const total = lista.length;
+  const ativos = lista.filter((f) => f.ativo === true).length;
+  const inativos = lista.filter((f) => f.ativo === false).length;
 
-  const elTotal = document.getElementById("kpiTotal");
-  const elAtivos = document.getElementById("kpiAtivos");
-  const elInativos = document.getElementById("kpiInativos");
+  const elTotal = document.getElementById('kpiTotal');
+  const elAtivos = document.getElementById('kpiAtivos');
+  const elInativos = document.getElementById('kpiInativos');
 
   if (elTotal) elTotal.textContent = total;
   if (elAtivos) elAtivos.textContent = ativos;
@@ -124,109 +158,140 @@ function atualizarKPIs() {
 }
 
 function editarFornecedor(id) {
-  const f = getFornecedores().find(x => Number(x.id) === Number(id));
+  const f = getFornecedoresSafe().find((x) => Number(x.id) === Number(id));
   if (!f) return;
 
   window.__fornecedorEditandoId = Number(id);
 
-  setVal("nome", f.nome || "");
-  setVal("cnpj", f.cnpj || "");
-  setVal("telefone", f.telefone || "");
-  setVal("email", f.email || "");
-  setVal("endereco", f.endereco || "");
-  document.getElementById("ativo").value = (f.ativo === true) ? "true" : "false";
+  setVal('nome', f.nome || '');
+  setVal('cnpj', f.cnpj || '');
+  setVal('telefone', f.telefone || '');
+  setVal('email', f.email || '');
+  setVal('endereco', f.endereco || '');
+
+  const selAtivo = document.getElementById('ativo');
+  if (selAtivo) selAtivo.value = f.ativo === true ? 'true' : 'false';
 
   // muda botão principal para "Atualizar"
-  const btnSubmit = document.querySelector("#formFornecedor button[type='submit']");
-  if (btnSubmit) {
+  const btnSubmit = document.querySelector(
+    "#formFornecedor button[type='submit']"
+  );
+  if (btnSubmit)
     btnSubmit.innerHTML = `<i data-lucide="save"></i> Atualizar fornecedor`;
-    btnSubmit.classList.add("btn-primary");
-  }
 
   // coloca um botão "Cancelar edição" se não existir
   garantirBotaoCancelarEdicao();
 
-  if (typeof lucide !== "undefined") lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 
-  // rola até o topo do formulário
-  document.getElementById("formFornecedor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  document.getElementById('formFornecedor')?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+  });
 }
 
 function garantirBotaoCancelarEdicao() {
-  const actionsArea = document.querySelector("#formFornecedor .col-9") || document.querySelector("#formFornecedor");
-  if (!actionsArea) return;
+  if (document.getElementById('btnCancelarEdicao')) return;
 
-  if (document.getElementById("btnCancelarEdicao")) return;
-
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.id = "btnCancelarEdicao";
-  btn.className = "btn btn-outline btn-sm";
-  btn.style.marginRight = "6px";
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.id = 'btnCancelarEdicao';
+  btn.className = 'btn btn-outline btn-sm';
   btn.innerHTML = `<i data-lucide="x"></i> Cancelar edição`;
-  btn.addEventListener("click", () => {
+
+  btn.addEventListener('click', () => {
     limparEdicao();
     renderFornecedores();
-    if (typeof lucide !== "undefined") lucide.createIcons();
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   });
 
-  // insere antes do submit (se achar)
-  const submit = document.querySelector("#formFornecedor button[type='submit']");
-  if (submit && submit.parentElement) {
-    submit.parentElement.insertBefore(btn, submit);
-  } else {
-    actionsArea.appendChild(btn);
-  }
+  const submit = document.querySelector(
+    "#formFornecedor button[type='submit']"
+  );
+  if (submit?.parentElement) submit.parentElement.insertBefore(btn, submit);
+  else document.getElementById('formFornecedor')?.appendChild(btn);
 }
 
 function limparEdicao() {
   window.__fornecedorEditandoId = null;
   resetFormPadrao();
 
-  const btnSubmit = document.querySelector("#formFornecedor button[type='submit']");
-  if (btnSubmit) {
+  const btnSubmit = document.querySelector(
+    "#formFornecedor button[type='submit']"
+  );
+  if (btnSubmit)
     btnSubmit.innerHTML = `<i data-lucide="check"></i> Salvar fornecedor`;
-  }
 
-  const btnCancelar = document.getElementById("btnCancelarEdicao");
+  const btnCancelar = document.getElementById('btnCancelarEdicao');
   if (btnCancelar) btnCancelar.remove();
 
-  if (typeof lucide !== "undefined") lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function resetFormPadrao() {
-  const form = document.getElementById("formFornecedor");
+  const form = document.getElementById('formFornecedor');
   if (form) form.reset();
-  const ativo = document.getElementById("ativo");
-  if (ativo) ativo.value = "true";
+
+  const ativo = document.getElementById('ativo');
+  if (ativo) ativo.value = 'true';
 }
 
 function excluirFornecedor(id) {
-  if (!confirm("Deseja realmente excluir este fornecedor?")) return;
-  deleteFornecedor(id);
-  // se estava editando o mesmo, limpa
+  if (!confirm('Deseja realmente excluir este fornecedor?')) return;
+
+  if (typeof deleteFornecedor === 'function') {
+    deleteFornecedor(id);
+  } else {
+    const lista = getFornecedoresSafe().filter(
+      (x) => Number(x.id) !== Number(id)
+    );
+    setFornecedoresSafe(lista);
+  }
+
   if (Number(window.__fornecedorEditandoId) === Number(id)) limparEdicao();
   renderFornecedores();
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function exportarFornecedoresCSV() {
-  const fornecedores = getFornecedores();
+  const fornecedores = getFornecedoresSafe();
 
-  const header = ["id", "nome", "cnpj", "telefone", "email", "endereco", "ativo", "criadoEm"];
-  const rows = fornecedores.map(f => [
-    f.id, f.nome, f.cnpj, f.telefone, f.email, f.endereco, f.ativo, f.criadoEm
+  const header = [
+    'id',
+    'nome',
+    'cnpj',
+    'telefone',
+    'email',
+    'endereco',
+    'ativo',
+    'criadoEm',
+    'atualizadoEm',
+  ];
+  const rows = fornecedores.map((f) => [
+    f.id,
+    f.nome,
+    f.cnpj,
+    f.telefone,
+    f.email,
+    f.endereco,
+    f.ativo,
+    f.criadoEm,
+    f.atualizadoEm,
   ]);
 
   const csv = [header, ...rows]
-    .map(r => r.map(v => `"${String(v ?? "").replaceAll('"', '""')}"`).join(","))
-    .join("\n");
+    .map((r) =>
+      r.map((v) => `"${String(v ?? '').replaceAll('"', '""')}"`).join(',')
+    )
+    .join('\n');
 
-  const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
 
-  const a = document.createElement("a");
+  const a = document.createElement('a');
   a.href = url;
-  a.download = `fornecedores_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `fornecedores_${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
 
   URL.revokeObjectURL(url);
@@ -235,37 +300,63 @@ function exportarFornecedoresCSV() {
 /**
  * Atualiza fornecedor:
  * - se existir updateFornecedor(id, patch) -> usa
- * - senão tenta atualizar via Storage (localStorage) com chave "fornecedores"
+ * - senão atualiza via localStorage (chave "fornecedores")
  */
 function atualizarFornecedorSafe(id, patch) {
-  if (typeof updateFornecedor === "function") {
+  if (typeof updateFornecedor === 'function') {
     updateFornecedor(id, patch);
     return;
   }
 
-  // fallback simples: atualiza lista no localStorage (ajuste a chave se a sua for outra)
   try {
-    const key = "fornecedores";
-    const raw = localStorage.getItem(key);
-    const list = raw ? JSON.parse(raw) : [];
-    const idx = list.findIndex(x => Number(x.id) === Number(id));
+    const list = getFornecedoresSafe();
+    const idx = list.findIndex((x) => Number(x.id) === Number(id));
     if (idx >= 0) {
       list[idx] = { ...list[idx], ...patch };
-      localStorage.setItem(key, JSON.stringify(list));
     } else {
-      // se não achar, cria (evita travar)
       list.push({ id: Number(id), ...patch });
-      localStorage.setItem(key, JSON.stringify(list));
     }
+    setFornecedoresSafe(list);
   } catch (err) {
     console.error(err);
-    alert("Não foi possível atualizar o fornecedor. Verifique o Storage.js.");
+    alert('Não foi possível atualizar o fornecedor. Verifique o Storage.js.');
   }
 }
 
+/* ============================
+   HELPERS SAFE (Storage)
+   ============================ */
+function getFornecedoresSafe() {
+  if (typeof getFornecedores === 'function') {
+    const x = getFornecedores();
+    return Array.isArray(x) ? x : [];
+  }
+  try {
+    const raw = localStorage.getItem('fornecedores');
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+function setFornecedoresSafe(lista) {
+  try {
+    localStorage.setItem(
+      'fornecedores',
+      JSON.stringify(Array.isArray(lista) ? lista : [])
+    );
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/* ============================
+   HELPERS UI
+   ============================ */
 function getVal(id) {
   const el = document.getElementById(id);
-  return el ? String(el.value).trim() : "";
+  return el ? String(el.value).trim() : '';
 }
 
 function setVal(id, value) {
@@ -274,10 +365,28 @@ function setVal(id, value) {
 }
 
 function escapeHtml(str) {
-  return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  return String(str ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
+
+const payload = {
+  nome: nomeInput.value,
+  miligrama: mgInput.value,
+  categoria: categoriaInput.value,
+  lote: loteInput.value,
+  validade: validadeInput.value,
+  quantidade: Number(qtdInput.value),
+  estoque_min: Number(minInput.value),
+  valor_unit: Number(valorInput.value),
+  fornecedor: Number(document.getElementById('fornecedor').value),
+};
+
+await fetch('http://127.0.0.1:8000/medicamentos/', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(payload),
+});

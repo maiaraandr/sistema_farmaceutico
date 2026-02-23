@@ -397,3 +397,44 @@
 @media (min-width: 769px) {
     .sidebar-overlay { display: none !important; }
 }
+
+/* ── Sidebar azul — tema FarmaSys ── */
+.sidebar {
+  background: #0066FF !important;
+  box-shadow: 4px 0 20px rgba(0, 102, 255, 0.25) !important;
+}
+
+.sidebar-header {
+  border-bottom-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.sidebar-header .logo span {
+  color: #fff !important;
+}
+
+.sidebar-header .logo-icon {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.nav-item {
+  color: rgba(255, 255, 255, 0.80) !important;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #fff !important;
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #fff !important;
+  font-weight: 800 !important;
+}
+
+.nav-section-title {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.sidebar-footer {
+  border-top-color: rgba(255, 255, 255, 0.15) !important;
+}

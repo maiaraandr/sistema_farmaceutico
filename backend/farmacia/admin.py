@@ -1,13 +1,14 @@
 from django.contrib import admin
-from .models import Medicamento
+from .models import Medicamento, Fornecedor
 
-try:
-    admin.site.unregister(Medicamento)
-except admin.sites.NotRegistered:
-    pass
+@admin.register(Fornecedor)
+class FornecedorAdmin(admin.ModelAdmin):
+    list_display = ("id", "nome", "cnpj", "telefone", "email", "data_cadastro")
+    search_fields = ("nome", "cnpj", "email")
+
 
 @admin.register(Medicamento)
 class MedicamentoAdmin(admin.ModelAdmin):
-    list_display = ("nome", "lote", "validade", "quantidade", "fornecedor", "data_cadastro")
-    search_fields = ("nome", "lote", "fornecedor")
-    list_filter = ("fornecedor", "validade")
+    list_display = ("id", "nome", "miligrama", "lote", "validade", "quantidade", "fornecedor")
+    list_filter = ("categoria", "validade")
+    search_fields = ("nome", "miligrama", "lote", "fornecedor__nome")

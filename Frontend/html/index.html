@@ -1,128 +1,147 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Sistema Farmacêutico</title>
-    <link rel="stylesheet" href="../CSS/Auth_minimal.css">
+    <link rel="stylesheet" href="../CSS/Auth_minimal.css" />
+
     <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="auth-page">
-        <div class="auth-container">
-            <div class="login-box">
-                <div class="auth-icon">
-                    <i data-lucide="pill"></i>
-                </div>
-                
-                <div id="loginError" class="message error hidden"></div>
-                
-                <form id="loginForm">
-                    <div class="form-field">
-                        <div class="input-wrapper">
-                            <i data-lucide="user" class="input-icon" style="width: 18px; height: 18px;"></i>
-                            <input 
-                                type="text" 
-                                id="username" 
-                                placeholder="USERNAME"
-                                required
-                                autocomplete="username"
-                            >
-                        </div>
-                    </div>
-                    
-                    <div class="form-field">
-                        <div class="input-wrapper">
-                            <i data-lucide="lock" class="input-icon" style="width: 18px; height: 18px;"></i>
-                            <div class="password-wrapper">
-                                <input 
-                                    type="password" 
-                                    id="password" 
-                                    placeholder="PASSWORD"
-                                    required
-                                    autocomplete="current-password"
-                                >
-                                <button type="button" class="password-toggle" id="togglePassword">
-                                    <i data-lucide="eye" style="width: 18px; height: 18px;"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="btn-primary" id="loginBtn">Login</button>
-                    
-                    <div class="auth-link" style="margin-top: 10px;">
-                        <a href="recuperar_senha.html">Esqueceu a senha?</a>
-                    </div>
-                    
-                    <div class="auth-link">
-                        <a href="cadastro.html">Novo usuário?</a>
-                    </div>
-                </form>
+      <div class="auth-container">
+        <div class="login-box">
+          <div class="auth-icon">
+            <i data-lucide="pill"></i>
+          </div>
+
+          <div id="loginError" class="message error hidden"></div>
+
+          <form id="loginForm">
+            <div class="form-field">
+              <div class="input-wrapper">
+                <i
+                  data-lucide="user"
+                  class="input-icon"
+                  style="width: 18px; height: 18px"
+                ></i>
+                <input
+                  type="text"
+                  id="username"
+                  placeholder="USERNAME"
+                  required
+                  autocomplete="username"
+                />
+              </div>
             </div>
+
+            <div class="form-field">
+              <div class="input-wrapper">
+                <i
+                  data-lucide="lock"
+                  class="input-icon"
+                  style="width: 18px; height: 18px"
+                ></i>
+                <div class="password-wrapper">
+                  <input
+                    type="password"
+                    id="password"
+                    placeholder="PASSWORD"
+                    required
+                    autocomplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    id="togglePassword"
+                  >
+                    <i data-lucide="eye" style="width: 18px; height: 18px"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary" id="loginBtn">
+              Login
+            </button>
+
+            <div class="auth-link" style="margin-top: 10px">
+              <a href="recuperar_senha.html">Esqueceu a senha?</a>
+            </div>
+
+            <div class="auth-link">
+              <a href="cadastro.html">Novo usuário?</a>
+            </div>
+          </form>
         </div>
+      </div>
     </div>
 
     <!-- JavaScript -->
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/autenticacao.js"></script>
     <script>
-        lucide.createIcons();
+      lucide.createIcons();
 
-        document.getElementById('username').focus();
+      document.getElementById('username').focus();
 
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const input = document.getElementById('password');
-            const icon = this.querySelector('i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.setAttribute('data-lucide', 'eye-off');
-            } else {
-                input.type = 'password';
-                icon.setAttribute('data-lucide', 'eye');
-            }
-            lucide.createIcons();
+      document
+        .getElementById('togglePassword')
+        .addEventListener('click', function () {
+          const input = document.getElementById('password');
+          const icon = this.querySelector('i');
+
+          if (input.type === 'password') {
+            input.type = 'text';
+            icon.setAttribute('data-lucide', 'eye-off');
+          } else {
+            input.type = 'password';
+            icon.setAttribute('data-lucide', 'eye');
+          }
+          lucide.createIcons();
         });
 
-        // Formulário de login
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            const btn = document.getElementById('loginBtn');
-            const errorDiv = document.getElementById('loginError');
-            
-            errorDiv.classList.add('hidden');
-            
-            btn.disabled = true;
-            btn.textContent = 'Entrando...';
-            
-            try {
-                const result = await login(username, password, false);
-                
-                if (result.success) {
-                    btn.textContent = 'Sucesso!';
-                    btn.style.backgroundColor = '#22c55e';
-                    btn.style.color = '#fff';
-                    
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 500);
-                } else {
-                    errorDiv.textContent = 'Usuário ou senha inválidos';
-                    errorDiv.classList.remove('hidden');
-                    btn.disabled = false;
-                    btn.textContent = 'Login';
-                }
-            } catch (error) {
-                errorDiv.textContent = 'Erro ao fazer login';
-                errorDiv.classList.remove('hidden');
-                btn.disabled = false;
-                btn.textContent = 'Login';
+      // Formulário de login
+      document
+        .getElementById('loginForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const username = document.getElementById('username').value.trim();
+          const password = document.getElementById('password').value;
+          const btn = document.getElementById('loginBtn');
+          const errorDiv = document.getElementById('loginError');
+
+          errorDiv.classList.add('hidden');
+
+          btn.disabled = true;
+          btn.textContent = 'Entrando...';
+
+          try {
+            const result = await login(username, password, false);
+
+            if (result.success) {
+              btn.textContent = 'Sucesso!';
+              btn.style.backgroundColor = '#22c55e';
+              btn.style.color = '#fff';
+
+              setTimeout(() => {
+                window.location.href = 'dashboard.html';
+              }, 500);
+            } else {
+              errorDiv.textContent = 'Usuário ou senha inválidos';
+              errorDiv.classList.remove('hidden');
+              btn.disabled = false;
+              btn.textContent = 'Login';
             }
+          } catch (error) {
+            errorDiv.textContent = 'Erro ao fazer login';
+            errorDiv.classList.remove('hidden');
+            btn.disabled = false;
+            btn.textContent = 'Login';
+          }
         });
     </script>
-</body>
+  </body>
 </html>

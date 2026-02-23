@@ -1,345 +1,564 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fornecedores | FarmaSys</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fornecedores | FarmaSys</title>
+    <link rel="stylesheet" href="../CSS/Style.css" />
+    <link rel="stylesheet" href="../CSS/Components.css" />
+    <link rel="stylesheet" href="../CSS/dashboard.css" />
+    <link rel="stylesheet" href="../CSS/farmaui.css" />
+    <link rel="stylesheet" href="../CSS/table_style.css" />
+    <link rel="stylesheet" href="../CSS/fornecedores.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+      .subnav-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .form-grid-fornecedor {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 14px;
+      }
+      .col-12 {
+        grid-column: span 12;
+      }
+      .col-9 {
+        grid-column: span 9;
+      }
+      .col-6 {
+        grid-column: span 6;
+      }
+      .col-4 {
+        grid-column: span 4;
+      }
+      .col-3 {
+        grid-column: span 3;
+      }
+      @media (max-width: 900px) {
+        .col-6,
+        .col-4,
+        .col-3,
+        .col-9 {
+          grid-column: span 12;
+        }
+      }
+      .table-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
 
-  <!-- CSS do sistema (mesmo padrão da Entrada) -->
-  <link rel="stylesheet" href="../CSS/Style.css">
-  <link rel="stylesheet" href="../CSS/Components.css">
-  <link rel="stylesheet" href="../CSS/dashboard.css">
-  <link rel="stylesheet" href="../CSS/Table_styles.css">
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid;
+        font-weight: 600;
+      }
+      .status-pill.ativo {
+        background: rgba(16, 185, 129, 0.12);
+        border-color: rgba(16, 185, 129, 0.25);
+        color: #065f46;
+      }
+      .status-pill.inativo {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.22);
+        color: #7f1d1d;
+      }
 
-  <script src="https://unpkg.com/lucide@latest"></script>
+      /* Dropdown exportar */
+      .dropdown-export {
+        position: relative;
+      }
+      .dropdown-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 0;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        min-width: 200px;
+        display: none;
+        z-index: 9999;
+        overflow: hidden;
+      }
+      .dropdown-menu.active {
+        display: block;
+        animation: ddFade 0.18s ease;
+      }
+      @keyframes ddFade {
+        from {
+          opacity: 0;
+          transform: translateY(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .dropdown-item {
+        width: 100%;
+        padding: 11px 16px;
+        border: none;
+        background: none;
+        text-align: left;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: #374151;
+        transition: background 0.15s;
+      }
+      .dropdown-item:hover {
+        background: #f3f4f6;
+      }
 
-  <style>
-    :root{
-      --brand: #2563eb;
-      --brand-600: #1d4ed8;
-      --brand-100: rgba(37, 99, 235, 0.12);
-    }
-
-    .page-title i{ color: var(--brand); }
-    .btn-primary{
-      background: var(--brand);
-      border-color: var(--brand);
-    }
-    .btn-primary:hover{
-      background: var(--brand-600);
-      border-color: var(--brand-600);
-    }
-
-    .subnav-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .kpi-mini-grid{
-      display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      margin-bottom: 14px;
-    }
-    .kpi-mini{
-      background: var(--white);
-      border: 1px solid var(--gray-200);
-      border-radius: 12px;
-      padding: 14px;
-      display:flex;
-      gap: 12px;
-      align-items:center;
-    }
-    .kpi-mini .kpi-icon{
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: var(--brand-100);
-      color: var(--brand);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .kpi-mini .kpi-label{
-      font-size: 12px;
-      color: var(--gray-600);
-    }
-    .kpi-mini .kpi-value{
-      font-weight: 700;
-      font-size: 18px;
-      color: var(--gray-900);
-    }
-
-    /* Grid do formulário (parecido com Entrada) */
-    .form-grid-fornecedor{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 14px;
-    }
-    .col-12{ grid-column: span 12; }
-    .col-6{ grid-column: span 6; }
-    .col-4{ grid-column: span 4; }
-    .col-3{ grid-column: span 3; }
-
-    @media (max-width: 900px){
-      .col-6,.col-4,.col-3{ grid-column: span 12; }
-    }
-
-    .table-actions{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      flex-wrap: wrap;
-    }
-
-    .status-pill{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      border: 1px solid var(--gray-200);
-      background: var(--gray-50);
-      color: var(--gray-800);
-      font-weight: 600;
-    }
-    .status-pill.ativo{
-      background: rgba(16,185,129,.12);
-      border-color: rgba(16,185,129,.25);
-      color: rgb(6,95,70);
-    }
-    .status-pill.inativo{
-      background: rgba(239,68,68,.10);
-      border-color: rgba(239,68,68,.22);
-      color: rgb(127,29,29);
-    }
-  </style>
-</head>
-
-<body>
-
-<div class="dashboard-layout">
-  <!-- SIDEBAR igual à Entrada -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="logo">
-        <div class="logo-icon">
-          <i data-lucide="pill"></i>
+      /* Destaque do formulário quando em modo edição */
+      .form-editando {
+        border: 2px solid #0066ff !important;
+        box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1) !important;
+        transition:
+          border 0.3s,
+          box-shadow 0.3s;
+      }
+      .form-editando .card-title-edit-label {
+        display: inline-flex !important;
+      }
+      .card-title-edit-label {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #0066ff;
+        background: rgba(0, 102, 255, 0.08);
+        border: 1px solid rgba(0, 102, 255, 0.2);
+        border-radius: 999px;
+        padding: 3px 10px;
+        margin-left: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">
+            <div class="logo-icon"><i data-lucide="pill"></i></div>
+            <span>GestMed</span>
+          </div>
         </div>
-        <span>FarmaSys</span>
-      </div>
-    </div>
-
-    <nav class="sidebar-nav">
-      <a href="dashboard.html" class="nav-item">
-        <i data-lucide="layout-dashboard"></i>
-        <span>Dashboard</span>
-      </a>
-      <a href="medicamentos.html" class="nav-item">
-        <i data-lucide="package"></i>
-        <span>Medicamentos</span>
-      </a>
-      <a href="fornecedores.html" class="nav-item active">
-        <i data-lucide="truck"></i>
-        <span>Fornecedores</span>
-      </a>
-      <a href="entrada.html" class="nav-item">
-        <i data-lucide="package-plus"></i>
-        <span>Entrada</span>
-      </a>
-      <a href="saida.html" class="nav-item">
-        <i data-lucide="package-minus"></i>
-        <span>Saída</span>
-      </a>
-      <a href="relatorios.html" class="nav-item">
-        <i data-lucide="file-text"></i>
-        <span>Relatórios</span>
-      </a>
-    </nav>
-
-    <div class="sidebar-footer">
-      <button class="nav-item" id="logoutBtn">
-        <i data-lucide="log-out"></i>
-        <span>Sair</span>
-      </button>
-    </div>
-  </aside>
-
-  <!-- CONTEÚDO -->
-  <main class="main-content">
-    <!-- Header padrão -->
-    <header class="content-header">
-      <div class="header-left">
-        <h1 class="page-title">
-          <i data-lucide="truck"></i>
-          Fornecedores
-        </h1>
-        <p class="page-subtitle">Cadastre, edite e consulte fornecedores do sistema</p>
-      </div>
-
-      <div class="header-right">
-        <div class="user-info">
-          <span class="user-name" id="userName">Carregando...</span>
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-item"
+            ><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a
+          >
+          <a href="medicamentos.html" class="nav-item"
+            ><i data-lucide="package"></i><span>Medicamentos</span></a
+          >
+          <a href="fornecedores.html" class="nav-item active"
+            ><i data-lucide="truck"></i><span>Fornecedores</span></a
+          >
+          <a href="entrada.html" class="nav-item"
+            ><i data-lucide="package-plus"></i><span>Entrada</span></a
+          >
+          <a href="saida.html" class="nav-item"
+            ><i data-lucide="package-minus"></i><span>Saída</span></a
+          >
+          <a href="relatorio.html" class="nav-item"
+            ><i data-lucide="file-text"></i><span>Relatórios</span></a
+          >
+          <a href="importacao.html" class="nav-item"
+            ><i data-lucide="upload"></i><span>Importação</span></a
+          >
+        </nav>
+        <div class="sidebar-footer">
+          <button class="nav-item" id="logoutBtn">
+            <i data-lucide="log-out"></i><span>Sair</span>
+          </button>
         </div>
-      </div>
-    </header>
+      </aside>
 
-    <!-- KPIs (mesmo estilo Entrada) -->
-    <div class="kpi-mini-grid">
-      <div class="kpi-mini">
-        <div class="kpi-icon"><i data-lucide="users"></i></div>
-        <div>
-          <div class="kpi-label">Total</div>
-          <div class="kpi-value" id="kpiTotal">0</div>
-        </div>
-      </div>
+      <main class="main-content">
+        <header class="content-header">
+          <div class="header-left">
+            <h1 class="page-title"><i data-lucide="truck"></i> Fornecedores</h1>
+            <p class="page-subtitle">
+              Cadastre, edite e consulte fornecedores do sistema
+            </p>
+          </div>
+          <div class="header-right">
+            <div class="user-info">
+              <span class="user-name" id="userName">Carregando...</span>
+            </div>
+          </div>
+        </header>
 
-      <div class="kpi-mini">
-        <div class="kpi-icon"><i data-lucide="badge-check"></i></div>
-        <div>
-          <div class="kpi-label">Ativos</div>
-          <div class="kpi-value" id="kpiAtivos">0</div>
-        </div>
-      </div>
-
-      <div class="kpi-mini">
-        <div class="kpi-icon"><i data-lucide="badge-x"></i></div>
-        <div>
-          <div class="kpi-label">Inativos</div>
-          <div class="kpi-value" id="kpiInativos">0</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Card: Cadastro -->
-    <section class="content-section">
-      <div class="card">
-        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-          <h3 class="card-title" style="display:flex;align-items:center;gap:10px;margin:0;">
-            <i data-lucide="building-2"></i>
-            Cadastrar fornecedor
-          </h3>
-
-          <div class="subnav-actions">
-            <a href="dashboard.html" class="btn btn-outline btn-sm">
-              <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
-              Voltar ao Dashboard
-            </a>
-
-            <button class="btn btn-outline btn-sm" type="button" onclick="exportarFornecedoresCSV?.()">
-              <i data-lucide="download" style="width:16px;height:16px;"></i>
-              Exportar
-            </button>
+        <!-- KPI Cards -->
+        <div class="kpi-row">
+          <div
+            class="kpi-card-mini"
+            data-tooltip="Total de fornecedores cadastrados"
+          >
+            <div class="label"><i data-lucide="users"></i> Total</div>
+            <div class="value" id="kpiTotal">0</div>
+            <div class="sub">Fornecedores no sistema</div>
+          </div>
+          <div class="kpi-card-mini" data-tooltip="Fornecedores ativos">
+            <div class="label"><i data-lucide="badge-check"></i> Ativos</div>
+            <div class="value" id="kpiAtivos">0</div>
+            <div class="sub">Em operação</div>
+          </div>
+          <div class="kpi-card-mini" data-tooltip="Fornecedores inativos">
+            <div class="label"><i data-lucide="badge-x"></i> Inativos</div>
+            <div class="value" id="kpiInativos">0</div>
+            <div class="sub">Fora de operação</div>
           </div>
         </div>
 
-        <div class="card-body">
-          <form id="formFornecedor" class="form-grid-fornecedor">
-            <div class="form-group col-6">
-              <label for="nome" class="required">Nome</label>
-              <input id="nome" type="text" class="form-input" placeholder="Ex.: MedSupply Distribuidora" required>
+        <!-- Card: Cadastro / Edição -->
+        <section class="content-section" id="secaoFormulario">
+          <div class="card" id="cardFormulario">
+            <div
+              class="card-header"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+              "
+            >
+              <h3
+                class="card-title"
+                style="margin: 0; display: flex; align-items: center; gap: 8px"
+              >
+                <i data-lucide="building-2"></i>
+                <span id="tituloFormulario">Cadastrar fornecedor</span>
+                <span class="card-title-edit-label"
+                  ><i
+                    data-lucide="pencil"
+                    style="width: 12px; height: 12px"
+                  ></i>
+                  Editando</span
+                >
+              </h3>
+              <div class="subnav-actions">
+                <a href="dashboard.html" class="btn btn-outline btn-sm">
+                  <i
+                    data-lucide="arrow-left"
+                    style="width: 16px; height: 16px"
+                  ></i>
+                  Voltar
+                </a>
+                <div class="dropdown-export">
+                  <button
+                    class="btn btn-outline btn-sm"
+                    id="btnExportar"
+                    type="button"
+                  >
+                    <i
+                      data-lucide="download"
+                      style="width: 16px; height: 16px"
+                    ></i>
+                    Exportar
+                    <i
+                      data-lucide="chevron-down"
+                      style="width: 14px; height: 14px"
+                    ></i>
+                  </button>
+                  <div class="dropdown-menu" id="dropdownExportar">
+                    <button class="dropdown-item" id="btnExportarCSV">
+                      <i data-lucide="file-text"></i> Exportar CSV
+                    </button>
+                    <button class="dropdown-item" id="btnExportarExcel">
+                      <i data-lucide="file-spreadsheet"></i> Exportar Excel
+                      (.xlsx)
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            <div class="form-group col-3">
-              <label for="cnpj">CNPJ (opcional)</label>
-              <input id="cnpj" type="text" class="form-input" placeholder="00.000.000/0001-00">
-            </div>
-
-            <div class="form-group col-3">
-              <label for="telefone">Telefone</label>
-              <input id="telefone" type="text" class="form-input" placeholder="(00) 90000-0000">
-            </div>
-
-            <div class="form-group col-6">
-              <label for="email">E-mail</label>
-              <input id="email" type="email" class="form-input" placeholder="contato@fornecedor.com">
-            </div>
-
-            <div class="form-group col-6">
-              <label for="endereco">Endereço</label>
-              <input id="endereco" type="text" class="form-input" placeholder="Rua..., nº..., Bairro...">
-            </div>
-
-            <div class="form-group col-3">
-              <label for="ativo">Status</label>
-              <select id="ativo" class="form-input">
-                <option value="true">Ativo</option>
-                <option value="false">Inativo</option>
-              </select>
-            </div>
-
-            <div class="form-group col-9" style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;align-items:end;">
-              <button type="reset" class="btn btn-secondary">
-                <i data-lucide="rotate-ccw"></i>
-                Limpar
-              </button>
-
-              <button type="submit" class="btn btn-primary btn-primary">
-                <i data-lucide="check"></i>
-                Salvar fornecedor
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- Card: Lista -->
-    <section class="content-section">
-      <div class="card">
-        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-          <h3 class="card-title" style="display:flex;align-items:center;gap:10px;margin:0;">
-            <i data-lucide="list"></i>
-            Lista de fornecedores
-          </h3>
-
-          <div class="table-actions">
-            <div class="search-box" style="max-width:360px;">
-              <i data-lucide="search"></i>
-              <input type="text" id="buscaFornecedor" placeholder="Buscar por nome/CNPJ...">
+            <div class="card-body">
+              <form id="formFornecedor" class="form-grid-fornecedor">
+                <div class="form-group col-6">
+                  <label for="nome" class="required">Nome</label>
+                  <input
+                    id="nome"
+                    type="text"
+                    class="form-input"
+                    placeholder="Ex.: MedSupply Distribuidora"
+                    required
+                  />
+                </div>
+                <div class="form-group col-3">
+                  <label for="cnpj">CNPJ (opcional)</label>
+                  <input
+                    id="cnpj"
+                    type="text"
+                    class="form-input"
+                    placeholder="00.000.000/0001-00"
+                  />
+                </div>
+                <div class="form-group col-3">
+                  <label for="telefone">Telefone</label>
+                  <input
+                    id="telefone"
+                    type="text"
+                    class="form-input"
+                    placeholder="(00) 90000-0000"
+                  />
+                </div>
+                <div class="form-group col-6">
+                  <label for="email">E-mail</label>
+                  <input
+                    id="email"
+                    type="email"
+                    class="form-input"
+                    placeholder="contato@fornecedor.com"
+                  />
+                </div>
+                <div class="form-group col-6">
+                  <label for="endereco">Endereço</label>
+                  <input
+                    id="endereco"
+                    type="text"
+                    class="form-input"
+                    placeholder="Rua..., nº..., Bairro..."
+                  />
+                </div>
+                <div class="form-group col-3">
+                  <label for="ativo">Status</label>
+                  <select id="ativo" class="form-input">
+                    <option value="true">Ativo</option>
+                    <option value="false">Inativo</option>
+                  </select>
+                </div>
+                <div
+                  class="form-group col-9"
+                  style="
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                    align-items: end;
+                  "
+                >
+                  <button type="reset" class="btn btn-secondary" id="btnLimpar">
+                    <i data-lucide="rotate-ccw"></i> Limpar
+                  </button>
+                  <button type="submit" class="btn btn-primary">
+                    <i data-lucide="check"></i> Salvar fornecedor
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div class="card-body">
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Nome</th>
-                  <th>CNPJ</th>
-                  <th>Telefone</th>
-                  <th>E-mail</th>
-                  <th>Status</th>
-                  <th style="width: 140px;">Ações</th>
-                </tr>
-              </thead>
-              <tbody id="tabelaFornecedores">
-                <tr>
-                  <td colspan="6" style="text-align:center;color:var(--gray-600);padding:18px;">
-                    Nenhum fornecedor cadastrado.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        <!-- Card: Lista -->
+        <section class="content-section">
+          <div class="card">
+            <div
+              class="card-header"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+              "
+            >
+              <h3 class="card-title" style="margin: 0">
+                <i data-lucide="list"></i> Lista de fornecedores
+              </h3>
+              <div class="table-actions">
+                <div class="search-box" style="max-width: 360px">
+                  <i data-lucide="search"></i>
+                  <input
+                    type="text"
+                    id="buscaFornecedor"
+                    placeholder="Buscar por nome/CNPJ..."
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>CNPJ</th>
+                      <th>Telefone</th>
+                      <th>E-mail</th>
+                      <th>Status</th>
+                      <th style="width: 160px">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabelaFornecedores">
+                    <tr>
+                      <td
+                        colspan="6"
+                        style="
+                          text-align: center;
+                          color: #6b7280;
+                          padding: 24px;
+                        "
+                      >
+                        Nenhum fornecedor cadastrado.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="pagination" id="paginationFornecedores"></div>
+            </div>
           </div>
+        </section>
+      </main>
+    </div>
 
-          <div class="pagination" id="paginationFornecedores"></div>
-        </div>
-      </div>
-    </section>
+    <script src="../Javascript/Storage.js"></script>
+    <script src="../Javascript/autenticacao.js"></script>
+    <script src="../Javascript/fornecedores.js"></script>
+    <script>
+      lucide.createIcons();
 
-  </main>
-</div>
+      // ── KPI interatividade ──
+      document.querySelectorAll('.kpi-card-mini').forEach((card) => {
+        card.addEventListener('click', () => {
+          const jaAtivo = card.classList.contains('active');
+          document
+            .querySelectorAll('.kpi-card-mini')
+            .forEach((c) => c.classList.remove('active', 'pulse'));
+          card.classList.add('pulse');
+          setTimeout(() => card.classList.remove('pulse'), 500);
+          if (!jaAtivo) card.classList.add('active');
+        });
+      });
 
-<script src="../Javascript/Storage.js"></script>
-<script src="../Javascript/autenticacao.js"></script>
-<script src="../Javascript/fornecedores.js"></script>
-<script>
-  lucide.createIcons();
-</script>
+      // ── Destaque visual quando em modo edição ──
+      // O fornecedores.js já cuida do scroll e preenchimento.
+      // Aqui adicionamos o feedback visual no card.
+      const cardForm = document.getElementById('cardFormulario');
+      const tituloForm = document.getElementById('tituloFormulario');
 
-</body>
+      // Observa mudanças no botão de submit para saber se entrou em modo edição
+      const observer = new MutationObserver(() => {
+        const btnSubmit = document.querySelector(
+          "#formFornecedor button[type='submit']"
+        );
+        const emEdicao = btnSubmit?.textContent?.includes('Atualizar');
+        cardForm?.classList.toggle('form-editando', !!emEdicao);
+        if (tituloForm)
+          tituloForm.textContent = emEdicao
+            ? 'Editar fornecedor'
+            : 'Cadastrar fornecedor';
+      });
+      const btnSubmit = document.querySelector(
+        "#formFornecedor button[type='submit']"
+      );
+      if (btnSubmit)
+        observer.observe(btnSubmit, {
+          childList: true,
+          subtree: true,
+          characterData: true,
+        });
+
+      // ── Dropdown exportar ──
+      const btnEx = document.getElementById('btnExportar');
+      const ddEx = document.getElementById('dropdownExportar');
+      btnEx?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        ddEx.classList.toggle('active');
+        lucide.createIcons();
+      });
+      document.addEventListener('click', () =>
+        ddEx?.classList.remove('active')
+      );
+
+      // ── Exportar CSV ──
+      document
+        .getElementById('btnExportarCSV')
+        ?.addEventListener('click', () => {
+          const fornecedores =
+            typeof getFornecedoresSafe === 'function'
+              ? getFornecedoresSafe()
+              : typeof getFornecedores === 'function'
+                ? getFornecedores()
+                : [];
+          if (!fornecedores.length)
+            return alert('Nenhum fornecedor para exportar.');
+          const header = [
+            'Nome',
+            'CNPJ',
+            'Telefone',
+            'E-mail',
+            'Endereço',
+            'Status',
+          ];
+          const rows = fornecedores.map((f) => [
+            f.nome || '',
+            f.cnpj || '',
+            f.telefone || '',
+            f.email || '',
+            f.endereco || '',
+            f.ativo !== false ? 'Ativo' : 'Inativo',
+          ]);
+          const csv = [header, ...rows]
+            .map((r) =>
+              r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')
+            )
+            .join('\n');
+          const a = Object.assign(document.createElement('a'), {
+            href: URL.createObjectURL(
+              new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+            ),
+            download: `fornecedores_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`,
+          });
+          a.click();
+          ddEx.classList.remove('active');
+        });
+
+      // ── Exportar Excel ──
+      document
+        .getElementById('btnExportarExcel')
+        ?.addEventListener('click', () => {
+          const fornecedores =
+            typeof getFornecedoresSafe === 'function'
+              ? getFornecedoresSafe()
+              : typeof getFornecedores === 'function'
+                ? getFornecedores()
+                : [];
+          if (!fornecedores.length)
+            return alert('Nenhum fornecedor para exportar.');
+          const dados = fornecedores.map((f) => ({
+            Nome: f.nome || '',
+            CNPJ: f.cnpj || '',
+            Telefone: f.telefone || '',
+            'E-mail': f.email || '',
+            Endereço: f.endereco || '',
+            Status: f.ativo !== false ? 'Ativo' : 'Inativo',
+          }));
+          const ws = XLSX.utils.json_to_sheet(dados);
+          ws['!cols'] = [30, 20, 16, 30, 40, 10].map((w) => ({ wch: w }));
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, 'Fornecedores');
+          XLSX.writeFile(
+            wb,
+            `fornecedores_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.xlsx`
+          );
+          ddEx.classList.remove('active');
+        });
+    </script>
+  </body>
 </html>

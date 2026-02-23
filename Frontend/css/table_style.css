@@ -58,6 +58,7 @@
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+/* overflow-x: auto mantido, mas não vai cortar o dropdown pois ele usa position:fixed */
 .table-container {
     overflow-x: auto;
     background: white;
@@ -116,30 +117,11 @@
     white-space: nowrap;
 }
 
-.badge-success {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.badge-warning {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.badge-danger {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.badge-info {
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-.badge-secondary {
-    background: var(--gray-100);
-    color: var(--gray-700);
-}
+.badge-success   { background: #d1fae5; color: #065f46; }
+.badge-warning   { background: #fef3c7; color: #92400e; }
+.badge-danger    { background: #fee2e2; color: #991b1b; }
+.badge-info      { background: #dbeafe; color: #1e40af; }
+.badge-secondary { background: var(--gray-100); color: var(--gray-700); }
 
 .action-buttons {
     display: flex;
@@ -159,30 +141,13 @@
     transition: var(--transition);
 }
 
-.btn-icon i {
-    width: 16px;
-    height: 16px;
-}
+.btn-icon i { width: 16px; height: 16px; }
 
-.btn-icon-primary {
-    background: var(--primary-light);
-    color: var(--primary);
-}
+.btn-icon-primary { background: var(--primary-light); color: var(--primary); }
+.btn-icon-primary:hover { background: var(--primary); color: white; }
 
-.btn-icon-primary:hover {
-    background: var(--primary);
-    color: white;
-}
-
-.btn-icon-danger {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-.btn-icon-danger:hover {
-    background: #dc2626;
-    color: white;
-}
+.btn-icon-danger { background: #fee2e2; color: #dc2626; }
+.btn-icon-danger:hover { background: #dc2626; color: white; }
 
 .pagination {
     display: flex;
@@ -206,28 +171,14 @@
     transition: var(--transition);
 }
 
-.pagination-btn:hover:not(:disabled) {
-    background: var(--gray-50);
-    border-color: var(--primary);
-}
-
-.pagination-btn.active {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-}
-
-.pagination-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
+.pagination-btn:hover:not(:disabled) { background: var(--gray-50); border-color: var(--primary); }
+.pagination-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+.pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .modal {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     z-index: 1000;
     display: none;
     align-items: center;
@@ -235,17 +186,13 @@
     padding: var(--space-4);
 }
 
-.modal.active {
-    display: flex;
-}
+.modal.active { display: flex; }
 
 .modal-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
     backdrop-filter: blur(4px);
 }
 
@@ -259,30 +206,13 @@
     animation: modalSlideIn 0.3s ease;
 }
 
-.modal-sm {
-    width: 100%;
-    max-width: 400px;
-}
-
-.modal-md {
-    width: 100%;
-    max-width: 600px;
-}
-
-.modal-lg {
-    width: 100%;
-    max-width: 800px;
-}
+.modal-sm  { width: 100%; max-width: 400px; }
+.modal-md  { width: 100%; max-width: 600px; }
+.modal-lg  { width: 100%; max-width: 800px; }
 
 @keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+    from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .modal-header {
@@ -302,13 +232,10 @@
     gap: var(--space-2);
 }
 
-.modal-title i {
-    color: var(--primary);
-}
+.modal-title i { color: var(--primary); }
 
 .modal-close {
-    width: 32px;
-    height: 32px;
+    width: 32px; height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -318,15 +245,9 @@
     cursor: pointer;
     transition: var(--transition);
 }
+.modal-close:hover { background: var(--gray-200); }
 
-.modal-close:hover {
-    background: var(--gray-200);
-}
-
-.modal-body {
-    padding: var(--space-6);
-}
-
+.modal-body   { padding: var(--space-6); }
 .modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -341,14 +262,8 @@
     gap: var(--space-4);
 }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group.full-width {
-    grid-column: 1 / -1;
-}
+.form-group { display: flex; flex-direction: column; }
+.form-group.full-width { grid-column: 1 / -1; }
 
 .form-group label {
     font-size: var(--text-sm);
@@ -356,12 +271,7 @@
     color: var(--gray-700);
     margin-bottom: var(--space-2);
 }
-
-.form-group label.required::after {
-    content: '*';
-    color: var(--danger);
-    margin-left: 4px;
-}
+.form-group label.required::after { content: '*'; color: var(--danger); margin-left: 4px; }
 
 .form-input {
     padding: 10px 12px;
@@ -370,17 +280,12 @@
     font-size: var(--text-sm);
     transition: var(--transition);
 }
-
 .form-input:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
 }
-
-textarea.form-input {
-    resize: vertical;
-    font-family: inherit;
-}
+textarea.form-input { resize: vertical; font-family: inherit; }
 
 .btn-primary {
     display: inline-flex;
@@ -396,12 +301,7 @@ textarea.form-input {
     cursor: pointer;
     transition: var(--transition);
 }
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
 .btn-secondary {
     display: inline-flex;
@@ -417,10 +317,7 @@ textarea.form-input {
     cursor: pointer;
     transition: var(--transition);
 }
-
-.btn-secondary:hover {
-    background: var(--gray-50);
-}
+.btn-secondary:hover { background: var(--gray-50); }
 
 .btn-danger {
     display: inline-flex;
@@ -436,43 +333,75 @@ textarea.form-input {
     cursor: pointer;
     transition: var(--transition);
 }
-
-.btn-danger:hover {
-    background: #dc2626;
-}
+.btn-danger:hover { background: #dc2626; }
 
 @media (max-width: 768px) {
-    .actions-bar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .search-box {
-        min-width: 100%;
-    }
-    
-    .filter-group {
-        flex-direction: column;
-    }
-    
-    .filter-select {
-        width: 100%;
-    }
-    
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .table-container {
-        font-size: 12px;
-    }
-    
-    .data-table th,
-    .data-table td {
-        padding: 8px;
-    }
-    
-    .modal-content {
-        max-height: 95vh;
-    }
+    .actions-bar { flex-direction: column; align-items: stretch; }
+    .search-box  { min-width: 100%; }
+    .filter-group { flex-direction: column; }
+    .filter-select { width: 100%; }
+    .form-grid { grid-template-columns: 1fr; }
+    .table-container { font-size: 12px; }
+    .data-table th, .data-table td { padding: 8px; }
+    .modal-content { max-height: 95vh; }
+}
+
+/* ══════════════════════════════════════════
+   DROPDOWN EXPORTAR — fix definitivo
+   position:fixed garante que não é cortado
+   por overflow:hidden ou overflow-x:auto
+   ══════════════════════════════════════════ */
+.dropdown-export {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: fixed !important;
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08) !important;
+    min-width: 210px !important;
+    display: none !important;
+    z-index: 99999 !important;
+    overflow: hidden !important;
+    padding: 4px 0 !important;
+}
+
+.dropdown-menu.active {
+    display: block !important;
+    animation: ddFadeIn 0.18s ease !important;
+}
+
+@keyframes ddFadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-item {
+    width: 100% !important;
+    padding: 11px 16px !important;
+    border: none !important;
+    background: none !important;
+    text-align: left !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    font-size: 14px !important;
+    color: #374151 !important;
+    transition: background 0.15s !important;
+    box-sizing: border-box !important;
+}
+
+.dropdown-item:hover {
+    background: #f3f4f6 !important;
+    color: #111827 !important;
+}
+
+.dropdown-item i,
+.dropdown-item svg {
+    width: 16px !important;
+    height: 16px !important;
+    flex-shrink: 0 !important;
 }
