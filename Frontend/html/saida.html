@@ -3,13 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Saída de Medicamentos | FarmaSys</title>
+    <title>Saída de Medicamentos | GestMed</title>
     <link rel="stylesheet" href="../CSS/Style.css" />
     <link rel="stylesheet" href="../CSS/Components.css" />
     <link rel="stylesheet" href="../CSS/dashboard.css" />
     <link rel="stylesheet" href="../CSS/farmaui.css" />
     <link rel="stylesheet" href="../CSS/table_style.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
       .filters-row {
         display: flex;
@@ -186,10 +187,10 @@
                   <div class="form-group">
                     <label>Data da Saída</label>
                     <input
-                      type="text"
+                      type="date"
                       id="dataSaida"
                       class="form-input"
-                      disabled
+                      required
                     />
                   </div>
                 </div>
@@ -229,15 +230,26 @@
                     <input
                       type="text"
                       id="searchSaida"
-                      placeholder="Buscar por medicamento ou destino..."
+                      placeholder="Buscar medicamento"
                     />
-                  </div>
-                  <button
-                    type="button"
-                    class="btn btn-primary btn-sm"
-                    id="btnExportarSaida"
-                  >
+                  <div class="dropdown-export">
+                    <button
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      id="btnExportarSaida"
+                     >
                     <i data-lucide="download"></i> Exportar
+                    </button>
+
+                  <div class="dropdown-menu" id="dropdownExportarSaida">
+                  <button type="button" id="btnExportarCSVSaida">
+                  <i data-lucide="file-text"></i> Exportar CSV
+                  </button>
+                  <button type="button" id="btnExportarExcelSaida">
+                  <i data-lucide="file-spreadsheet"></i> Exportar Excel (.xlsx)
+                  </button>
+                </div>
+              </div>
                   </button>
                 </div>
               </div>
@@ -251,7 +263,6 @@
                       <th>Quantidade</th>
                       <th>Destino</th>
                       <th>Data da Saída</th>
-                      <th>Ações</th>
                     </tr>
                   </thead>
                   <tbody id="tabelaSaida"></tbody>

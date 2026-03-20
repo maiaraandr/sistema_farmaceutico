@@ -19,6 +19,7 @@
         align-items: center;
         flex-wrap: wrap;
       }
+
       .btn-ghost {
         background: transparent;
         border: 1px solid #e5e7eb;
@@ -31,16 +32,19 @@
         gap: 8px;
         transition: all 0.2s ease;
       }
+
       .btn-ghost:hover {
         background: rgba(0, 0, 0, 0.04);
         transform: translateY(-1px);
       }
+
       .kpi-row {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 12px;
         margin-top: 12px;
       }
+
       .kpi-card-mini {
         background: #fff;
         border: 2px solid #e5e7eb;
@@ -54,6 +58,7 @@
         position: relative;
         overflow: hidden;
       }
+
       .kpi-card-mini::before {
         content: '';
         position: absolute;
@@ -69,22 +74,27 @@
         );
         transition: left 0.6s ease;
       }
+
       .kpi-card-mini:hover {
         transform: translateY(-6px);
         box-shadow: 0 12px 28px rgba(0, 102, 255, 0.15);
         border-color: #0066ff;
       }
+
       .kpi-card-mini:hover::before {
         left: 100%;
       }
+
       .kpi-card-mini:active {
         transform: translateY(-3px) scale(0.98);
       }
+
       .kpi-card-mini.active {
         border-color: #0066ff;
         background: rgba(0, 102, 255, 0.06);
         box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.12);
       }
+
       .kpi-card-mini .label {
         font-size: 12px;
         opacity: 0.7;
@@ -92,14 +102,17 @@
         gap: 8px;
         align-items: center;
       }
+
       .kpi-card-mini .value {
         font-size: 22px;
         font-weight: 700;
       }
+
       .kpi-card-mini .sub {
         font-size: 12px;
         opacity: 0.65;
       }
+
       .kpi-card-mini::after {
         content: attr(data-tooltip);
         position: absolute;
@@ -119,33 +132,32 @@
           bottom 0.2s ease;
         z-index: 10;
       }
+
       .kpi-card-mini:hover::after {
         opacity: 1;
         bottom: -45px;
       }
-      .actions-bar {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-      .actions-right {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
+
       .actions-left {
         display: flex;
         gap: 12px;
         flex: 1;
         flex-wrap: wrap;
       }
+
+      .actions-right {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
       .search-box {
         position: relative;
         min-width: 280px;
         flex: 1;
       }
+
       .search-box i {
         position: absolute;
         left: 14px;
@@ -155,6 +167,7 @@
         width: 18px;
         height: 18px;
       }
+
       .search-box input {
         width: 100%;
         padding: 10px 14px 10px 42px;
@@ -164,13 +177,16 @@
         transition: all 0.2s ease;
         outline: none;
       }
+
       .search-box input:focus {
         border-color: #0066ff;
         box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
       }
+
       .search-box input::placeholder {
         color: #9ca3af;
       }
+
       .filter-select {
         padding: 10px 14px;
         border: 2px solid #e5e7eb;
@@ -182,40 +198,44 @@
         outline: none;
         min-width: 180px;
       }
+
       .filter-select:focus {
         border-color: #0066ff;
         box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
       }
+
       .table-container {
         transition: opacity 0.2s ease;
       }
+
       .table-container.filtering {
         opacity: 0.6;
       }
 
-      /* ── DROPDOWN — definição única e definitiva ── */
       .dropdown-export {
         position: relative;
-        display: inline-block;
       }
-      #dropdownExport {
-        position: fixed;
+
+      .dropdown-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 0;
         background: #fff;
         border: 1px solid #e5e7eb;
         border-radius: 12px;
-        box-shadow:
-          0 8px 32px rgba(0, 0, 0, 0.16),
-          0 2px 8px rgba(0, 0, 0, 0.08);
-        min-width: 215px;
-        z-index: 99999;
-        padding: 4px 0;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        min-width: 200px;
         display: none;
+        z-index: 9999;
+        overflow: hidden;
       }
-      #dropdownExport.active {
+
+      .dropdown-menu.active {
         display: block;
-        animation: ddIn 0.15s ease;
+        animation: ddFade 0.18s ease;
       }
-      @keyframes ddIn {
+
+      @keyframes ddFade {
         from {
           opacity: 0;
           transform: translateY(-6px);
@@ -225,9 +245,10 @@
           transform: translateY(0);
         }
       }
+
       .dropdown-item {
         width: 100%;
-        padding: 12px 16px;
+        padding: 11px 16px;
         border: none;
         background: none;
         text-align: left;
@@ -235,18 +256,20 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 14px;
+        font-size: 13px;
         color: #374151;
-        box-sizing: border-box;
+        transition: background 0.15s;
       }
+
       .dropdown-item:hover {
         background: #f3f4f6;
-        color: #111827;
       }
-      .dropdown-item svg {
-        width: 16px;
-        height: 16px;
-        flex-shrink: 0;
+
+      .content-section,
+      .card,
+      .card-header,
+      .card-body {
+        overflow: visible !important;
       }
 
       @keyframes fadeIn {
@@ -259,6 +282,7 @@
           transform: translateY(0);
         }
       }
+
       @keyframes slideInRight {
         from {
           opacity: 0;
@@ -269,6 +293,7 @@
           transform: translateX(0);
         }
       }
+
       @keyframes pulse {
         0%,
         100% {
@@ -278,12 +303,15 @@
           opacity: 0.8;
         }
       }
+
       .animate-fadeIn {
         animation: fadeIn 0.5s ease forwards;
       }
+
       .animate-slideIn {
         animation: slideInRight 0.5s ease forwards;
       }
+
       .kpi-card-mini.pulse {
         animation: pulse 0.5s ease;
       }
@@ -405,116 +433,134 @@
           </div>
         </section>
 
-        <!-- Ações e Filtros -->
-        <div class="content-section animate-fadeIn">
-          <div class="actions-bar">
-            <div class="actions-left">
-              <div class="search-box">
-                <i data-lucide="search"></i>
-                <input
-                  type="text"
-                  id="searchInput"
-                  placeholder="Buscar medicamento..."
-                />
-              </div>
-              <select id="filterCategoria" class="filter-select">
-                <option value="">Todas Categorias</option>
-                <option value="analgésico">Analgésico</option>
-                <option value="anestésico">Anestésico</option>
-                <option value="antiácido">Antiácido</option>
-                <option value="antialérgico">Antialérgico</option>
-                <option value="antibiótico">Antibiótico</option>
-                <option value="anticoagulante">Anticoagulante</option>
-                <option value="anticonvulsivante">Anticonvulsivante</option>
-                <option value="antidepressivo">Antidepressivo</option>
-                <option value="antidiabético">Antidiabético</option>
-                <option value="antiemético">Antiemético</option>
-                <option value="antifúngico">Antifúngico</option>
-                <option value="anti-hipertensivo">Anti-hipertensivo</option>
-                <option value="anti-inflamatório">Anti-inflamatório</option>
-                <option value="antiparasitário">Antiparasitário</option>
-                <option value="antipsicótico">Antipsicótico</option>
-                <option value="antitérmico">Antitérmico</option>
-                <option value="broncodilatador">Broncodilatador</option>
-                <option value="cardiológico">Cardiológico</option>
-                <option value="corticoide">Corticoide</option>
-                <option value="diurético">Diurético</option>
-                <option value="hormônio">Hormônio</option>
-                <option value="sedativo">Sedativo</option>
-                <option value="soro/solução">Soro/Solução</option>
-                <option value="vacina">Vacina</option>
-                <option value="vitamina">Vitamina/Suplemento</option>
-                <option value="outros">Outros</option>
-              </select>
-              <select id="filterEstoque" class="filter-select">
-                <option value="">Todos Estoques</option>
-                <option value="baixo">Estoque Baixo</option>
-                <option value="ok">Estoque OK</option>
-                <option value="vencendo">Próximo Vencimento</option>
-              </select>
-            </div>
-            <div class="actions-right">
-              <div class="dropdown-export">
-                <!-- onclick no botão evita problema com SVG filho do lucide -->
-                <button
-                  class="btn-ghost"
-                  id="btnExportar"
-                  type="button"
-                  onclick="abrirDropdownExport(this)"
-                >
-                  <i data-lucide="download"></i> Exportar
-                  <i
-                    data-lucide="chevron-down"
-                    style="width: 16px; height: 16px"
-                  ></i>
-                </button>
-                <div id="dropdownExport">
-                  <button
-                    type="button"
-                    class="dropdown-item"
-                    onclick="exportarCSVInline()"
-                  >
-                    <i data-lucide="file-text"></i> Exportar CSV
-                  </button>
-                  <button
-                    type="button"
-                    class="dropdown-item"
-                    onclick="exportarExcelInline()"
-                  >
-                    <i data-lucide="file-spreadsheet"></i> Exportar Excel
-                    (.xlsx)
-                  </button>
+        <!-- Ações + tabela no mesmo card -->
+        <section class="content-section animate-fadeIn">
+          <div class="card">
+            <div
+              class="card-header"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+              "
+            >
+              <div class="actions-left">
+                <div class="search-box">
+                  <i data-lucide="search"></i>
+                  <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Buscar medicamento..."
+                  />
                 </div>
+
+                <select id="filterCategoria" class="filter-select">
+                  <option value="">Todas Categorias</option>
+                  <option value="analgésico">Analgésico</option>
+                  <option value="anestésico">Anestésico</option>
+                  <option value="antiácido">Antiácido</option>
+                  <option value="antialérgico">Antialérgico</option>
+                  <option value="antibiótico">Antibiótico</option>
+                  <option value="anticoagulante">Anticoagulante</option>
+                  <option value="anticonvulsivante">Anticonvulsivante</option>
+                  <option value="antidepressivo">Antidepressivo</option>
+                  <option value="antidiabético">Antidiabético</option>
+                  <option value="antiemético">Antiemético</option>
+                  <option value="antifúngico">Antifúngico</option>
+                  <option value="anti-hipertensivo">Anti-hipertensivo</option>
+                  <option value="anti-inflamatório">Anti-inflamatório</option>
+                  <option value="antiparasitário">Antiparasitário</option>
+                  <option value="antipsicótico">Antipsicótico</option>
+                  <option value="antitérmico">Antitérmico</option>
+                  <option value="broncodilatador">Broncodilatador</option>
+                  <option value="cardiológico">Cardiológico</option>
+                  <option value="corticoide">Corticoide</option>
+                  <option value="diurético">Diurético</option>
+                  <option value="hormônio">Hormônio</option>
+                  <option value="sedativo">Sedativo</option>
+                  <option value="soro/solução">Soro/Solução</option>
+                  <option value="vacina">Vacina</option>
+                  <option value="vitamina">Vitamina/Suplemento</option>
+                  <option value="outros">Outros</option>
+                </select>
+
+                <select id="filterEstoque" class="filter-select">
+                  <option value="">Todos Estoques</option>
+                  <option value="baixo">Estoque Baixo</option>
+                  <option value="ok">Estoque OK</option>
+                  <option value="vencendo">Próximo Vencimento</option>
+                </select>
               </div>
-              <button class="btn-primary" id="btnNovoProduto" type="button">
-                <i data-lucide="plus"></i> Novo Medicamento
-              </button>
+
+              <div class="actions-right">
+                <div class="dropdown-export">
+                  <button
+                    class="btn btn-outline btn-sm"
+                    id="btnExportar"
+                    type="button"
+                  >
+                    <i data-lucide="download"></i>
+                    Exportar
+                    <i
+                      data-lucide="chevron-down"
+                      style="width: 14px; height: 14px"
+                    ></i>
+                  </button>
+
+                  <div class="dropdown-menu" id="dropdownExportar">
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      id="btnExportarCSV"
+                    >
+                      <i data-lucide="file-text"></i> Exportar CSV
+                    </button>
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      id="btnExportarExcel"
+                    >
+                      <i data-lucide="file-spreadsheet"></i> Exportar Excel
+                      (.xlsx)
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  class="btn btn-primary btn-sm"
+                  id="btnNovoProduto"
+                  type="button"
+                >
+                  <i data-lucide="plus"></i> Novo Medicamento
+                </button>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="table-container" id="tableContainer">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>Nome</th>
+                      <th>Categoria</th>
+                      <th>Estoque</th>
+                      <th>Estoque Min.</th>
+                      <th>Valor Unit.</th>
+                      <th>Validade</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabelaProdutos"></tbody>
+                </table>
+              </div>
+              <div class="pagination" id="pagination"></div>
             </div>
           </div>
-        </div>
-
-        <!-- Tabela -->
-        <div class="content-section animate-fadeIn">
-          <div class="table-container" id="tableContainer">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Nome</th>
-                  <th>Categoria</th>
-                  <th>Estoque</th>
-                  <th>Estoque Min.</th>
-                  <th>Valor Unit.</th>
-                  <th>Validade</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="tabelaProdutos"></tbody>
-            </table>
-          </div>
-          <div class="pagination" id="pagination"></div>
-        </div>
+        </section>
       </main>
     </div>
 
@@ -679,92 +725,82 @@
     <script>
       lucide.createIcons();
 
-      // ── DROPDOWN: usa onclick inline no HTML para escapar do problema do SVG do lucide ──
-      function abrirDropdownExport(btnEl) {
-        var dd = document.getElementById('dropdownExport');
-        var isOpen = dd.classList.contains('active');
-        dd.classList.remove('active');
-        if (!isOpen) {
-          var rect = btnEl.getBoundingClientRect();
-          dd.style.top = rect.bottom + 6 + 'px';
-          dd.style.left = rect.right - 215 + 'px';
-          dd.classList.add('active');
-        }
-      }
+      // ── Dropdown exportar ──
+      const btnEx = document.getElementById('btnExportar');
+      const ddEx = document.getElementById('dropdownExportar');
 
-      function exportarCSVInline() {
-        document.getElementById('dropdownExport').classList.remove('active');
-        var lista =
-          window.produtosFiltrados && window.produtosFiltrados.length
+      btnEx?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        ddEx.classList.toggle('active');
+        lucide.createIcons();
+      });
+
+      document.addEventListener('click', () =>
+        ddEx?.classList.remove('active')
+      );
+
+      // ── Exportar CSV ──
+      document
+        .getElementById('btnExportarCSV')
+        ?.addEventListener('click', () => {
+          const lista = window.produtosFiltrados?.length
             ? window.produtosFiltrados
             : typeof produtos !== 'undefined'
               ? produtos
               : [];
-        if (!lista || !lista.length) {
-          alert('Não há dados para exportar.');
-          return;
-        }
+          if (!lista.length) return alert('Não há dados para exportar.');
 
-        var header = [
-          'Código',
-          'Nome',
-          'Categoria',
-          'Estoque',
-          'Estoque Mín.',
-          'Valor Unit. (R$)',
-          'Validade',
-        ];
-        var rows = lista.map(function (p) {
-          return [
+          const header = [
+            'Código',
+            'Nome',
+            'Categoria',
+            'Estoque',
+            'Estoque Mín.',
+            'Valor Unit. (R$)',
+            'Validade',
+          ];
+
+          const rows = lista.map((p) => [
             String(p.id || '').padStart(4, '0'),
             p.nome || '',
             p.categoria || '',
-            p.stock_atual || 0,
-            p.stock_minimo || 0,
+            Number(p.stock_atual || 0),
+            Number(p.stock_minimo || 0),
             Number(p.preco || 0).toFixed(2),
             p.vencimento || '',
-          ];
-        });
-        var csv = [header]
-          .concat(rows)
-          .map(function (r) {
-            return r
-              .map(function (v) {
-                return '"' + String(v).replace(/"/g, '""') + '"';
-              })
-              .join(',');
-          })
-          .join('\n');
-        var a = document.createElement('a');
-        a.href = URL.createObjectURL(
-          new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
-        );
-        a.download =
-          'medicamentos_' + new Date().toISOString().slice(0, 10) + '.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
+          ]);
 
-      function exportarExcelInline() {
-        document.getElementById('dropdownExport').classList.remove('active');
-        var lista =
-          window.produtosFiltrados && window.produtosFiltrados.length
+          const csv = [header, ...rows]
+            .map((r) =>
+              r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')
+            )
+            .join('\n');
+
+          const a = Object.assign(document.createElement('a'), {
+            href: URL.createObjectURL(
+              new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+            ),
+            download: `medicamentos_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`,
+          });
+
+          a.click();
+          ddEx.classList.remove('active');
+        });
+
+      // ── Exportar Excel ──
+      document
+        .getElementById('btnExportarExcel')
+        ?.addEventListener('click', () => {
+          const lista = window.produtosFiltrados?.length
             ? window.produtosFiltrados
             : typeof produtos !== 'undefined'
               ? produtos
               : [];
-        if (!lista || !lista.length) {
-          alert('Não há dados para exportar.');
-          return;
-        }
-        if (typeof XLSX === 'undefined') {
-          alert('SheetJS não carregado. Verifique sua conexão.');
-          return;
-        }
+          if (!lista.length) return alert('Não há dados para exportar.');
+          if (typeof XLSX === 'undefined')
+            return alert('SheetJS não carregado.');
 
-        var dados = lista.map(function (p) {
-          return {
+          const dados = lista.map((p) => ({
             Código: String(p.id || '').padStart(4, '0'),
             Nome: p.nome || '',
             Categoria: p.categoria || '',
@@ -772,69 +808,51 @@
             'Estoque Mín.': Number(p.stock_minimo || 0),
             'Valor Unit.': Number(p.preco || 0),
             Validade: p.vencimento || '',
-          };
-        });
-        var ws = XLSX.utils.json_to_sheet(dados);
-        ws['!cols'] = [8, 30, 20, 10, 12, 12, 12].map(function (w) {
-          return { wch: w };
-        });
-        var wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Medicamentos');
-        XLSX.writeFile(
-          wb,
-          'medicamentos_' + new Date().toISOString().slice(0, 10) + '.xlsx'
-        );
-      }
+          }));
 
-      // Fecha ao clicar fora do dropdown
-      document.addEventListener('click', function (e) {
-        var dd = document.getElementById('dropdownExport');
-        var btn = document.getElementById('btnExportar');
-        if (
-          dd &&
-          dd.classList.contains('active') &&
-          !dd.contains(e.target) &&
-          !btn.contains(e.target)
-        ) {
-          dd.classList.remove('active');
-        }
-      });
-      window.addEventListener(
-        'scroll',
-        function () {
-          document.getElementById('dropdownExport').classList.remove('active');
-        },
-        true
-      );
-      window.addEventListener('resize', function () {
-        document.getElementById('dropdownExport').classList.remove('active');
-      });
+          const ws = XLSX.utils.json_to_sheet(dados);
+          ws['!cols'] = [8, 30, 20, 10, 12, 12, 12].map((w) => ({ wch: w }));
 
-      // KPI Cards clicáveis
-      document.addEventListener('DOMContentLoaded', function () {
-        var kpiCards = document.querySelectorAll('.kpi-card-mini[data-filter]');
-        var filterEstoque = document.getElementById('filterEstoque');
-        var tableContainer = document.getElementById('tableContainer');
-        kpiCards.forEach(function (card) {
-          card.addEventListener('click', function () {
-            tableContainer.classList.add('filtering');
-            setTimeout(function () {
-              tableContainer.classList.remove('filtering');
-            }, 300);
-            kpiCards.forEach(function (c) {
-              c.classList.remove('active');
-            });
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, 'Medicamentos');
+
+          XLSX.writeFile(
+            wb,
+            `medicamentos_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.xlsx`
+          );
+
+          ddEx.classList.remove('active');
+        });
+
+      // ── KPI Cards clicáveis ──
+      document
+        .querySelectorAll('.kpi-card-mini[data-filter]')
+        .forEach((card) => {
+          card.addEventListener('click', () => {
+            const filterEstoque = document.getElementById('filterEstoque');
+            const tableContainer = document.getElementById('tableContainer');
+
+            tableContainer?.classList.add('filtering');
+            setTimeout(
+              () => tableContainer?.classList.remove('filtering'),
+              300
+            );
+
+            document
+              .querySelectorAll('.kpi-card-mini')
+              .forEach((c) => c.classList.remove('active'));
+
             card.classList.add('pulse');
-            setTimeout(function () {
-              card.classList.remove('pulse');
-            }, 500);
-            var val = card.dataset.filter;
-            filterEstoque.value = val || '';
+            setTimeout(() => card.classList.remove('pulse'), 500);
+
+            const val = card.dataset.filter || '';
+            filterEstoque.value = val;
+
             if (val) card.classList.add('active');
+
             filterEstoque.dispatchEvent(new Event('change'));
           });
         });
-      });
     </script>
   </body>
 </html>

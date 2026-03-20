@@ -4,6 +4,7 @@
 
   // estado local para edição
   window.__fornecedorEditandoId = null;
+  window.__filtroFornecedorStatus = 'todos';
 
   // eventos
   if (form) form.addEventListener('submit', onSubmitFornecedor);
@@ -82,8 +83,19 @@ function renderFornecedores() {
     .toLowerCase()
     .trim();
 
+  const filtroStatus = window.__filtroFornecedorStatus || 'todos';
+
   const fornecedores = getFornecedoresSafe()
-    .filter((f) => f && typeof f.ativo !== 'undefined')
+    .filter((f) => f)
+    .map((f) => ({
+      ...f,
+      ativo: f.ativo === true || f.ativo === 'true',
+    }))
+    .filter((f) => {
+      if (filtroStatus === 'ativos') return f.ativo === true;
+      if (filtroStatus === 'inativos') return f.ativo === false;
+      return true;
+    })
     .filter((f) => {
       if (!termo) return true;
       const nome = (f.nome || '').toLowerCase();
@@ -139,7 +151,6 @@ function renderFornecedores() {
 }
 
 function atualizarKPIs(listaFiltrada) {
-  // KPIs devem refletir a lista exibida (filtrada), como você espera na prática
   const lista = Array.isArray(listaFiltrada)
     ? listaFiltrada
     : getFornecedoresSafe();
@@ -299,8 +310,6 @@ function exportarFornecedoresCSV() {
 
 /**
  * Atualiza fornecedor:
- * - se existir updateFornecedor(id, patch) -> usa
- * - senão atualiza via localStorage (chave "fornecedores")
  */
 function atualizarFornecedorSafe(id, patch) {
   if (typeof updateFornecedor === 'function') {
@@ -332,7 +341,7 @@ function getFornecedoresSafe() {
     return Array.isArray(x) ? x : [];
   }
   try {
-    const raw = localStorage.getItem('fornecedores');
+    const raw = localStorage.getItem('farm_fornecedores');
     const list = raw ? JSON.parse(raw) : [];
     return Array.isArray(list) ? list : [];
   } catch {
@@ -343,7 +352,7 @@ function getFornecedoresSafe() {
 function setFornecedoresSafe(lista) {
   try {
     localStorage.setItem(
-      'fornecedores',
+      'farm_fornecedores',
       JSON.stringify(Array.isArray(lista) ? lista : [])
     );
   } catch (err) {
@@ -372,21 +381,3 @@ function escapeHtml(str) {
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 }
-
-const payload = {
-  nome: nomeInput.value,
-  miligrama: mgInput.value,
-  categoria: categoriaInput.value,
-  lote: loteInput.value,
-  validade: validadeInput.value,
-  quantidade: Number(qtdInput.value),
-  estoque_min: Number(minInput.value),
-  valor_unit: Number(valorInput.value),
-  fornecedor: Number(document.getElementById('fornecedor').value),
-};
-
-await fetch('http://127.0.0.1:8000/medicamentos/', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(payload),
-});

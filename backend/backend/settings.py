@@ -9,7 +9,7 @@ SECRET_KEY = "django-insecure-troque-esta-chave-por-uma-nova"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']  # ⭐ MUDANÇA: Permite todas as origens em desenvolvimento
+ALLOWED_HOSTS = ['*']  
 
 # Application definition
 INSTALLED_APPS = [
@@ -19,14 +19,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "corsheaders",  # ⭐ MOVIDO: CORS deve vir antes do rest_framework
+    "corsheaders",  
     "rest_framework",
     "farmacia",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "corsheaders.middleware.CorsMiddleware",  # ✅ JÁ ESTÁ CORRETO (segunda posição)
+    "corsheaders.middleware.CorsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -81,19 +82,14 @@ TIME_ZONE = "America/Belem"
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# ========================================
-# CONFIGURAÇÕES CORS (Cross-Origin)
-# ========================================
-CORS_ALLOW_ALL_ORIGINS = True  # ✅ JÁ ESTÁ CORRETO
+CORS_ALLOW_ALL_ORIGINS = True  
 
-# ⭐ ADICIONE TAMBÉM ESTAS CONFIGURAÇÕES CORS:
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_CREDENTIALS =True
+
 CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',

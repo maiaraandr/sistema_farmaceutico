@@ -1,6 +1,3 @@
-// medicamentos.js (ajustado para API Django + compatível com layout atual)
-// Requer: api.js carregado antes deste arquivo (funções apiGetMedicamentos, apiCreateMedicamento, etc.)
-
 let produtos = [];
 let produtoEditando = null;
 let produtoExcluindo = null;
@@ -11,89 +8,29 @@ const itensPorPagina = 10;
 window.produtosFiltrados = [];
 
 // ===============================
-// MAPEAMENTOS (API <-> UI)
-// ===============================
-function mapApiToUI(m) {
-  return {
-    id: m.id,
-    nome: m.nome ?? '',
-    categoria: m.categoria ?? '',
-    lote: m.lote ?? '',
-    vencimento: m.validade ?? null, // API: validade
-    stock_atual: Number(m.quantidade ?? 0), // API: quantidade
-    stock_minimo: Number(m.estoque_min ?? 0), // API: estoque_min
-    preco: Number(m.valor_unit ?? 0), // API: valor_unit
-    unidade: 'un',
-    descricao: '',
-    ativo: true,
-
-    miligrama: m.miligrama ?? '',
-    fornecedor_id: m.fornecedor ?? null, // API: fornecedor (ID)
-    fornecedor_nome: m.fornecedor_nome ?? '', // API: fornecedor_nome (read_only)
-  };
-}
-
-function mapUIToApi(p) {
-  return {
-    nome: p.nome,
-    miligrama: p.miligrama ?? '',
-    categoria: p.categoria,
-    lote: p.lote,
-    validade: p.vencimento, // UI: vencimento -> API: validade
-    quantidade: Number(p.stock_atual ?? 0), // UI: stock_atual -> API: quantidade
-    estoque_min: Number(p.stock_minimo ?? 0),
-    valor_unit: Number(p.preco ?? 0),
-    fornecedor: Number(p.fornecedor_id), // obrigatório: ID do fornecedor
-  };
-}
-
-// ===============================
 // INIT
 // ===============================
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
   verificarAutenticacao();
   inicializarEventListeners();
-  inicializarExportacao();
-
-  await carregarFornecedoresNoSelect();
-  await carregarProdutos();
+  carregarProdutos();
   renderizarTabela();
-
   if (typeof lucide !== 'undefined') lucide.createIcons();
 });
 
 // ===============================
-// CARREGAMENTO (API)
+// CARREGAMENTO (Storage.js)
 // ===============================
-async function carregarProdutos() {
+function carregarProdutos() {
   try {
-    const lista = await apiGetMedicamentos();
-    produtos = Array.isArray(lista) ? lista.map(mapApiToUI) : [];
+    produtos = (typeof getProdutos === 'function' ? getProdutos() : []).filter(
+      (p) => p.ativo !== false
+    );
   } catch (e) {
-    console.error('Erro ao carregar medicamentos:', e);
+    console.warn('Erro ao carregar produtos:', e);
     produtos = [];
   }
-}
-
-async function carregarFornecedoresNoSelect() {
-  // Espera existir um <select id="fornecedor"> no modal.
-  const select = document.getElementById('fornecedor');
-  if (!select) return;
-
-  try {
-    const lista = await apiGetFornecedores();
-    select.innerHTML = `<option value="">Selecione...</option>`;
-
-    (Array.isArray(lista) ? lista : []).forEach((f) => {
-      const opt = document.createElement('option');
-      opt.value = f.id;
-      opt.textContent = f.nome;
-      select.appendChild(opt);
-    });
-  } catch (e) {
-    console.error('Erro ao carregar fornecedores:', e);
-    // mantém o select como estiver
-  }
+  if (!Array.isArray(produtos)) produtos = [];
 }
 
 // ===============================
@@ -113,7 +50,6 @@ function inicializarEventListeners() {
   document
     .getElementById('formProduto')
     ?.addEventListener('submit', salvarProduto);
-
   document
     .getElementById('searchInput')
     ?.addEventListener('input', aplicarFiltros);
@@ -123,7 +59,6 @@ function inicializarEventListeners() {
   document
     .getElementById('filterEstoque')
     ?.addEventListener('change', aplicarFiltros);
-
   document
     .getElementById('modalExcluirClose')
     ?.addEventListener('click', fecharModalExcluir);
@@ -136,137 +71,19 @@ function inicializarEventListeners() {
 
   document
     .getElementById('btnConfirmarExcluir')
-    ?.addEventListener('click', async () => {
+    ?.addEventListener('click', () => {
       if (!produtoExcluindo) return;
-
-      try {
-        await apiDeleteMedicamento(produtoExcluindo.id);
-        await carregarProdutos();
-
-        const total = obterProdutosFiltrados().length;
-        if ((paginaAtual - 1) * itensPorPagina >= total && paginaAtual > 1)
-          paginaAtual--;
-
-        renderizarTabela();
-        fecharModalExcluir();
-        alert('Medicamento excluído com sucesso!');
-      } catch (err) {
-        console.error(err);
-        alert('Erro ao excluir no servidor. Veja o console.');
+      if (typeof updateProduto === 'function') {
+        updateProduto(produtoExcluindo.id, { ativo: false });
       }
+      carregarProdutos();
+      const total = obterProdutosFiltrados().length;
+      if ((paginaAtual - 1) * itensPorPagina >= total && paginaAtual > 1)
+        paginaAtual--;
+      renderizarTabela();
+      fecharModalExcluir();
+      alert('Medicamento excluído com sucesso!');
     });
-}
-
-// ==========================================
-// EXPORTAÇÃO
-// ==========================================
-function inicializarExportacao() {
-  const btnExportar = document.getElementById('btnExportar');
-  const dropdownExport = document.getElementById('dropdownExport');
-
-  if (!btnExportar || !dropdownExport) return;
-
-  btnExportar.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isActive = dropdownExport.classList.contains('active');
-    dropdownExport.classList.remove('active');
-    if (!isActive) {
-      const rect = btnExportar.getBoundingClientRect();
-      dropdownExport.style.top = rect.bottom + 6 + 'px';
-      dropdownExport.style.left = rect.right - 210 + 'px';
-      dropdownExport.classList.add('active');
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
-  });
-
-  document.addEventListener('click', (e) => {
-    if (
-      dropdownExport.classList.contains('active') &&
-      !dropdownExport.contains(e.target) &&
-      e.target !== btnExportar &&
-      !btnExportar.contains(e.target)
-    ) {
-      dropdownExport.classList.remove('active');
-    }
-  });
-
-  document.getElementById('btnExportarCSV')?.addEventListener('click', () => {
-    dropdownExport.classList.remove('active');
-    const lista = window.produtosFiltrados?.length
-      ? window.produtosFiltrados
-      : produtos;
-    if (!lista.length) return alert('Não há dados para exportar.');
-
-    const header = [
-      'Código',
-      'Nome',
-      'Categoria',
-      'Fornecedor',
-      'Estoque',
-      'Estoque Mín.',
-      'Valor Unit. (R$)',
-      'Validade',
-      'Status',
-    ];
-
-    const rows = lista.map((p) => [
-      String(p.id ?? '').padStart(4, '0'),
-      p.nome ?? '',
-      p.categoria ?? '',
-      p.fornecedor_nome ?? '',
-      Number(p.stock_atual ?? 0),
-      Number(p.stock_minimo ?? 0),
-      Number(p.preco ?? 0).toFixed(2),
-      formatarData(p.vencimento),
-      getStatusProduto(p).text,
-    ]);
-
-    const csv = [header, ...rows]
-      .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
-      .join('\n');
-
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(
-      new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
-    );
-    a.download = `medicamentos_${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
-
-  document.getElementById('btnExportarExcel')?.addEventListener('click', () => {
-    dropdownExport.classList.remove('active');
-    const lista = window.produtosFiltrados?.length
-      ? window.produtosFiltrados
-      : produtos;
-    if (!lista.length) return alert('Não há dados para exportar.');
-
-    if (typeof XLSX === 'undefined') {
-      return alert('SheetJS não carregado. Verifique a CDN no HTML.');
-    }
-
-    const dados = lista.map((p) => ({
-      Código: String(p.id ?? '').padStart(4, '0'),
-      Nome: p.nome ?? '',
-      Categoria: p.categoria ?? '',
-      Fornecedor: p.fornecedor_nome ?? '',
-      Estoque: Number(p.stock_atual ?? 0),
-      'Estoque Mín.': Number(p.stock_minimo ?? 0),
-      'Valor Unit.': Number(p.preco ?? 0),
-      Validade: formatarData(p.vencimento),
-      Status: getStatusProduto(p).text,
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(dados);
-    ws['!cols'] = [8, 30, 20, 24, 10, 12, 12, 12, 16].map((w) => ({ wch: w }));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Medicamentos');
-    XLSX.writeFile(
-      wb,
-      `medicamentos_${new Date().toISOString().slice(0, 10)}.xlsx`
-    );
-  });
 }
 
 // ==========================================
@@ -283,15 +100,12 @@ function obterProdutosFiltrados() {
   return produtos.filter((p) => {
     const matchSearch =
       (p.nome || '').toLowerCase().includes(search) ||
-      (p.categoria || '').toLowerCase().includes(search) ||
-      (p.fornecedor_nome || '').toLowerCase().includes(search);
-
+      (p.categoria || '').toLowerCase().includes(search);
     const matchCategoria = !filterCategoria || p.categoria === filterCategoria;
 
     let matchEstoque = true;
     const atual = Number(p.stock_atual ?? 0);
     const minimo = Number(p.stock_minimo ?? 0);
-
     if (filterEstoque === 'baixo') matchEstoque = atual < minimo;
     else if (filterEstoque === 'ok') matchEstoque = atual >= minimo;
     else if (filterEstoque === 'vencendo') {
@@ -315,7 +129,6 @@ function atualizarKPIs(lista) {
     const d = calcularDiasParaVencer(m.vencimento);
     return d > 0 && d <= 30;
   }).length;
-
   const valor = lista.reduce(
     (acc, m) => acc + Number(m.stock_atual ?? 0) * Number(m.preco ?? 0),
     0
@@ -325,7 +138,6 @@ function atualizarKPIs(lista) {
     const el = document.getElementById(id);
     if (el) el.textContent = v;
   };
-
   s('kpiTotal', total);
   s('kpiBaixo', baixo);
   s('kpiVencendo', vencendo);
@@ -372,22 +184,13 @@ function renderizarTabela() {
       <td><code>${String(produto.id ?? '').padStart(4, '0')}</code></td>
       <td>
         <strong>${escapeHTML(produto.nome)}</strong>
-        ${
-          produto.miligrama
-            ? `<br><small style="color:var(--gray-500)">${escapeHTML(produto.miligrama)}</small>`
-            : ''
-        }
+        ${produto.miligrama ? `<br><small style="color:var(--gray-500)">${escapeHTML(produto.miligrama)}</small>` : ''}
       </td>
       <td><span class="badge badge-info">${escapeHTML(produto.categoria || '-')}</span></td>
-      <td>${escapeHTML(produto.fornecedor_nome || '-')}</td>
       <td>${Number(produto.stock_atual ?? 0)} ${escapeHTML(produto.unidade || 'un')}</td>
       <td>${Number(produto.stock_minimo ?? 0)} ${escapeHTML(produto.unidade || 'un')}</td>
       <td>R$ ${Number(produto.preco ?? 0).toFixed(2)}</td>
-      <td>${formatarData(produto.vencimento)}${
-        dias <= 90 && dias > 0
-          ? `<br><small style="color:#f59e0b">${dias} dias</small>`
-          : ''
-      }</td>
+      <td>${formatarData(produto.vencimento)}${dias <= 90 && dias > 0 ? `<br><small style="color:#f59e0b">${dias} dias</small>` : ''}</td>
       <td>${renderizarBadgeStatus(status)}</td>
       <td>
         <div class="action-buttons">
@@ -406,7 +209,6 @@ function getStatusProduto(produto) {
   const dias = calcularDiasParaVencer(produto.vencimento);
   const atual = Number(produto.stock_atual ?? 0);
   const min = Number(produto.stock_minimo ?? 0);
-
   if (dias < 0) return { type: 'vencido', text: 'Vencido' };
   if (dias <= 30) return { type: 'critico', text: 'Vence em breve' };
   if (dias <= 90) return { type: 'alerta', text: 'Próximo vencimento' };
@@ -440,7 +242,6 @@ function formatarData(data) {
 function renderizarPaginacao(totalPaginas) {
   const paginacao = document.getElementById('pagination');
   if (!paginacao) return;
-
   if (totalPaginas <= 1) {
     paginacao.innerHTML = '';
     return;
@@ -473,10 +274,6 @@ function abrirModalNovo() {
     '<i data-lucide="package-plus"></i> Novo Medicamento';
   document.getElementById('formProduto')?.reset();
   document.getElementById('produtoId').value = '';
-
-  // recarrega fornecedores sempre que abrir (garante atualizado)
-  carregarFornecedoresNoSelect();
-
   document.getElementById('modalProduto')?.classList.add('active');
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
@@ -494,7 +291,6 @@ function editarProduto(id) {
     const el = document.getElementById(elId);
     if (el) el.value = val ?? '';
   };
-
   set('nome', produto.nome);
   set('categoria', produto.categoria);
   set('lote', produto.lote);
@@ -504,11 +300,6 @@ function editarProduto(id) {
   set('valorUnitario', Number(produto.preco ?? 0));
   set('unidade', produto.unidade || 'un');
   set('descricao', produto.descricao);
-  set('miligrama', produto.miligrama);
-
-  carregarFornecedoresNoSelect().then(() => {
-    set('fornecedor', produto.fornecedor_id ?? '');
-  });
 
   document.getElementById('modalProduto')?.classList.add('active');
   if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -519,16 +310,15 @@ function fecharModal() {
   produtoEditando = null;
 }
 
-async function salvarProduto(e) {
+function salvarProduto(e) {
   e.preventDefault();
   const id = document.getElementById('produtoId')?.value;
-
   const get = (elId) => {
     const el = document.getElementById(elId);
     return el ? el.value.trim() : '';
   };
 
-  const payloadUI = {
+  const payload = {
     nome: get('nome'),
     categoria: get('categoria'),
     lote: get('lote'),
@@ -538,39 +328,27 @@ async function salvarProduto(e) {
     preco: parseFloat(get('valorUnitario')),
     unidade: get('unidade') || 'un',
     descricao: get('descricao'),
-    miligrama: get('miligrama'),
-    fornecedor_id: get('fornecedor') ? Number(get('fornecedor')) : null,
     ativo: true,
   };
 
-  if (!payloadUI.nome) return alert('Informe o nome.');
-  if (!payloadUI.categoria) return alert('Selecione a categoria.');
-  if (!payloadUI.vencimento) return alert('Informe a validade.');
-  if (!payloadUI.lote) return alert('Informe o lote.');
-  if (!payloadUI.fornecedor_id) return alert('Selecione o fornecedor.');
-  if (isNaN(payloadUI.stock_atual)) return alert('Quantidade inválida.');
-  if (isNaN(payloadUI.stock_minimo))
-    return alert('Quantidade mínima inválida.');
-  if (isNaN(payloadUI.preco)) return alert('Valor unitário inválido.');
+  if (!payload.nome) return alert('Informe o nome.');
+  if (!payload.categoria) return alert('Selecione a categoria.');
+  if (!payload.vencimento) return alert('Informe a validade.');
+  if (isNaN(payload.stock_atual)) return alert('Quantidade inválida.');
+  if (isNaN(payload.stock_minimo)) return alert('Quantidade mínima inválida.');
+  if (isNaN(payload.preco)) return alert('Valor unitário inválido.');
 
-  try {
-    const payloadAPI = mapUIToApi(payloadUI);
-
-    if (id) {
-      await apiUpdateMedicamento(Number(id), payloadAPI);
-      alert('Medicamento atualizado com sucesso!');
-    } else {
-      await apiCreateMedicamento(payloadAPI);
-      alert('Medicamento cadastrado com sucesso!');
-    }
-
-    await carregarProdutos();
-    renderizarTabela();
-    fecharModal();
-  } catch (err) {
-    console.error(err);
-    alert('Erro ao salvar no servidor. Veja o console.');
+  if (id) {
+    typeof updateProduto === 'function' && updateProduto(Number(id), payload);
+    alert('Medicamento atualizado com sucesso!');
+  } else {
+    typeof addProduto === 'function' && addProduto(payload);
+    alert('Medicamento cadastrado com sucesso!');
   }
+
+  carregarProdutos();
+  renderizarTabela();
+  fecharModal();
 }
 
 // ==========================================
@@ -580,7 +358,6 @@ function confirmarExclusao(id) {
   const produto = produtos.find((p) => p.id === id);
   if (!produto) return;
   produtoExcluindo = produto;
-
   document.getElementById('nomeProdutoExcluir').textContent =
     produto.nome || 'Medicamento';
   document.getElementById('modalExcluir')?.classList.add('active');

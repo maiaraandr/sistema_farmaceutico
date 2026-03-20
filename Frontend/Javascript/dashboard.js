@@ -1,12 +1,12 @@
 (function () {
   // Protege a página (se não tiver logado, volta pro login)
-  if (typeof protectPage === "function") protectPage();
+  if (typeof protectPage === 'function') protectPage();
 
-  if (typeof lucide !== "undefined") lucide.createIcons();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 
-  const btnLogout = document.getElementById("logoutBtn");
-  if (btnLogout && typeof logout === "function") {
-    btnLogout.addEventListener("click", logout);
+  const btnLogout = document.getElementById('logoutBtn');
+  if (btnLogout && typeof logout === 'function') {
+    btnLogout.addEventListener('click', logout);
   }
 
   loadUserInfo();
@@ -16,15 +16,15 @@
 })();
 
 function loadUserInfo() {
-  const user = typeof getCurrentUser === "function" ? getCurrentUser() : null;
-  const el = document.getElementById("userName");
-  if (el) el.textContent = user?.nome ? user.nome : "Usuário";
+  const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  const el = document.getElementById('userName');
+  if (el) el.textContent = user?.nome ? user.nome : 'Usuário';
 }
 
 function loadDashboardNumbers() {
-  const produtos = (typeof getProdutos === "function" ? getProdutos() : []).filter(
-    (p) => p.ativo !== false
-  );
+  const produtos = (
+    typeof getProdutos === 'function' ? getProdutos() : []
+  ).filter((p) => p.ativo !== false);
 
   const totalProdutos = produtos.length;
 
@@ -46,19 +46,19 @@ function loadDashboardNumbers() {
     return sum + preco * qtd;
   }, 0);
 
-  setText("totalProdutos", String(totalProdutos));
-  setText("estoqueBaixo", String(estoqueBaixo));
-  setText("proximoVencimento", String(proximoVencimento));
-  setText("valorTotal", formatarMoeda(valorTotal));
+  setText('totalProdutos', String(totalProdutos));
+  setText('estoqueBaixo', String(estoqueBaixo));
+  setText('proximoVencimento', String(proximoVencimento));
+  setText('valorTotal', formatarMoeda(valorTotal));
 }
 
 function renderAlerts() {
-  const container = document.getElementById("alertasContainer");
+  const container = document.getElementById('alertasContainer');
   if (!container) return;
 
-  const produtos = (typeof getProdutos === "function" ? getProdutos() : []).filter(
-    (p) => p.ativo !== false
-  );
+  const produtos = (
+    typeof getProdutos === 'function' ? getProdutos() : []
+  ).filter((p) => p.ativo !== false);
 
   const lowStock = produtos.filter((p) => {
     const atual = Number(p.stock_atual ?? 0);
@@ -138,17 +138,17 @@ function renderAlerts() {
     </div>
   `);
 
-  container.innerHTML = html.join("");
+  container.innerHTML = html.join('');
   lucide.createIcons();
 }
 
 function renderExpiringTable() {
-  const tbody = document.getElementById("vencimentoContainer");
+  const tbody = document.getElementById('vencimentoContainer');
   if (!tbody) return;
 
-  const produtos = (typeof getProdutos === "function" ? getProdutos() : []).filter(
-    (p) => p.ativo !== false && p.vencimento
-  );
+  const produtos = (
+    typeof getProdutos === 'function' ? getProdutos() : []
+  ).filter((p) => p.ativo !== false && p.vencimento);
 
   const lista = produtos
     .map((p) => ({ ...p, diasRestantes: calcularDiasRestantes(p.vencimento) }))
@@ -170,9 +170,13 @@ function renderExpiringTable() {
   tbody.innerHTML = lista
     .map((p) => {
       const badgeClass =
-        p.diasRestantes <= 30 ? "badge-danger" : p.diasRestantes <= 60 ? "badge-warning" : "badge-primary";
+        p.diasRestantes <= 30
+          ? 'badge-danger'
+          : p.diasRestantes <= 60
+            ? 'badge-warning'
+            : 'badge-primary';
 
-      const categoria = p.categoria ? p.categoria : "—";
+      const categoria = p.categoria ? p.categoria : '—';
       const estoqueTxt = `${Number(p.stock_atual ?? 0)} un`;
 
       return `
@@ -182,7 +186,7 @@ function renderExpiringTable() {
               <div class="table-icon" style="background: var(--primary-100); color: var(--primary);">
                 <i data-lucide="pill"></i>
               </div>
-              <span class="font-semibold">${escapeHtml(p.nome || "Medicamento")}</span>
+              <span class="font-semibold">${escapeHtml(p.nome || 'Medicamento')}</span>
             </div>
           </td>
           <td><span class="badge badge-primary">${escapeHtml(categoria)}</span></td>
@@ -192,7 +196,7 @@ function renderExpiringTable() {
         </tr>
       `;
     })
-    .join("");
+    .join('');
 
   lucide.createIcons();
 }
@@ -211,21 +215,24 @@ function calcularDiasRestantes(dataVencimento) {
 
 function formatarData(dataString) {
   const d = new Date(dataString);
-  const dia = String(d.getDate()).padStart(2, "0");
-  const mes = String(d.getMonth() + 1).padStart(2, "0");
+  const dia = String(d.getDate()).padStart(2, '0');
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
   const ano = d.getFullYear();
   return `${dia}/${mes}/${ano}`;
 }
 
 function formatarMoeda(valor) {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(valor);
 }
 
 function escapeHtml(str) {
   return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }

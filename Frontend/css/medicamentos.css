@@ -499,24 +499,77 @@
     }
 }
 
-/* ── Fix dropdown exportar ── */
+/* ===== DROPDOWN EXPORTAR ===== */
+.actions-left {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.actions-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .dropdown-export {
   position: relative;
 }
 
 .dropdown-menu {
-  position: fixed; /* sai do fluxo do container */
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
-  min-width: 210px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
   display: none;
-  z-index: 99999;
+  z-index: 9999;
   overflow: hidden;
 }
 
 .dropdown-menu.active {
   display: block;
-  animation: fadeInDown 0.18s ease;
+  animation: ddFade 0.18s ease;
+}
+
+@keyframes ddFade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 11px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #374151;
+  transition: background 0.15s;
+}
+
+.dropdown-item:hover {
+  background: #f3f4f6;
+}
+
+.content-section,
+.card,
+.card-header,
+.card-body {
+  overflow: visible !important;
 }

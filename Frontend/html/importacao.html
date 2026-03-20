@@ -1,4 +1,4 @@
-!doctype html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -16,6 +16,7 @@
     />
 
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
       :root {
@@ -35,7 +36,6 @@
         font-family: 'DM Sans', sans-serif;
       }
 
-      /* ── KPI row (padrão medicamentos) ── */
       .kpi-row {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -43,7 +43,6 @@
         margin-top: 12px;
       }
 
-      /* ── Drop zone ── */
       .dropzone {
         border: 2px dashed var(--gray-200, #e5e7eb);
         border-radius: 14px;
@@ -56,11 +55,13 @@
         background: var(--gray-50, #f9fafb);
         position: relative;
       }
+
       .dropzone:hover,
       .dropzone.drag-over {
         border-color: var(--brand);
         background: var(--brand-100);
       }
+
       .dropzone input[type='file'] {
         position: absolute;
         inset: 0;
@@ -69,6 +70,7 @@
         width: 100%;
         height: 100%;
       }
+
       .dropzone-icon {
         width: 48px;
         height: 48px;
@@ -80,16 +82,19 @@
         justify-content: center;
         margin: 0 auto 12px;
       }
+
       .dropzone-title {
         font-weight: 700;
         font-size: 15px;
         color: var(--gray-800, #1f2937);
       }
+
       .dropzone-sub {
         font-size: 12px;
         color: var(--gray-500, #6b7280);
         margin-top: 4px;
       }
+
       .dropzone-file-name {
         margin-top: 10px;
         font-size: 13px;
@@ -98,7 +103,6 @@
         display: none;
       }
 
-      /* ── Log box ── */
       .logbox {
         background: #0f172a;
         border: 1px solid #1e293b;
@@ -112,20 +116,23 @@
         white-space: pre-wrap;
         color: #94a3b8;
       }
+
       .logbox .log-ok {
         color: #4ade80;
       }
+
       .logbox .log-warn {
         color: #fbbf24;
       }
+
       .logbox .log-error {
         color: #f87171;
       }
+
       .logbox .log-info {
         color: #60a5fa;
       }
 
-      /* ── Pills ── */
       .pill {
         display: inline-flex;
         align-items: center;
@@ -139,37 +146,43 @@
         color: var(--gray-700, #374151);
         transition: all 0.2s;
       }
+
       .pill.status-ok {
         background: var(--success-bg);
         border-color: rgba(22, 163, 74, 0.25);
         color: var(--success);
       }
+
       .pill.status-warn {
         background: var(--warn-bg);
         border-color: rgba(217, 119, 6, 0.25);
         color: var(--warn);
       }
+
       .pill.status-bad {
         background: var(--danger-bg);
         border-color: rgba(220, 38, 38, 0.25);
         color: var(--danger);
       }
 
-      /* ── Import grid ── */
       .import-grid {
         display: grid;
         grid-template-columns: repeat(12, 1fr);
         gap: 16px;
       }
+
       .col-12 {
         grid-column: span 12;
       }
+
       .col-6 {
         grid-column: span 6;
       }
+
       .col-4 {
         grid-column: span 4;
       }
+
       .col-3 {
         grid-column: span 3;
       }
@@ -189,7 +202,6 @@
         line-height: 1.4;
       }
 
-      /* ── Checkbox custom ── */
       .check-option {
         display: flex;
         gap: 10px;
@@ -204,36 +216,41 @@
           background 0.2s;
         margin-top: 8px;
       }
+
       .check-option:hover {
         border-color: var(--brand);
         background: var(--brand-100);
       }
+
       .check-option input[type='checkbox'] {
         margin-top: 2px;
         accent-color: var(--brand);
       }
+
       .check-option .check-label {
         font-size: 13px;
         font-weight: 600;
         color: var(--gray-800, #1f2937);
       }
+
       .check-option .check-hint {
         font-size: 11px;
         color: var(--gray-500, #6b7280);
         margin-top: 2px;
       }
 
-      /* ── Btn progress ── */
       .btn-primary {
         background: var(--brand);
         border-color: var(--brand);
         position: relative;
         overflow: hidden;
       }
+
       .btn-primary:hover {
         background: var(--brand-600);
         border-color: var(--brand-600);
       }
+
       .btn-primary:disabled {
         opacity: 0.45;
         cursor: not-allowed;
@@ -254,20 +271,19 @@
         );
         animation: shine 0.6s ease forwards;
       }
+
       @keyframes shine {
         to {
           left: 150%;
         }
       }
 
-      /* ── Table note ── */
       .table-note {
         font-size: 12px;
         color: var(--gray-500, #6b7280);
         margin-top: 8px;
       }
 
-      /* ── Page fade in ── */
       @keyframes fadeUp {
         from {
           opacity: 0;
@@ -278,12 +294,15 @@
           transform: translateY(0);
         }
       }
+
       .kpi-mini-grid {
         animation: fadeUp 0.4s ease both;
       }
+
       .content-section:nth-child(1) {
         animation: fadeUp 0.4s 0.1s ease both;
       }
+
       .content-section:nth-child(2) {
         animation: fadeUp 0.4s 0.2s ease both;
       }
@@ -343,8 +362,8 @@
               Importação de Dados
             </h1>
             <p class="page-subtitle">
-              Importe fornecedores, medicamentos e movimentações via CSV, Excel
-              ou PDF
+              Importe fornecedores, medicamentos e movimentações via CSV ou
+              Excel
             </p>
           </div>
           <div class="header-right">
@@ -354,7 +373,6 @@
           </div>
         </header>
 
-        <!-- KPIs -->
         <section class="content-section">
           <div class="kpi-row">
             <div
@@ -400,7 +418,6 @@
           </div>
         </section>
 
-        <!-- Configurar importação -->
         <section class="content-section">
           <div class="card">
             <div
@@ -426,20 +443,10 @@
                 ></i>
                 Voltar ao Dashboard
               </a>
-
-              <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-              <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.js"></script>
-              <script>
-                if (window.pdfjsLib) {
-                  pdfjsLib.GlobalWorkerOptions.workerSrc =
-                    'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.js';
-                }
-              </script>
             </div>
 
             <div class="card-body">
               <div class="import-grid">
-                <!-- Tipo -->
                 <div class="form-group col-4">
                   <label>Tipo de importação</label>
                   <select id="tipoImport" class="form-input">
@@ -454,14 +461,13 @@
                   </div>
                 </div>
 
-                <!-- Drop zone -->
                 <div class="form-group col-4">
-                  <label>Arquivo (CSV / Excel / PDF)</label>
+                  <label>Arquivo (CSV / Excel)</label>
                   <div class="dropzone" id="dropzone">
                     <input
                       type="file"
                       id="fileInput"
-                      accept=".csv,.xlsx,.xls,.pdf"
+                      accept=".csv,.xlsx,.xls"
                     />
                     <div class="dropzone-icon">
                       <i data-lucide="upload-cloud"></i>
@@ -469,14 +475,11 @@
                     <div class="dropzone-title">
                       Arraste ou clique para selecionar
                     </div>
-                    <div class="dropzone-sub">
-                      CSV, Excel (.xlsx/.xls) ou PDF
-                    </div>
+                    <div class="dropzone-sub">CSV ou Excel (.xlsx/.xls)</div>
                     <div class="dropzone-file-name" id="dropzoneFileName"></div>
                   </div>
                 </div>
 
-                <!-- Opções -->
                 <div class="form-group col-4">
                   <label>Opções de importação</label>
                   <label class="check-option">
@@ -500,7 +503,6 @@
                   </label>
                 </div>
 
-                <!-- Botões -->
                 <div
                   class="col-12"
                   style="
@@ -537,7 +539,6 @@
                 </div>
               </div>
 
-              <!-- Status pills -->
               <div
                 style="
                   margin-top: 14px;
@@ -557,7 +558,6 @@
                 </span>
               </div>
 
-              <!-- Log -->
               <div style="margin-top: 12px">
                 <div class="logbox" id="log">
                   // Log de importação aparece aqui...
@@ -571,7 +571,6 @@
           </div>
         </section>
 
-        <!-- Pré-visualização -->
         <section class="content-section">
           <div class="card">
             <div
@@ -621,7 +620,6 @@
     <script>
       lucide.createIcons();
 
-      // ── KPI card interatividade (padrão kpi-card-mini) ──
       document.querySelectorAll('.kpi-card-mini').forEach((card) => {
         card.addEventListener('click', () => {
           const jaAtivo = card.classList.contains('active');
@@ -634,7 +632,6 @@
         });
       });
 
-      // ── Drop zone drag & drop visual ──
       const dz = document.getElementById('dropzone');
       const fi = document.getElementById('fileInput');
       const fn = document.getElementById('dropzoneFileName');
@@ -644,13 +641,27 @@
           e.preventDefault();
           dz.classList.add('drag-over');
         });
+
         dz.addEventListener('dragleave', () =>
           dz.classList.remove('drag-over')
         );
+
         dz.addEventListener('drop', (e) => {
           e.preventDefault();
           dz.classList.remove('drag-over');
           if (e.dataTransfer.files.length) {
+            const arquivo = e.dataTransfer.files[0];
+            const nome = (arquivo.name || '').toLowerCase();
+
+            if (
+              !nome.endsWith('.csv') &&
+              !nome.endsWith('.xlsx') &&
+              !nome.endsWith('.xls')
+            ) {
+              alert('Formato não suportado. Use apenas CSV ou Excel.');
+              return;
+            }
+
             fi.files = e.dataTransfer.files;
             fi.dispatchEvent(new Event('change'));
           }
@@ -662,14 +673,14 @@
           if (fi.files.length && fn) {
             fn.textContent = '📄 ' + fi.files[0].name;
             fn.style.display = 'block';
-            // Atualiza KPI arquivo
+
             const el = document.getElementById('kpiArquivo');
             if (el)
               el.textContent =
                 fi.files[0].name.length > 16
                   ? fi.files[0].name.substring(0, 14) + '…'
                   : fi.files[0].name;
-            // Pulsa o card
+
             const kpiCard = document.getElementById('kpiCardArquivo');
             if (kpiCard) {
               kpiCard.classList.add('active', 'pulse');
@@ -679,7 +690,6 @@
         });
       }
 
-      // ── Botão aplicar: efeito shine ──
       const btnAplicar = document.getElementById('btnAplicar');
       if (btnAplicar) {
         btnAplicar.addEventListener('click', () => {

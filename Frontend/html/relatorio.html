@@ -4,12 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Relatórios | FarmaSys</title>
+
     <link rel="stylesheet" href="../CSS/Style.css" />
     <link rel="stylesheet" href="../CSS/Components.css" />
     <link rel="stylesheet" href="../CSS/dashboard.css" />
     <link rel="stylesheet" href="../CSS/table_style.css" />
     <link rel="stylesheet" href="../CSS/farmaui.css" />
+
     <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
       .filters-row {
         display: flex;
@@ -30,6 +33,7 @@
         align-items: center;
         flex-wrap: wrap;
       }
+
       .badge-pill {
         display: inline-flex;
         align-items: center;
@@ -51,8 +55,32 @@
         color: #dc2626;
         border-color: rgba(239, 68, 68, 0.25);
       }
+
+      /* ✅ Período (De/Até) alinhado */
+      .periodo-filtros {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+      }
+      .periodo-campo {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 140px;
+      }
+      .periodo-campo label {
+        font-size: 12px;
+        color: var(--gray-500, #6b7280);
+      }
+      .periodo-campo .filter-input {
+        height: 38px;
+        padding: 8px 10px;
+        border-radius: 10px;
+      }
     </style>
   </head>
+
   <body>
     <div class="dashboard-layout">
       <aside class="sidebar">
@@ -62,29 +90,31 @@
             <span>GestMed</span>
           </div>
         </div>
+
         <nav class="sidebar-nav">
-          <a href="dashboard.html" class="nav-item"
-            ><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a
-          >
-          <a href="medicamentos.html" class="nav-item"
-            ><i data-lucide="package"></i><span>Medicamentos</span></a
-          >
-          <a href="fornecedores.html" class="nav-item"
-            ><i data-lucide="truck"></i><span>Fornecedores</span></a
-          >
-          <a href="entrada.html" class="nav-item"
-            ><i data-lucide="package-plus"></i><span>Entrada</span></a
-          >
-          <a href="saida.html" class="nav-item"
-            ><i data-lucide="package-minus"></i><span>Saída</span></a
-          >
-          <a href="relatorio.html" class="nav-item active"
-            ><i data-lucide="file-text"></i><span>Relatórios</span></a
-          >
-          <a href="importacao.html" class="nav-item"
-            ><i data-lucide="upload"></i><span>Importação</span></a
-          >
+          <a href="dashboard.html" class="nav-item">
+            <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+          </a>
+          <a href="medicamentos.html" class="nav-item">
+            <i data-lucide="package"></i><span>Medicamentos</span>
+          </a>
+          <a href="fornecedores.html" class="nav-item">
+            <i data-lucide="truck"></i><span>Fornecedores</span>
+          </a>
+          <a href="entrada.html" class="nav-item">
+            <i data-lucide="package-plus"></i><span>Entrada</span>
+          </a>
+          <a href="saida.html" class="nav-item">
+            <i data-lucide="package-minus"></i><span>Saída</span>
+          </a>
+          <a href="relatorio.html" class="nav-item active">
+            <i data-lucide="file-text"></i><span>Relatórios</span>
+          </a>
+          <a href="importacao.html" class="nav-item">
+            <i data-lucide="upload"></i><span>Importação</span>
+          </a>
         </nav>
+
         <div class="sidebar-footer">
           <button class="nav-item" id="logoutBtn">
             <i data-lucide="log-out"></i><span>Sair</span>
@@ -119,6 +149,7 @@
             <div class="value" id="totalEntradas">0</div>
             <div class="sub">Registros de entrada</div>
           </div>
+
           <div class="kpi-card-mini" data-tooltip="Total de saídas no sistema">
             <div class="label">
               <i data-lucide="package-minus"></i> Total de Saídas
@@ -126,6 +157,7 @@
             <div class="value" id="totalSaidas">0</div>
             <div class="sub">Registros de saída</div>
           </div>
+
           <div
             class="kpi-card-mini"
             data-tooltip="Saldo atual de movimentações"
@@ -145,29 +177,61 @@
                   <h3 class="card-title" style="margin: 0">
                     <i data-lucide="list"></i> Histórico Consolidado
                   </h3>
+
                   <span class="badge-pill" id="badgeTotalLinhas">
                     <i data-lucide="hash" style="width: 14px; height: 14px"></i>
                     <span id="totalLinhas">0</span> registros
                   </span>
                 </div>
+
                 <div class="table-actions">
                   <div class="search-box" style="max-width: 360px">
                     <i data-lucide="search"></i>
                     <input
                       type="text"
                       id="searchRelatorio"
-                      placeholder="Buscar por medicamento, fornecedor ou destino..."
+                      placeholder="Buscar por medicamento"
                     />
                   </div>
+
+                  <!-- ✅ Período alinhado -->
+                  <div class="periodo-filtros">
+                    <div class="periodo-campo">
+                      <label for="filterDataInicio">De</label>
+                      <input
+                        type="date"
+                        id="filterDataInicio"
+                        class="filter-input"
+                      />
+                    </div>
+
+                    <div class="periodo-campo">
+                      <label for="filterDataFim">Até</label>
+                      <input
+                        type="date"
+                        id="filterDataFim"
+                        class="filter-input"
+                      />
+                    </div>
+
+                    <button
+                      id="btnLimparPeriodo"
+                      class="btn btn-outline btn-sm"
+                      type="button"
+                    >
+                      Limpar
+                    </button>
+                  </div>
+
                   <select
                     id="filterTipo"
                     class="filter-select"
                     style="min-width: 180px"
                   >
-                    <option value="">Todos os tipos</option>
-                    <option value="entrada">Entradas</option>
-                    <option value="saida">Saídas</option>
+                    <option value="E" selected>Entradas</option>
+                    <option value="S">Saídas</option>
                   </select>
+
                   <a href="dashboard.html" class="btn btn-outline btn-sm">
                     <i
                       data-lucide="arrow-left"
@@ -178,7 +242,19 @@
                 </div>
               </div>
             </div>
+
             <div class="card-body">
+              <div class="card" style="margin-bottom: 14px">
+                <div class="card-header">
+                  <h3 class="card-title" id="top10Title" style="margin: 0">
+                    <i data-lucide="bar-chart-3"></i> Top 10 Medicamentos
+                  </h3>
+                </div>
+                <div class="card-body">
+                  <canvas id="chartTopSaidas" height="110"></canvas>
+                </div>
+              </div>
+
               <div class="table-container">
                 <table class="data-table">
                   <thead>
@@ -193,6 +269,7 @@
                   <tbody id="tabelaRelatorios"></tbody>
                 </table>
               </div>
+
               <div class="pagination" id="paginationRelatorios"></div>
             </div>
           </div>
@@ -200,12 +277,15 @@
       </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script src="../Javascript/Storage.js"></script>
+    <script src="../Javascript/api.js"></script>
     <script src="../Javascript/relatorios.js"></script>
+
     <script>
       lucide.createIcons();
 
-      // KPI interatividade
       document.querySelectorAll('.kpi-card-mini').forEach((card) => {
         card.addEventListener('click', () => {
           const jaAtivo = card.classList.contains('active');

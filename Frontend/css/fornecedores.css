@@ -44,4 +44,46 @@
     width: 100%;
   }
 }
+/* ===== FORNECEDORES: compactar tabela de verdade ===== */
 
+#tabelaFornecedores tr,
+#tabelaFornecedores td,
+#tabelaFornecedores th {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+}
+
+#tabelaFornecedores td,
+.data-table tbody td {
+  padding: 10px 16px !important;
+  line-height: 1.2 !important;
+  vertical-align: middle !important;
+}
+
+.data-table thead th {
+  padding: 10px 16px !important;
+}
+
+#tabelaFornecedores .status-pill {
+  padding: 2px 8px !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+#tabelaFornecedores .btn,
+#tabelaFornecedores .btn-sm {
+  padding: 5px 8px !important;
+  font-size: 12px !important;
+  min-height: auto !important;
+}
+
+#tabelaFornecedores td > div,
+#tabelaFornecedores td > span,
+#tabelaFornecedores td > p {
+  margin: 0 !important;
+}
+
+.table-container .data-table tbody tr {
+  height: auto !important;
+}

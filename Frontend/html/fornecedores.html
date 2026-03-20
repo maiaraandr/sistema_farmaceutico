@@ -205,21 +205,33 @@
         </header>
 
         <!-- KPI Cards -->
+        <!-- KPI Cards -->
         <div class="kpi-row">
           <div
             class="kpi-card-mini"
+            data-filtro="todos"
             data-tooltip="Total de fornecedores cadastrados"
           >
             <div class="label"><i data-lucide="users"></i> Total</div>
             <div class="value" id="kpiTotal">0</div>
             <div class="sub">Fornecedores no sistema</div>
           </div>
-          <div class="kpi-card-mini" data-tooltip="Fornecedores ativos">
+
+          <div
+            class="kpi-card-mini"
+            data-filtro="ativos"
+            data-tooltip="Fornecedores ativos"
+          >
             <div class="label"><i data-lucide="badge-check"></i> Ativos</div>
             <div class="value" id="kpiAtivos">0</div>
             <div class="sub">Em operação</div>
           </div>
-          <div class="kpi-card-mini" data-tooltip="Fornecedores inativos">
+
+          <div
+            class="kpi-card-mini"
+            data-filtro="inativos"
+            data-tooltip="Fornecedores inativos"
+          >
             <div class="label"><i data-lucide="badge-x"></i> Inativos</div>
             <div class="value" id="kpiInativos">0</div>
             <div class="sub">Fora de operação</div>
@@ -437,22 +449,30 @@
       document.querySelectorAll('.kpi-card-mini').forEach((card) => {
         card.addEventListener('click', () => {
           const jaAtivo = card.classList.contains('active');
+          const filtro = card.dataset.filtro || 'todos';
+
           document
             .querySelectorAll('.kpi-card-mini')
             .forEach((c) => c.classList.remove('active', 'pulse'));
-          card.classList.add('pulse');
-          setTimeout(() => card.classList.remove('pulse'), 500);
-          if (!jaAtivo) card.classList.add('active');
+
+          if (jaAtivo) {
+            window.__filtroFornecedorStatus = 'todos';
+          } else {
+            window.__filtroFornecedorStatus = filtro;
+            card.classList.add('active');
+            card.classList.add('pulse');
+            setTimeout(() => card.classList.remove('pulse'), 500);
+          }
+
+          if (typeof renderFornecedores === 'function') {
+            renderFornecedores();
+          }
         });
       });
 
-      // ── Destaque visual quando em modo edição ──
-      // O fornecedores.js já cuida do scroll e preenchimento.
-      // Aqui adicionamos o feedback visual no card.
       const cardForm = document.getElementById('cardFormulario');
       const tituloForm = document.getElementById('tituloFormulario');
 
-      // Observa mudanças no botão de submit para saber se entrou em modo edição
       const observer = new MutationObserver(() => {
         const btnSubmit = document.querySelector(
           "#formFornecedor button[type='submit']"

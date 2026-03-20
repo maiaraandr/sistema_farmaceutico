@@ -1,10 +1,10 @@
 const STORAGE_KEYS = {
-  USERS: "farm_users",
-  PRODUTOS: "farm_produtos",
-  FORNECEDORES: "farm_fornecedores",
-  MOVIMENTACOES: "farm_movimentacoes",
-  CURRENT_USER: "farm_current_user",
-  SESSION_TOKEN: "farm_session_token",
+  USERS: 'farm_users',
+  PRODUTOS: 'farm_produtos',
+  FORNECEDORES: 'farm_fornecedores',
+  MOVIMENTACOES: 'farm_movimentacoes',
+  CURRENT_USER: 'farm_current_user',
+  SESSION_TOKEN: 'farm_session_token',
 };
 
 const DISABLE_SAMPLE_DATA = true;
@@ -26,7 +26,7 @@ function saveToStorage(key, data) {
     localStorage.setItem(key, JSON.stringify(data));
     return true;
   } catch (error) {
-    console.error("Erro ao salvar no localStorage:", error);
+    console.error('Erro ao salvar no localStorage:', error);
     return false;
   }
 }
@@ -36,7 +36,7 @@ function loadFromStorage(key, defaultValue = null) {
     const raw = localStorage.getItem(key);
     return raw ? safeJSONParse(raw, defaultValue) : defaultValue;
   } catch (error) {
-    console.error("Erro ao carregar do localStorage:", error);
+    console.error('Erro ao carregar do localStorage:', error);
     return defaultValue;
   }
 }
@@ -46,7 +46,7 @@ function removeFromStorage(key) {
     localStorage.removeItem(key);
     return true;
   } catch (error) {
-    console.error("Erro ao remover do localStorage:", error);
+    console.error('Erro ao remover do localStorage:', error);
     return false;
   }
 }
@@ -63,13 +63,13 @@ function clearStorage({ keepUsers = true } = {}) {
     keysToRemove.forEach((k) => localStorage.removeItem(k));
     return true;
   } catch (error) {
-    console.error("Erro ao limpar localStorage:", error);
+    console.error('Erro ao limpar localStorage:', error);
     return false;
   }
 }
 
 function normalizeProduto(p) {
-  if (!p || typeof p !== "object") return null;
+  if (!p || typeof p !== 'object') return null;
 
   const stock_atual = Number(
     p.stock_atual ?? p.estoqueAtual ?? p.stockAtual ?? p.estoque_atual ?? 0
@@ -87,7 +87,7 @@ function normalizeProduto(p) {
     stock_atual: isNaN(stock_atual) ? 0 : stock_atual,
     stock_minimo: isNaN(stock_minimo) ? 0 : stock_minimo,
     fornecedor_id,
-    ativo: p.ativo !== false, 
+    ativo: p.ativo !== false,
   };
 }
 
@@ -119,10 +119,7 @@ function getProdutos() {
 }
 
 function saveProdutos(produtos) {
-  return saveToStorage(
-    STORAGE_KEYS.PRODUTOS,
-    normalizeProdutosArray(produtos)
-  );
+  return saveToStorage(STORAGE_KEYS.PRODUTOS, normalizeProdutosArray(produtos));
 }
 
 function addProduto(produto) {
@@ -160,12 +157,24 @@ function getProdutoById(id) {
   return getProdutos().find((p) => Number(p.id) === Number(id));
 }
 
-function getMedicamentos() { return getProdutos(); }
-function saveMedicamentos(m) { return saveProdutos(m); }
-function addMedicamento(m) { return addProduto(m); }
-function updateMedicamento(id, d) { return updateProduto(id, d); }
-function deleteMedicamento(id) { return deleteProduto(id); }
-function getMedicamentoById(id) { return getProdutoById(id); }
+function getMedicamentos() {
+  return getProdutos();
+}
+function saveMedicamentos(m) {
+  return saveProdutos(m);
+}
+function addMedicamento(m) {
+  return addProduto(m);
+}
+function updateMedicamento(id, d) {
+  return updateProduto(id, d);
+}
+function deleteMedicamento(id) {
+  return deleteProduto(id);
+}
+function getMedicamentoById(id) {
+  return getProdutoById(id);
+}
 
 function getFornecedores() {
   return loadFromStorage(STORAGE_KEYS.FORNECEDORES, []).filter(Boolean);
@@ -183,7 +192,7 @@ function addFornecedor(fornecedor) {
   fornecedores.push({
     id: makeId(),
     ...fornecedor,
-    ativo: true,
+    ativo: fornecedor.ativo !== false,
     criadoEm: new Date().toISOString(),
   });
   return saveFornecedores(fornecedores);
@@ -233,16 +242,28 @@ function initializeSampleData() {
   const users = getUsers();
   if (users.length === 0) {
     saveUsers([
-      { id: 1, usuario: "admin", senha: "admin123", nome: "Administrador", tipo: "admin" },
-      { id: 2, usuario: "caixa1", senha: "caixa123", nome: "Caixa", tipo: "caixa" },
+      {
+        id: 1,
+        usuario: 'admin',
+        senha: 'admin123',
+        nome: 'Administrador',
+        tipo: 'admin',
+      },
+      {
+        id: 2,
+        usuario: 'caixa1',
+        senha: 'caixa123',
+        nome: 'Caixa',
+        tipo: 'caixa',
+      },
     ]);
   }
 
   const fornecedores = getFornecedores();
   if (fornecedores.length === 0) {
     saveFornecedores([
-      { id: 1, nome: "Distribuidora X", ativo: true },
-      { id: 2, nome: "Fornecedor Y", ativo: true },
+      { id: 1, nome: 'Distribuidora X', ativo: true },
+      { id: 2, nome: 'Fornecedor Y', ativo: true },
     ]);
   }
 
@@ -251,22 +272,57 @@ function initializeSampleData() {
     saveProdutos([
       {
         id: 1,
-        sku: "PAR-500",
-        nome: "Paracetamol 500mg",
-        categoria: "Analgésicos",
+        sku: 'PAR-500',
+        nome: 'Paracetamol 500mg',
+        categoria: 'Analgésicos',
         preco: 5.5,
         stock_atual: 15,
         stock_minimo: 50,
-        vencimento: "2025-12-30",
+        vencimento: '2025-12-30',
         fornecedor_id: 1,
         ativo: true,
       },
     ]);
   }
 
-  console.log("✅ Storage inicializado com dados de exemplo.");
+  function getSaidas() {
+    return JSON.parse(localStorage.getItem('saidas')) || [];
+  }
+
+  function addSaida(saida) {
+    const lista = getSaidas();
+    lista.push(saida);
+    localStorage.setItem('saidas', JSON.stringify(lista));
+  }
+
+  console.log(' Storage inicializado com dados de exemplo.');
 }
 
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   initializeSampleData();
+}
+
+// ===============================
+// ENTRADAS / SAÍDAS (MOVIMENTAÇÕES)
+// ===============================
+function getEntradas() {
+  return getMovimentacoes().filter((m) => m.tipo === 'entrada');
+}
+
+function addEntrada(entrada) {
+  return addMovimentacao({
+    ...entrada,
+    tipo: 'entrada',
+  });
+}
+
+function getSaidas() {
+  return getMovimentacoes().filter((m) => m.tipo === 'saida');
+}
+
+function addSaida(saida) {
+  return addMovimentacao({
+    ...saida,
+    tipo: 'saida',
+  });
 }
