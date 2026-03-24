@@ -194,7 +194,7 @@
                     />
                   </div>
 
-                  <!-- ✅ Período alinhado -->
+                  <!-- Período alinhado -->
                   <div class="periodo-filtros">
                     <div class="periodo-campo">
                       <label for="filterDataInicio">De</label>
@@ -279,11 +279,15 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script src="../Javascript/Storage.js"></script>
-    <script src="../Javascript/api.js"></script>
-    <script src="../Javascript/relatorios.js"></script>
+<script src="../Javascript/Storage.js"></script>
+<script src="../Javascript/autenticacao.js"></script>
+<script src="../Javascript/api.js"></script>
 
-    <script>
+<script>
+  protectPage();
+</script>
+
+<script src="../Javascript/relatorios.js"></script>
       lucide.createIcons();
 
       document.querySelectorAll('.kpi-card-mini').forEach((card) => {

@@ -236,3 +236,18 @@ function escapeHtml(str) {
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  if (!logoutBtn) return;
+
+  logoutBtn.addEventListener('click', () => {
+    // limpa login salvo
+    localStorage.removeItem('farm_current_user');
+    localStorage.removeItem('farm_session_token');
+
+    // volta para login
+    window.location.href = 'index.html';
+  });
+});

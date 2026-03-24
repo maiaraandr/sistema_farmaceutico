@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Sistema Farmacêutico</title>
     <link rel="stylesheet" href="../CSS/Auth_minimal.css" />
-
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
@@ -43,6 +42,7 @@
                   class="input-icon"
                   style="width: 18px; height: 18px"
                 ></i>
+
                 <div class="password-wrapper">
                   <input
                     type="password"
@@ -51,10 +51,12 @@
                     required
                     autocomplete="current-password"
                   />
+
                   <button
                     type="button"
                     class="password-toggle"
                     id="togglePassword"
+                    aria-label="Mostrar ou ocultar senha"
                   >
                     <i data-lucide="eye" style="width: 18px; height: 18px"></i>
                   </button>
@@ -67,7 +69,7 @@
             </button>
 
             <div class="auth-link" style="margin-top: 10px">
-              <a href="recuperar_senha.html">Esqueceu a senha?</a>
+              <a href="recuperar-senha.html">Esqueceu a senha?</a>
             </div>
 
             <div class="auth-link">
@@ -78,70 +80,80 @@
       </div>
     </div>
 
-    <!-- JavaScript -->
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/autenticacao.js"></script>
+
     <script>
+      redirectIfAuthenticated();
       lucide.createIcons();
 
-      document.getElementById('username').focus();
+      const usernameInput = document.getElementById('username');
+      const passwordInput = document.getElementById('password');
+      const togglePasswordBtn = document.getElementById('togglePassword');
+      const loginForm = document.getElementById('loginForm');
+      const loginBtn = document.getElementById('loginBtn');
+      const loginError = document.getElementById('loginError');
 
-      document
-        .getElementById('togglePassword')
-        .addEventListener('click', function () {
-          const input = document.getElementById('password');
-          const icon = this.querySelector('i');
+      if (usernameInput) {
+        usernameInput.focus();
+      }
 
-          if (input.type === 'password') {
-            input.type = 'text';
-            icon.setAttribute('data-lucide', 'eye-off');
+      function mostrarErro(msg) {
+        loginError.textContent = msg;
+        loginError.classList.remove('hidden');
+
+        setTimeout(() => {
+          loginError.classList.add('hidden');
+        }, 2000);
+      }
+
+      togglePasswordBtn.addEventListener('click', function () {
+        const icon = this.querySelector('i');
+        if (!icon) return;
+
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          icon.setAttribute('data-lucide', 'eye-off');
+        } else {
+          passwordInput.type = 'password';
+          icon.setAttribute('data-lucide', 'eye');
+        }
+
+        lucide.createIcons();
+      });
+
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+
+        loginError.classList.add('hidden');
+        loginBtn.disabled = true;
+        loginBtn.textContent = 'Entrando...';
+
+        try {
+          const result = loginSistema(username, password);
+
+          if (result.sucesso) {
+            loginBtn.textContent = 'Sucesso!';
+            loginBtn.style.backgroundColor = '#22c55e';
+            loginBtn.style.color = '#fff';
+
+            setTimeout(() => {
+              window.location.href = 'dashboard.html';
+            }, 500);
           } else {
-            input.type = 'password';
-            icon.setAttribute('data-lucide', 'eye');
+            mostrarErro('Usuário ou senha inválidos');
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Login';
           }
-          lucide.createIcons();
-        });
-
-      // Formulário de login
-      document
-        .getElementById('loginForm')
-        .addEventListener('submit', async (e) => {
-          e.preventDefault();
-
-          const username = document.getElementById('username').value.trim();
-          const password = document.getElementById('password').value;
-          const btn = document.getElementById('loginBtn');
-          const errorDiv = document.getElementById('loginError');
-
-          errorDiv.classList.add('hidden');
-
-          btn.disabled = true;
-          btn.textContent = 'Entrando...';
-
-          try {
-            const result = await login(username, password, false);
-
-            if (result.success) {
-              btn.textContent = 'Sucesso!';
-              btn.style.backgroundColor = '#22c55e';
-              btn.style.color = '#fff';
-
-              setTimeout(() => {
-                window.location.href = 'dashboard.html';
-              }, 500);
-            } else {
-              errorDiv.textContent = 'Usuário ou senha inválidos';
-              errorDiv.classList.remove('hidden');
-              btn.disabled = false;
-              btn.textContent = 'Login';
-            }
-          } catch (error) {
-            errorDiv.textContent = 'Erro ao fazer login';
-            errorDiv.classList.remove('hidden');
-            btn.disabled = false;
-            btn.textContent = 'Login';
-          }
-        });
+        } catch (error) {
+          mostrarErro('Erro ao fazer login');
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Login';
+        }
+      });
     </script>
   </body>
 </html>

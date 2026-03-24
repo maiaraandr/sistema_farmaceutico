@@ -156,7 +156,7 @@
               <div class="alert-content">
                 <div class="alert-title">Estoque Baixo</div>
                 <div class="alert-message">
-                  3 medicamentos estão com estoque abaixo do mínimo recomendado.
+                  2 medicamentos estão com estoque abaixo do mínimo recomendado.
                   <a href="medicamentos.html" class="text-primary font-semibold"
                     >Ver detalhes →</a
                   >
@@ -169,7 +169,7 @@
                 <div class="alert-title">Medicamentos Vencendo</div>
                 <div class="alert-message">
                   5 medicamentos vencem nos próximos 60 dias.
-                  <a href="relatorio.html" class="text-primary font-semibold"
+                  <a href="medicamentos.html" class="text-primary font-semibold"
                     >Verificar →</a
                   >
                 </div>
@@ -194,7 +194,7 @@
               <i data-lucide="calendar-clock"></i> Medicamentos Próximos ao
               Vencimento
             </h2>
-            <a href="relatorio.html" class="btn btn-outline btn-sm"
+            <a href="medicamentos.html" class="btn btn-outline btn-sm"
               >Ver todos
               <i data-lucide="arrow-right" style="width: 16px; height: 16px"></i
             ></a>
@@ -257,8 +257,10 @@
 
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/dashboard.js"></script>
-
+    <script src="../Javascript/autenticacao.js"></script>
     <script>
+      protectPage();
+
       lucide.createIcons();
 
       // ── KPI cards interativos ──

@@ -1,82 +1,180 @@
-//Autenticação simples usando localStorage//
-function login(username, password, rememberMe = false) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const users = getUsers();
+// ===============================
+// AUTENTICAÇÃO DO SISTEMA
+// ===============================
 
-      const user = users.find(
-        (u) => u.usuario === username && u.senha === password
-      );
+function getUsuariosSistema() {
+  if (typeof getUsers === 'function') {
+    const users = getUsers();
+    return Array.isArray(users) ? users : [];
+  }
 
-      if (!user) {
-        resolve({
-          success: false,
-          message: "Usuário ou senha inválidos",
-        });
-        return;
-      }
+  const raw = localStorage.getItem('farm_users');
+  if (!raw) return [];
 
-      const sessionData = {
-        id: user.id,
-        usuario: user.usuario,
-        nome: user.nome,
-        tipo: user.tipo,
-        loginAt: new Date().toISOString(),
-      };
-
-      // Salva sessão e token
-      saveToStorage(STORAGE_KEYS.CURRENT_USER, sessionData);
-
-      const token = btoa(`${user.usuario}:${Date.now()}`);
-      saveToStorage(STORAGE_KEYS.SESSION_TOKEN, token);
-
-      saveToStorage("farm_remember_me", !!rememberMe);
-
-      resolve({
-        success: true,
-        user: sessionData,
-      });
-    }, 500);
-  });
-}
-
-function logout() {
-  removeFromStorage(STORAGE_KEYS.CURRENT_USER);
-  removeFromStorage(STORAGE_KEYS.SESSION_TOKEN);
-  removeFromStorage("farm_remember_me");
-
-  window.location.href = "index.html";
-}
-
-function getCurrentUser() {
-  return loadFromStorage(STORAGE_KEYS.CURRENT_USER);
-}
-
-function isLoggedIn() {
-  const user = getCurrentUser();
-  const token = loadFromStorage(STORAGE_KEYS.SESSION_TOKEN);
-  return !!(user && token);
-}
-
-function isAdmin() {
-  const user = getCurrentUser();
-  return !!(user && user.tipo === "admin");
-}
-
-function protectPage() {
-  if (!isLoggedIn()) {
-    window.location.href = "index.html";
+  try {
+    const users = JSON.parse(raw);
+    return Array.isArray(users) ? users : [];
+  } catch {
+    return [];
   }
 }
 
-function protectAdminPage() {
-  if (!isLoggedIn()) {
-    window.location.href = "index.html";
+function getUsuarioLogado() {
+  if (typeof getCurrentUser === 'function') {
+    return getCurrentUser();
+  }
+
+  const raw = localStorage.getItem('farm_current_user');
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function getTokenSessao() {
+  if (typeof getSessionToken === 'function') {
+    return getSessionToken();
+  }
+
+  return localStorage.getItem('farm_session_token');
+}
+
+function salvarSessaoUsuario(user) {
+  if (typeof saveCurrentUser === 'function') {
+    saveCurrentUser(user);
+  } else {
+    localStorage.setItem('farm_current_user', JSON.stringify(user));
+  }
+
+  const token = `token_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
+  if (typeof saveSessionToken === 'function') {
+    saveSessionToken(token);
+  } else {
+    localStorage.setItem('farm_session_token', token);
+  }
+}
+
+function limparSessaoUsuario() {
+  if (typeof logoutUser === 'function') {
+    logoutUser();
     return;
   }
 
-  if (!isAdmin()) {
-    alert("Acesso negado! Apenas administradores.");
-    window.location.href = "dashboard.html";
+  localStorage.removeItem('farm_current_user');
+  localStorage.removeItem('farm_session_token');
+}
+
+function usuarioAindaExiste(user) {
+  if (!user) return false;
+
+  const usuarios = getUsuariosSistema();
+
+  return usuarios.some((u) => {
+    return (
+      Number(u.id) === Number(user.id) ||
+      (u.usuario && user.usuario && u.usuario === user.usuario) ||
+      (u.email && user.email && u.email === user.email)
+    );
+  });
+}
+
+function isAuthenticated() {
+  const user = getUsuarioLogado();
+  const token = getTokenSessao();
+
+  if (!user || !token) return false;
+  if (!usuarioAindaExiste(user)) return false;
+
+  return true;
+}
+
+// ===============================
+// PROTEGER PÁGINAS INTERNAS
+// ===============================
+function protectPage() {
+  if (!isAuthenticated()) {
+    limparSessaoUsuario();
+    window.location.href = 'index.html';
+    return false;
   }
+
+  return true;
+}
+
+// ===============================
+// IMPEDIR VOLTA AO LOGIN SE JÁ ESTIVER LOGADO
+// ===============================
+function redirectIfAuthenticated() {
+  if (isAuthenticated()) {
+    window.location.href = 'dashboard.html';
+    return true;
+  }
+
+  return false;
+}
+
+// ===============================
+// LOGIN
+// ===============================
+function loginSistema(login, senha) {
+  const usuarios = getUsuariosSistema();
+
+  const loginInformado = String(login || '')
+    .trim()
+    .toLowerCase();
+  const senhaInformada = String(senha || '');
+
+  const usuario = usuarios.find((u) => {
+    const usuarioMatch =
+      String(u.usuario || u.username || '')
+        .trim()
+        .toLowerCase() === loginInformado;
+
+    const emailMatch =
+      String(u.email || '')
+        .trim()
+        .toLowerCase() === loginInformado;
+
+    const senhaMatch = String(u.senha || u.password || '') === senhaInformada;
+
+    return (usuarioMatch || emailMatch) && senhaMatch;
+  });
+
+  if (!usuario) {
+    return {
+      sucesso: false,
+      mensagem: 'Usuário, email ou senha inválidos.',
+    };
+  }
+
+  salvarSessaoUsuario(usuario);
+
+  return {
+    sucesso: true,
+    mensagem: 'Login realizado com sucesso.',
+    usuario,
+  };
+}
+
+// ===============================
+// LOGOUT
+// ===============================
+function logout() {
+  limparSessaoUsuario();
+  window.location.href = 'index.html';
+}
+
+// ===============================
+// EXIBIR NOME DO USUÁRIO
+// ===============================
+function preencherNomeUsuario(elementId = 'userName') {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+
+  const user = getUsuarioLogado();
+  el.textContent = user?.nome || user?.usuario || 'Usuário';
 }

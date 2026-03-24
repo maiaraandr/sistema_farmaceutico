@@ -208,7 +208,7 @@
                   />
                 </div>
 
-                <!-- ✅ CAMPO CORRIGIDO: date picker livre, bloqueando apenas datas futuras -->
+                <!-- CAMPO CORRIGIDO: date picker livre, bloqueando apenas datas futuras -->
                 <div class="form-group col-6">
                   <label for="dataEntrada" class="required"
                     >Data de Entrada</label
@@ -296,8 +296,12 @@
 
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/autenticacao.js"></script>
-    <script src="../Javascript/entrada.js"></script>
+
     <script>
+      protectPage();
+    </script>
+
+    <script src="../Javascript/entrada.js"></script>
       lucide.createIcons();
 
       // KPI data de hoje

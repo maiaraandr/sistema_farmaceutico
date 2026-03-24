@@ -127,6 +127,20 @@ REST_FRAMEWORK = {
 # CONFIGURAÇÃO DE CSRF (para APIs)
 # ========================================
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5500',
-    'http://127.0.0.1:5500',
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
 ]
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+SITE_URL = "http://127.0.0.1:5500/Frontend/html"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'maysilva29andrade@gmail.com'
+EMAIL_HOST_PASSWORD = 'vrqf dsdb tndo gtjh'
+
+DEFAULT_FROM_EMAIL = 'GestMed <maysilva29andrade@gmail.com>'

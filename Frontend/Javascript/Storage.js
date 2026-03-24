@@ -9,6 +9,9 @@ const STORAGE_KEYS = {
 
 const DISABLE_SAMPLE_DATA = true;
 
+// ===============================
+// HELPERS GERAIS
+// ===============================
 function safeJSONParse(str, fallback) {
   try {
     return JSON.parse(str);
@@ -57,10 +60,15 @@ function clearStorage({ keepUsers = true } = {}) {
       STORAGE_KEYS.PRODUTOS,
       STORAGE_KEYS.FORNECEDORES,
       STORAGE_KEYS.MOVIMENTACOES,
+      STORAGE_KEYS.CURRENT_USER,
+      STORAGE_KEYS.SESSION_TOKEN,
     ];
-    if (!keepUsers) keysToRemove.push(STORAGE_KEYS.USERS);
 
-    keysToRemove.forEach((k) => localStorage.removeItem(k));
+    if (!keepUsers) {
+      keysToRemove.push(STORAGE_KEYS.USERS);
+    }
+
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
     return true;
   } catch (error) {
     console.error('Erro ao limpar localStorage:', error);
@@ -68,34 +76,61 @@ function clearStorage({ keepUsers = true } = {}) {
   }
 }
 
-function normalizeProduto(p) {
-  if (!p || typeof p !== 'object') return null;
+// ===============================
+// NORMALIZAÇÃO DE PRODUTOS
+// ===============================
+function normalizeProduto(produto) {
+  if (!produto || typeof produto !== 'object') return null;
 
   const stock_atual = Number(
-    p.stock_atual ?? p.estoqueAtual ?? p.stockAtual ?? p.estoque_atual ?? 0
+    produto.stock_atual ??
+      produto.estoqueAtual ??
+      produto.stockAtual ??
+      produto.estoque_atual ??
+      0
   );
 
   const stock_minimo = Number(
-    p.stock_minimo ?? p.estoqueMinimo ?? p.stockMinimo ?? p.estoque_minimo ?? 0
+    produto.stock_minimo ??
+      produto.estoqueMinimo ??
+      produto.stockMinimo ??
+      produto.estoque_minimo ??
+      0
   );
 
+  const preco = Number(produto.preco ?? produto.valorUnitario ?? 0);
+
   const fornecedor_id =
-    p.fornecedor_id ?? p.fornecedorId ?? p.fornecedorID ?? null;
+    produto.fornecedor_id ??
+    produto.fornecedorId ??
+    produto.fornecedorID ??
+    null;
 
   return {
-    ...p,
+    ...produto,
+    id: Number(produto.id) || makeId(),
+    nome: produto.nome || '',
+    categoria: produto.categoria || '',
+    lote: produto.lote || '',
+    vencimento: produto.vencimento || '',
     stock_atual: isNaN(stock_atual) ? 0 : stock_atual,
     stock_minimo: isNaN(stock_minimo) ? 0 : stock_minimo,
+    preco: isNaN(preco) ? 0 : preco,
+    unidade: produto.unidade || 'un',
+    descricao: produto.descricao || '',
     fornecedor_id,
-    ativo: p.ativo !== false,
+    ativo: produto.ativo !== false,
   };
 }
 
-function normalizeProdutosArray(arr) {
-  if (!Array.isArray(arr)) return [];
-  return arr.map(normalizeProduto).filter(Boolean);
+function normalizeProdutosArray(lista) {
+  if (!Array.isArray(lista)) return [];
+  return lista.map(normalizeProduto).filter(Boolean);
 }
 
+// ===============================
+// USERS
+// ===============================
 function getUsers() {
   return loadFromStorage(STORAGE_KEYS.USERS, []);
 }
@@ -106,14 +141,76 @@ function saveUsers(users) {
 
 function addUser(user) {
   const users = getUsers();
+
   users.push({
     id: makeId(),
     ...user,
     criadoEm: new Date().toISOString(),
   });
+
   return saveUsers(users);
 }
 
+function getUserById(id) {
+  return getUsers().find((user) => Number(user.id) === Number(id)) || null;
+}
+
+function updateUser(id, dadosAtualizados) {
+  const users = getUsers();
+  const index = users.findIndex((user) => Number(user.id) === Number(id));
+
+  if (index === -1) return false;
+
+  users[index] = {
+    ...users[index],
+    ...dadosAtualizados,
+    atualizadoEm: new Date().toISOString(),
+  };
+
+  return saveUsers(users);
+}
+
+function deleteUser(id) {
+  const users = getUsers().filter((user) => Number(user.id) !== Number(id));
+  return saveUsers(users);
+}
+
+// ===============================
+// SESSÃO / USUÁRIO LOGADO
+// ===============================
+function getCurrentUser() {
+  return loadFromStorage(STORAGE_KEYS.CURRENT_USER, null);
+}
+
+function saveCurrentUser(user) {
+  return saveToStorage(STORAGE_KEYS.CURRENT_USER, user);
+}
+
+function clearCurrentUser() {
+  return removeFromStorage(STORAGE_KEYS.CURRENT_USER);
+}
+
+function getSessionToken() {
+  return loadFromStorage(STORAGE_KEYS.SESSION_TOKEN, null);
+}
+
+function saveSessionToken(token) {
+  return saveToStorage(STORAGE_KEYS.SESSION_TOKEN, token);
+}
+
+function clearSessionToken() {
+  return removeFromStorage(STORAGE_KEYS.SESSION_TOKEN);
+}
+
+function logoutUser() {
+  clearCurrentUser();
+  clearSessionToken();
+  return true;
+}
+
+// ===============================
+// PRODUTOS / MEDICAMENTOS
+// ===============================
 function getProdutos() {
   return normalizeProdutosArray(loadFromStorage(STORAGE_KEYS.PRODUTOS, []));
 }
@@ -124,118 +221,286 @@ function saveProdutos(produtos) {
 
 function addProduto(produto) {
   const produtos = getProdutos();
-  produtos.push(
-    normalizeProduto({
-      id: makeId(),
-      ...produto,
-      ativo: true,
-      criadoEm: new Date().toISOString(),
-    })
-  );
+
+  const novoProduto = normalizeProduto({
+    id: makeId(),
+    ...produto,
+    ativo: true,
+    criadoEm: new Date().toISOString(),
+  });
+
+  produtos.push(novoProduto);
   return saveProdutos(produtos);
 }
 
 function updateProduto(id, dadosAtualizados) {
   const produtos = getProdutos();
-  const index = produtos.findIndex((p) => Number(p.id) === Number(id));
+  const index = produtos.findIndex(
+    (produto) => Number(produto.id) === Number(id)
+  );
+
   if (index === -1) return false;
 
   produtos[index] = normalizeProduto({
     ...produtos[index],
     ...dadosAtualizados,
+    id: produtos[index].id,
     atualizadoEm: new Date().toISOString(),
   });
 
   return saveProdutos(produtos);
 }
 
+// EXCLUSÃO REAL
 function deleteProduto(id) {
-  return updateProduto(id, { ativo: false });
+  const produtos = getProdutos();
+
+  const novaLista = produtos.filter(
+    (produto) => Number(produto.id) !== Number(id)
+  );
+
+  return saveProdutos(novaLista);
 }
 
 function getProdutoById(id) {
-  return getProdutos().find((p) => Number(p.id) === Number(id));
+  return (
+    getProdutos().find((produto) => Number(produto.id) === Number(id)) || null
+  );
 }
 
+// Alias para medicamentos
 function getMedicamentos() {
   return getProdutos();
 }
-function saveMedicamentos(m) {
-  return saveProdutos(m);
+
+function saveMedicamentos(medicamentos) {
+  return saveProdutos(medicamentos);
 }
-function addMedicamento(m) {
-  return addProduto(m);
+
+function addMedicamento(medicamento) {
+  return addProduto(medicamento);
 }
-function updateMedicamento(id, d) {
-  return updateProduto(id, d);
+
+function updateMedicamento(id, dadosAtualizados) {
+  return updateProduto(id, dadosAtualizados);
 }
+
 function deleteMedicamento(id) {
   return deleteProduto(id);
 }
+
 function getMedicamentoById(id) {
   return getProdutoById(id);
 }
 
+// ===============================
+// FORNECEDORES
+// ===============================
+function normalizeFornecedor(fornecedor) {
+  if (!fornecedor || typeof fornecedor !== 'object') return null;
+
+  return {
+    ...fornecedor,
+    id: Number(fornecedor.id) || makeId(),
+    nome: fornecedor.nome || '',
+    ativo: fornecedor.ativo !== false,
+  };
+}
+
+function normalizeFornecedoresArray(lista) {
+  if (!Array.isArray(lista)) return [];
+  return lista.map(normalizeFornecedor).filter(Boolean);
+}
+
 function getFornecedores() {
-  return loadFromStorage(STORAGE_KEYS.FORNECEDORES, []).filter(Boolean);
+  return normalizeFornecedoresArray(
+    loadFromStorage(STORAGE_KEYS.FORNECEDORES, [])
+  );
 }
 
 function saveFornecedores(fornecedores) {
   return saveToStorage(
     STORAGE_KEYS.FORNECEDORES,
-    Array.isArray(fornecedores) ? fornecedores : []
+    normalizeFornecedoresArray(fornecedores)
   );
 }
 
 function addFornecedor(fornecedor) {
   const fornecedores = getFornecedores();
-  fornecedores.push({
-    id: makeId(),
-    ...fornecedor,
-    ativo: fornecedor.ativo !== false,
-    criadoEm: new Date().toISOString(),
-  });
+
+  fornecedores.push(
+    normalizeFornecedor({
+      id: makeId(),
+      ...fornecedor,
+      ativo: fornecedor.ativo !== false,
+      criadoEm: new Date().toISOString(),
+    })
+  );
+
   return saveFornecedores(fornecedores);
 }
 
 function updateFornecedor(id, dadosAtualizados) {
   const fornecedores = getFornecedores();
-  const index = fornecedores.findIndex((f) => Number(f.id) === Number(id));
+  const index = fornecedores.findIndex(
+    (fornecedor) => Number(fornecedor.id) === Number(id)
+  );
+
   if (index === -1) return false;
 
-  fornecedores[index] = {
+  fornecedores[index] = normalizeFornecedor({
     ...fornecedores[index],
     ...dadosAtualizados,
+    id: fornecedores[index].id,
     atualizadoEm: new Date().toISOString(),
-  };
+  });
+
   return saveFornecedores(fornecedores);
 }
 
 function deleteFornecedor(id) {
-  return updateFornecedor(id, { ativo: false });
+  const fornecedores = getFornecedores().filter(
+    (fornecedor) => Number(fornecedor.id) !== Number(id)
+  );
+
+  return saveFornecedores(fornecedores);
+}
+
+function getFornecedorById(id) {
+  return (
+    getFornecedores().find(
+      (fornecedor) => Number(fornecedor.id) === Number(id)
+    ) || null
+  );
+}
+
+// ===============================
+// MOVIMENTAÇÕES
+// ===============================
+function normalizeMovimentacao(movimentacao) {
+  if (!movimentacao || typeof movimentacao !== 'object') return null;
+
+  return {
+    ...movimentacao,
+    id: Number(movimentacao.id) || makeId(),
+    medicamento_id:
+      movimentacao.medicamento_id ??
+      movimentacao.medicamentoId ??
+      movimentacao.produto_id ??
+      movimentacao.produtoId ??
+      null,
+    quantidade: Number(movimentacao.quantidade) || 0,
+    tipo: movimentacao.tipo || '',
+    data:
+      movimentacao.data ||
+      movimentacao.data_movimentacao ||
+      new Date().toISOString(),
+  };
+}
+
+function normalizeMovimentacoesArray(lista) {
+  if (!Array.isArray(lista)) return [];
+  return lista.map(normalizeMovimentacao).filter(Boolean);
 }
 
 function getMovimentacoes() {
-  return loadFromStorage(STORAGE_KEYS.MOVIMENTACOES, []).filter(Boolean);
+  return normalizeMovimentacoesArray(
+    loadFromStorage(STORAGE_KEYS.MOVIMENTACOES, [])
+  );
 }
 
 function saveMovimentacoes(movimentacoes) {
   return saveToStorage(
     STORAGE_KEYS.MOVIMENTACOES,
-    Array.isArray(movimentacoes) ? movimentacoes : []
+    normalizeMovimentacoesArray(movimentacoes)
   );
 }
 
 function addMovimentacao(movimentacao) {
   const movimentacoes = getMovimentacoes();
-  movimentacoes.push({
-    id: makeId(),
-    ...movimentacao,
-    data: new Date().toISOString(),
-  });
+
+  movimentacoes.push(
+    normalizeMovimentacao({
+      id: makeId(),
+      ...movimentacao,
+      data: new Date().toISOString(),
+    })
+  );
+
   return saveMovimentacoes(movimentacoes);
 }
 
+function updateMovimentacao(id, dadosAtualizados) {
+  const movimentacoes = getMovimentacoes();
+  const index = movimentacoes.findIndex(
+    (movimentacao) => Number(movimentacao.id) === Number(id)
+  );
+
+  if (index === -1) return false;
+
+  movimentacoes[index] = normalizeMovimentacao({
+    ...movimentacoes[index],
+    ...dadosAtualizados,
+    id: movimentacoes[index].id,
+    atualizadoEm: new Date().toISOString(),
+  });
+
+  return saveMovimentacoes(movimentacoes);
+}
+
+function deleteMovimentacao(id) {
+  const movimentacoes = getMovimentacoes().filter(
+    (movimentacao) => Number(movimentacao.id) !== Number(id)
+  );
+
+  return saveMovimentacoes(movimentacoes);
+}
+
+function getMovimentacaoById(id) {
+  return (
+    getMovimentacoes().find(
+      (movimentacao) => Number(movimentacao.id) === Number(id)
+    ) || null
+  );
+}
+
+// ===============================
+// ENTRADAS / SAÍDAS
+// ===============================
+function getEntradas() {
+  return getMovimentacoes().filter(
+    (movimentacao) =>
+      String(movimentacao.tipo).toLowerCase() === 'entrada' ||
+      String(movimentacao.tipo).toLowerCase() === 'e'
+  );
+}
+
+function addEntrada(entrada) {
+  return addMovimentacao({
+    ...entrada,
+    tipo: 'entrada',
+  });
+}
+
+function getSaidas() {
+  return getMovimentacoes().filter(
+    (movimentacao) =>
+      String(movimentacao.tipo).toLowerCase() === 'saida' ||
+      String(movimentacao.tipo).toLowerCase() === 'saída' ||
+      String(movimentacao.tipo).toLowerCase() === 's'
+  );
+}
+
+function addSaida(saida) {
+  return addMovimentacao({
+    ...saida,
+    tipo: 'saida',
+  });
+}
+
+// ===============================
+// DADOS DE EXEMPLO
+// ===============================
 function initializeSampleData() {
   if (DISABLE_SAMPLE_DATA) return;
 
@@ -274,55 +539,21 @@ function initializeSampleData() {
         id: 1,
         sku: 'PAR-500',
         nome: 'Paracetamol 500mg',
-        categoria: 'Analgésicos',
+        categoria: 'Analgésico',
         preco: 5.5,
         stock_atual: 15,
         stock_minimo: 50,
-        vencimento: '2025-12-30',
+        vencimento: '2026-12-30',
         fornecedor_id: 1,
+        unidade: 'cx',
         ativo: true,
       },
     ]);
   }
 
-  function getSaidas() {
-    return JSON.parse(localStorage.getItem('saidas')) || [];
-  }
-
-  function addSaida(saida) {
-    const lista = getSaidas();
-    lista.push(saida);
-    localStorage.setItem('saidas', JSON.stringify(lista));
-  }
-
-  console.log(' Storage inicializado com dados de exemplo.');
+  console.log('Storage inicializado com dados de exemplo.');
 }
 
 if (typeof window !== 'undefined') {
   initializeSampleData();
-}
-
-// ===============================
-// ENTRADAS / SAÍDAS (MOVIMENTAÇÕES)
-// ===============================
-function getEntradas() {
-  return getMovimentacoes().filter((m) => m.tipo === 'entrada');
-}
-
-function addEntrada(entrada) {
-  return addMovimentacao({
-    ...entrada,
-    tipo: 'entrada',
-  });
-}
-
-function getSaidas() {
-  return getMovimentacoes().filter((m) => m.tipo === 'saida');
-}
-
-function addSaida(saida) {
-  return addMovimentacao({
-    ...saida,
-    tipo: 'saida',
-  });
 }

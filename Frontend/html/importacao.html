@@ -615,10 +615,13 @@
 
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/autenticacao.js"></script>
-    <script src="../Javascript/importacao.js"></script>
 
     <script>
-      lucide.createIcons();
+      protectPage();
+    </script>
+
+    <script src="../Javascript/importacao.js"></script>
+       lucide.createIcons();
 
       document.querySelectorAll('.kpi-card-mini').forEach((card) => {
         card.addEventListener('click', () => {
