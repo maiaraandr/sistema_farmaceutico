@@ -3,13 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Importação | FarmaSys</title>
+    <title>Importação | GestMed</title>
 
-    <link rel="stylesheet" href="../CSS/Style.css" />
-    <link rel="stylesheet" href="../CSS/Components.css" />
-    <link rel="stylesheet" href="../CSS/dashboard.css" />
-    <link rel="stylesheet" href="../CSS/farmaui.css" />
+    <link rel="stylesheet" href="../CSS/base.css" />
     <link rel="stylesheet" href="../CSS/importacao.css" />
+
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
@@ -17,398 +15,71 @@
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-    <style>
-      :root {
-        --brand: #2563eb;
-        --brand-600: #1d4ed8;
-        --brand-100: rgba(37, 99, 235, 0.1);
-        --brand-200: rgba(37, 99, 235, 0.2);
-        --success: #16a34a;
-        --success-bg: rgba(22, 163, 74, 0.1);
-        --warn: #d97706;
-        --warn-bg: rgba(217, 119, 6, 0.1);
-        --danger: #dc2626;
-        --danger-bg: rgba(220, 38, 38, 0.1);
-      }
-
-      body {
-        font-family: 'DM Sans', sans-serif;
-      }
-
-      .kpi-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 12px;
-        margin-top: 12px;
-      }
-
-      .dropzone {
-        border: 2px dashed var(--gray-200, #e5e7eb);
-        border-radius: 14px;
-        padding: 32px 20px;
-        text-align: center;
-        cursor: pointer;
-        transition:
-          border-color 0.2s,
-          background 0.2s;
-        background: var(--gray-50, #f9fafb);
-        position: relative;
-      }
-
-      .dropzone:hover,
-      .dropzone.drag-over {
-        border-color: var(--brand);
-        background: var(--brand-100);
-      }
-
-      .dropzone input[type='file'] {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        cursor: pointer;
-        width: 100%;
-        height: 100%;
-      }
-
-      .dropzone-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        background: var(--brand-100);
-        color: var(--brand);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 12px;
-      }
-
-      .dropzone-title {
-        font-weight: 700;
-        font-size: 15px;
-        color: var(--gray-800, #1f2937);
-      }
-
-      .dropzone-sub {
-        font-size: 12px;
-        color: var(--gray-500, #6b7280);
-        margin-top: 4px;
-      }
-
-      .dropzone-file-name {
-        margin-top: 10px;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--brand);
-        display: none;
-      }
-
-      .logbox {
-        background: #0f172a;
-        border: 1px solid #1e293b;
-        border-radius: 12px;
-        padding: 14px 16px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 12px;
-        line-height: 1.6;
-        max-height: 200px;
-        overflow: auto;
-        white-space: pre-wrap;
-        color: #94a3b8;
-      }
-
-      .logbox .log-ok {
-        color: #4ade80;
-      }
-
-      .logbox .log-warn {
-        color: #fbbf24;
-      }
-
-      .logbox .log-error {
-        color: #f87171;
-      }
-
-      .logbox .log-info {
-        color: #60a5fa;
-      }
-
-      .pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 5px 11px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 600;
-        border: 1.5px solid var(--gray-200, #e5e7eb);
-        background: var(--gray-50, #f9fafb);
-        color: var(--gray-700, #374151);
-        transition: all 0.2s;
-      }
-
-      .pill.status-ok {
-        background: var(--success-bg);
-        border-color: rgba(22, 163, 74, 0.25);
-        color: var(--success);
-      }
-
-      .pill.status-warn {
-        background: var(--warn-bg);
-        border-color: rgba(217, 119, 6, 0.25);
-        color: var(--warn);
-      }
-
-      .pill.status-bad {
-        background: var(--danger-bg);
-        border-color: rgba(220, 38, 38, 0.25);
-        color: var(--danger);
-      }
-
-      .import-grid {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        gap: 16px;
-      }
-
-      .col-12 {
-        grid-column: span 12;
-      }
-
-      .col-6 {
-        grid-column: span 6;
-      }
-
-      .col-4 {
-        grid-column: span 4;
-      }
-
-      .col-3 {
-        grid-column: span 3;
-      }
-
-      @media (max-width: 900px) {
-        .col-6,
-        .col-4,
-        .col-3 {
-          grid-column: span 12;
-        }
-      }
-
-      .hint {
-        font-size: 12px;
-        color: var(--gray-500, #6b7280);
-        margin-top: 5px;
-        line-height: 1.4;
-      }
-
-      .check-option {
-        display: flex;
-        gap: 10px;
-        align-items: flex-start;
-        padding: 10px 12px;
-        border-radius: 10px;
-        border: 1.5px solid var(--gray-200, #e5e7eb);
-        background: var(--gray-50, #f9fafb);
-        cursor: pointer;
-        transition:
-          border-color 0.2s,
-          background 0.2s;
-        margin-top: 8px;
-      }
-
-      .check-option:hover {
-        border-color: var(--brand);
-        background: var(--brand-100);
-      }
-
-      .check-option input[type='checkbox'] {
-        margin-top: 2px;
-        accent-color: var(--brand);
-      }
-
-      .check-option .check-label {
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--gray-800, #1f2937);
-      }
-
-      .check-option .check-hint {
-        font-size: 11px;
-        color: var(--gray-500, #6b7280);
-        margin-top: 2px;
-      }
-
-      .btn-primary {
-        background: var(--brand);
-        border-color: var(--brand);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .btn-primary:hover {
-        background: var(--brand-600);
-        border-color: var(--brand-600);
-      }
-
-      .btn-primary:disabled {
-        opacity: 0.45;
-        cursor: not-allowed;
-      }
-
-      .btn-shine::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 60%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.25),
-          transparent
-        );
-        animation: shine 0.6s ease forwards;
-      }
-
-      @keyframes shine {
-        to {
-          left: 150%;
-        }
-      }
-
-      .table-note {
-        font-size: 12px;
-        color: var(--gray-500, #6b7280);
-        margin-top: 8px;
-      }
-
-      @keyframes fadeUp {
-        from {
-          opacity: 0;
-          transform: translateY(14px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .kpi-mini-grid {
-        animation: fadeUp 0.4s ease both;
-      }
-
-      .content-section:nth-child(1) {
-        animation: fadeUp 0.4s 0.1s ease both;
-      }
-
-      .content-section:nth-child(2) {
-        animation: fadeUp 0.4s 0.2s ease both;
-      }
-
-      .page-title i {
-        color: var(--brand);
-      }
-    </style>
   </head>
 
-  <body>
-    <div class="dashboard-layout">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="logo">
-            <div class="logo-icon"><i data-lucide="pill"></i></div>
-            <span>GestMed</span>
-          </div>
-        </div>
-
-        <nav class="sidebar-nav">
-          <a href="dashboard.html" class="nav-item"
-            ><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a
+  <body class="page-importacao">
+    <div class="import-shell">
+      <header class="import-topbar">
+        <div class="import-topbar-left">
+          <button
+            class="btn-home"
+            type="button"
+            onclick="window.location.href = 'inicio.html'"
           >
-          <a href="medicamentos.html" class="nav-item"
-            ><i data-lucide="package"></i><span>Medicamentos</span></a
-          >
-          <a href="fornecedores.html" class="nav-item"
-            ><i data-lucide="truck"></i><span>Fornecedores</span></a
-          >
-          <a href="entrada.html" class="nav-item"
-            ><i data-lucide="package-plus"></i><span>Entrada</span></a
-          >
-          <a href="saida.html" class="nav-item"
-            ><i data-lucide="package-minus"></i><span>Saída</span></a
-          >
-          <a href="relatorios.html" class="nav-item"
-            ><i data-lucide="file-text"></i><span>Relatórios</span></a
-          >
-          <a href="importacao.html" class="nav-item active"
-            ><i data-lucide="upload"></i><span>Importação</span></a
-          >
-        </nav>
-
-        <div class="sidebar-footer">
-          <button class="nav-item" id="logoutBtn">
-            <i data-lucide="log-out"></i><span>Sair</span>
+            <i data-lucide="arrow-left"></i>
+            Início
           </button>
-        </div>
-      </aside>
 
-      <main class="main-content">
-        <header class="content-header">
-          <div class="header-left">
-            <h1 class="page-title">
+          <div class="import-title-wrap">
+            <p class="import-kicker">GestMed</p>
+            <h1 class="import-title">
               <i data-lucide="upload"></i>
               Importação de Dados
             </h1>
-            <p class="page-subtitle">
+            <p class="import-subtitle">
               Importe fornecedores, medicamentos e movimentações via CSV ou
               Excel
             </p>
           </div>
-          <div class="header-right">
-            <div class="user-info">
-              <span class="user-name" id="userName">Carregando...</span>
-            </div>
-          </div>
-        </header>
+        </div>
 
+        <div class="import-topbar-right">
+          <div class="import-user-chip">
+            <i data-lucide="user"></i>
+            <span id="userName">Carregando...</span>
+          </div>
+
+          <button class="btn btn-outline btn-sm" id="logoutBtn" type="button">
+            <i data-lucide="log-out"></i>
+            Sair
+          </button>
+        </div>
+      </header>
+
+      <main class="import-content">
         <section class="content-section">
           <div class="kpi-row">
-            <div
-              class="kpi-card-mini"
-              id="kpiCardArquivo"
-              data-tooltip="Arquivo carregado"
-            >
+            <div class="kpi-card-mini" id="kpiCardArquivo">
               <div class="label"><i data-lucide="file-text"></i> Arquivo</div>
               <div class="value" id="kpiArquivo">—</div>
               <div class="sub">Arquivo selecionado</div>
             </div>
-            <div
-              class="kpi-card-mini"
-              id="kpiCardLinhas"
-              data-tooltip="Total de linhas lidas"
-            >
+
+            <div class="kpi-card-mini" id="kpiCardLinhas">
               <div class="label"><i data-lucide="rows-3"></i> Linhas lidas</div>
               <div class="value" id="kpiLinhas">0</div>
               <div class="sub">Registros no arquivo</div>
             </div>
-            <div
-              class="kpi-card-mini"
-              id="kpiCardProntas"
-              data-tooltip="Prontas para importar"
-            >
+
+            <div class="kpi-card-mini" id="kpiCardProntas">
               <div class="label">
-                <i data-lucide="shield-check"></i> Prontas para aplicar
+                <i data-lucide="shield-check"></i> Prontas
               </div>
               <div class="value" id="kpiProntas">0</div>
               <div class="sub">Sem erros de validação</div>
             </div>
-            <div
-              class="kpi-card-mini"
-              id="kpiCardErros"
-              data-tooltip="Linhas com erro"
-            >
+
+            <div class="kpi-card-mini" id="kpiCardErros">
               <div class="label">
                 <i data-lucide="alert-triangle"></i> Erros
               </div>
@@ -419,36 +90,18 @@
         </section>
 
         <section class="content-section">
-          <div class="card">
-            <div
-              class="card-header"
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 12px;
-              "
-            >
-              <h3
-                class="card-title"
-                style="display: flex; align-items: center; gap: 10px; margin: 0"
-              >
+          <div class="import-card">
+            <div class="import-card-header">
+              <h3 class="import-card-title">
                 <i data-lucide="settings-2"></i>
                 Configurar importação
               </h3>
-              <a href="dashboard.html" class="btn btn-outline btn-sm">
-                <i
-                  data-lucide="arrow-left"
-                  style="width: 16px; height: 16px"
-                ></i>
-                Voltar ao Dashboard
-              </a>
             </div>
 
-            <div class="card-body">
+            <div class="import-card-body">
               <div class="import-grid">
                 <div class="form-group col-4">
-                  <label>Tipo de importação</label>
+                  <label for="tipoImport">Tipo de importação</label>
                   <select id="tipoImport" class="form-input">
                     <option value="fornecedores">Fornecedores</option>
                     <option value="medicamentos">Medicamentos</option>
@@ -482,6 +135,7 @@
 
                 <div class="form-group col-4">
                   <label>Opções de importação</label>
+
                   <label class="check-option">
                     <input type="checkbox" id="chkAtualizar" checked />
                     <div>
@@ -492,6 +146,7 @@
                       </div>
                     </div>
                   </label>
+
                   <label class="check-option">
                     <input type="checkbox" id="chkSomenteAtivos" />
                     <div>
@@ -503,62 +158,51 @@
                   </label>
                 </div>
 
-                <div
-                  class="col-12"
-                  style="
-                    display: flex;
-                    gap: 10px;
-                    justify-content: flex-end;
-                    flex-wrap: wrap;
-                    margin-top: 4px;
-                  "
-                >
+                <div class="col-12 import-actions">
                   <button
                     class="btn btn-secondary"
                     type="button"
                     id="btnLimpar"
                   >
-                    <i data-lucide="rotate-ccw"></i> Limpar
+                    <i data-lucide="rotate-ccw"></i>
+                    Limpar
                   </button>
+
                   <button
                     class="btn btn-outline"
                     type="button"
                     id="btnValidar"
                     disabled
                   >
-                    <i data-lucide="scan"></i> Validar & Pré-visualizar
+                    <i data-lucide="scan"></i>
+                    Validar & Pré-visualizar
                   </button>
+
                   <button
                     class="btn btn-primary"
                     type="button"
                     id="btnAplicar"
                     disabled
                   >
-                    <i data-lucide="check"></i> Aplicar importação
+                    <i data-lucide="check"></i>
+                    Aplicar importação
                   </button>
                 </div>
               </div>
 
-              <div
-                style="
-                  margin-top: 14px;
-                  display: flex;
-                  gap: 8px;
-                  flex-wrap: wrap;
-                  align-items: center;
-                "
-              >
+              <div class="status-row">
                 <span class="pill" id="pillStatus">
                   <i data-lucide="clock" style="width: 12px; height: 12px"></i>
                   Aguardando arquivo…
                 </span>
+
                 <span class="pill" id="pillTipo">
                   <i data-lucide="tag" style="width: 12px; height: 12px"></i>
                   Tipo: —
                 </span>
               </div>
 
-              <div style="margin-top: 12px">
+              <div class="log-area">
                 <div class="logbox" id="log">
                   // Log de importação aparece aqui...
                 </div>
@@ -572,37 +216,22 @@
         </section>
 
         <section class="content-section">
-          <div class="card">
-            <div
-              class="card-header"
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 12px;
-              "
-            >
-              <h3
-                class="card-title"
-                style="display: flex; align-items: center; gap: 10px; margin: 0"
-              >
+          <div class="import-card">
+            <div class="import-card-header import-card-header-preview">
+              <h3 class="import-card-title">
                 <i data-lucide="table"></i>
                 Pré-visualização
               </h3>
               <span class="pill" id="pillPreview" style="display: none"></span>
             </div>
-            <div class="card-body">
+
+            <div class="import-card-body">
               <div class="table-container">
                 <table class="data-table">
                   <thead id="previewHead"></thead>
                   <tbody id="previewBody">
                     <tr>
-                      <td
-                        class="muted"
-                        style="padding: 16px; color: var(--gray-500)"
-                      >
-                        Nenhum arquivo carregado ainda.
-                      </td>
+                      <td class="empty-row">Nenhum arquivo carregado ainda.</td>
                     </tr>
                   </tbody>
                 </table>
@@ -615,92 +244,6 @@
 
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/autenticacao.js"></script>
-
-    <script>
-      protectPage();
-    </script>
-
     <script src="../Javascript/importacao.js"></script>
-       lucide.createIcons();
-
-      document.querySelectorAll('.kpi-card-mini').forEach((card) => {
-        card.addEventListener('click', () => {
-          const jaAtivo = card.classList.contains('active');
-          document
-            .querySelectorAll('.kpi-card-mini')
-            .forEach((c) => c.classList.remove('active', 'pulse'));
-          card.classList.add('pulse');
-          setTimeout(() => card.classList.remove('pulse'), 500);
-          if (!jaAtivo) card.classList.add('active');
-        });
-      });
-
-      const dz = document.getElementById('dropzone');
-      const fi = document.getElementById('fileInput');
-      const fn = document.getElementById('dropzoneFileName');
-
-      if (dz) {
-        dz.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          dz.classList.add('drag-over');
-        });
-
-        dz.addEventListener('dragleave', () =>
-          dz.classList.remove('drag-over')
-        );
-
-        dz.addEventListener('drop', (e) => {
-          e.preventDefault();
-          dz.classList.remove('drag-over');
-          if (e.dataTransfer.files.length) {
-            const arquivo = e.dataTransfer.files[0];
-            const nome = (arquivo.name || '').toLowerCase();
-
-            if (
-              !nome.endsWith('.csv') &&
-              !nome.endsWith('.xlsx') &&
-              !nome.endsWith('.xls')
-            ) {
-              alert('Formato não suportado. Use apenas CSV ou Excel.');
-              return;
-            }
-
-            fi.files = e.dataTransfer.files;
-            fi.dispatchEvent(new Event('change'));
-          }
-        });
-      }
-
-      if (fi) {
-        fi.addEventListener('change', () => {
-          if (fi.files.length && fn) {
-            fn.textContent = '📄 ' + fi.files[0].name;
-            fn.style.display = 'block';
-
-            const el = document.getElementById('kpiArquivo');
-            if (el)
-              el.textContent =
-                fi.files[0].name.length > 16
-                  ? fi.files[0].name.substring(0, 14) + '…'
-                  : fi.files[0].name;
-
-            const kpiCard = document.getElementById('kpiCardArquivo');
-            if (kpiCard) {
-              kpiCard.classList.add('active', 'pulse');
-              setTimeout(() => kpiCard.classList.remove('pulse'), 500);
-            }
-          }
-        });
-      }
-
-      const btnAplicar = document.getElementById('btnAplicar');
-      if (btnAplicar) {
-        btnAplicar.addEventListener('click', () => {
-          btnAplicar.classList.remove('btn-shine');
-          void btnAplicar.offsetWidth;
-          btnAplicar.classList.add('btn-shine');
-        });
-      }
-    </script>
   </body>
 </html>

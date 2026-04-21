@@ -3,386 +3,52 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Medicamentos - Sistema Farmacêutico</title>
-    <link rel="stylesheet" href="../CSS/Style.css" />
-    <link rel="stylesheet" href="../CSS/Components.css" />
-    <link rel="stylesheet" href="../CSS/dashboard.css" />
-    <link rel="stylesheet" href="../CSS/farmaui.css" />
-    <link rel="stylesheet" href="../CSS/table_style.css" />
+    <title>Medicamentos - GestMed</title>
+
     <link rel="stylesheet" href="../CSS/medicamentos.css" />
+
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <style>
-      .header-actions-right {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-
-      .btn-ghost {
-        background: transparent;
-        border: 1px solid #e5e7eb;
-        color: inherit;
-        padding: 10px 12px;
-        border-radius: 10px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.2s ease;
-      }
-
-      .btn-ghost:hover {
-        background: rgba(0, 0, 0, 0.04);
-        transform: translateY(-1px);
-      }
-
-      .kpi-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 12px;
-        margin-top: 12px;
-      }
-
-      .kpi-card-mini {
-        background: #fff;
-        border: 2px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 14px;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .kpi-card-mini::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(0, 102, 255, 0.08),
-          transparent
-        );
-        transition: left 0.6s ease;
-      }
-
-      .kpi-card-mini:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 28px rgba(0, 102, 255, 0.15);
-        border-color: #0066ff;
-      }
-
-      .kpi-card-mini:hover::before {
-        left: 100%;
-      }
-
-      .kpi-card-mini:active {
-        transform: translateY(-3px) scale(0.98);
-      }
-
-      .kpi-card-mini.active {
-        border-color: #0066ff;
-        background: rgba(0, 102, 255, 0.06);
-        box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.12);
-      }
-
-      .kpi-card-mini .label {
-        font-size: 12px;
-        opacity: 0.7;
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-
-      .kpi-card-mini .value {
-        font-size: 22px;
-        font-weight: 700;
-      }
-
-      .kpi-card-mini .sub {
-        font-size: 12px;
-        opacity: 0.65;
-      }
-
-      .kpi-card-mini::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        bottom: -40px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #1f2937;
-        color: white;
-        padding: 8px 14px;
-        border-radius: 8px;
-        font-size: 12px;
-        white-space: nowrap;
-        opacity: 0;
-        pointer-events: none;
-        transition:
-          opacity 0.2s ease,
-          bottom 0.2s ease;
-        z-index: 10;
-      }
-
-      .kpi-card-mini:hover::after {
-        opacity: 1;
-        bottom: -45px;
-      }
-
-      .actions-left {
-        display: flex;
-        gap: 12px;
-        flex: 1;
-        flex-wrap: wrap;
-      }
-
-      .actions-right {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-
-      .search-box {
-        position: relative;
-        min-width: 280px;
-        flex: 1;
-      }
-
-      .search-box i {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9ca3af;
-        width: 18px;
-        height: 18px;
-      }
-
-      .search-box input {
-        width: 100%;
-        padding: 10px 14px 10px 42px;
-        border: 2px solid #e5e7eb;
-        border-radius: 10px;
-        font-size: 14px;
-        transition: all 0.2s ease;
-        outline: none;
-      }
-
-      .search-box input:focus {
-        border-color: #0066ff;
-        box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
-      }
-
-      .search-box input::placeholder {
-        color: #9ca3af;
-      }
-
-      .filter-select {
-        padding: 10px 14px;
-        border: 2px solid #e5e7eb;
-        border-radius: 10px;
-        font-size: 14px;
-        background: white;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        outline: none;
-        min-width: 180px;
-      }
-
-      .filter-select:focus {
-        border-color: #0066ff;
-        box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
-      }
-
-      .table-container {
-        transition: opacity 0.2s ease;
-      }
-
-      .table-container.filtering {
-        opacity: 0.6;
-      }
-
-      .dropdown-export {
-        position: relative;
-      }
-
-      .dropdown-menu {
-        position: absolute;
-        top: calc(100% + 6px);
-        right: 0;
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        min-width: 200px;
-        display: none;
-        z-index: 9999;
-        overflow: hidden;
-      }
-
-      .dropdown-menu.active {
-        display: block;
-        animation: ddFade 0.18s ease;
-      }
-
-      @keyframes ddFade {
-        from {
-          opacity: 0;
-          transform: translateY(-6px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .dropdown-item {
-        width: 100%;
-        padding: 11px 16px;
-        border: none;
-        background: none;
-        text-align: left;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 13px;
-        color: #374151;
-        transition: background 0.15s;
-      }
-
-      .dropdown-item:hover {
-        background: #f3f4f6;
-      }
-
-      .content-section,
-      .card,
-      .card-header,
-      .card-body {
-        overflow: visible !important;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes slideInRight {
-        from {
-          opacity: 0;
-          transform: translateX(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.8;
-        }
-      }
-
-      .animate-fadeIn {
-        animation: fadeIn 0.5s ease forwards;
-      }
-
-      .animate-slideIn {
-        animation: slideInRight 0.5s ease forwards;
-      }
-
-      .kpi-card-mini.pulse {
-        animation: pulse 0.5s ease;
-      }
-    </style>
   </head>
-  <body>
-    <div class="dashboard-layout">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="logo">
-            <div class="logo-icon"><i data-lucide="pill"></i></div>
-            <span>GestMed</span>
-          </div>
-        </div>
-        <nav class="sidebar-nav">
-          <a href="dashboard.html" class="nav-item"
-            ><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a
-          >
-          <a href="medicamentos.html" class="nav-item active"
-            ><i data-lucide="package"></i><span>Medicamentos</span></a
-          >
-          <a href="fornecedores.html" class="nav-item"
-            ><i data-lucide="truck"></i><span>Fornecedores</span></a
-          >
-          <a href="entrada.html" class="nav-item"
-            ><i data-lucide="package-plus"></i><span>Entrada</span></a
-          >
-          <a href="saida.html" class="nav-item"
-            ><i data-lucide="package-minus"></i><span>Saída</span></a
-          >
-          <a href="relatorios.html" class="nav-item"
-            ><i data-lucide="file-text"></i><span>Relatórios</span></a
-          >
-          <a href="importacao.html" class="nav-item"
-            ><i data-lucide="upload"></i><span>Importação</span></a
-          >
-        </nav>
-        <div class="sidebar-footer">
-          <button class="nav-item" id="logoutBtn">
-            <i data-lucide="log-out"></i><span>Sair</span>
-          </button>
-        </div>
-      </aside>
 
-      <main class="main-content">
-        <header class="content-header animate-fadeIn">
-          <div class="header-left">
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
-              <i data-lucide="menu"></i>
-            </button>
-            <h1 class="page-title">
-              <i data-lucide="package"></i> Gerenciar Medicamentos
+  <body class="page-medicamentos">
+    <div class="page-shell">
+      <header class="page-topbar">
+        <div class="topbar-left">
+          <button
+            class="btn-home"
+            type="button"
+            onclick="window.location.href = 'inicio.html'"
+          >
+            <i data-lucide="arrow-left"></i>
+            Início
+          </button>
+
+          <div class="title-wrap">
+            <span class="kicker">GestMed</span>
+            <h1 class="title">
+              <i data-lucide="package"></i>
+              Gerenciar Medicamentos
             </h1>
           </div>
-          <div class="header-actions-right">
-            <button
-              class="btn-ghost"
-              type="button"
-              onclick="window.location.href = 'dashboard.html'"
-            >
-              <i data-lucide="arrow-left"></i> Voltar ao Dashboard
-            </button>
-            <div class="user-info">
-              <span class="user-name" id="userName">Carregando...</span>
-            </div>
-          </div>
-        </header>
+        </div>
 
-        <!-- KPI Cards -->
+        <div class="topbar-right">
+          <div class="user-chip">
+            <i data-lucide="user"></i>
+            <span class="user-name" id="userName">Carregando...</span>
+          </div>
+
+          <button class="btn btn-outline btn-sm" id="logoutBtn" type="button">
+            <i data-lucide="log-out"></i>
+            Sair
+          </button>
+        </div>
+      </header>
+
+      <main class="page-content">
         <section class="content-section">
-          <div class="kpi-row animate-slideIn">
+          <div class="kpi-row">
             <div
               class="kpi-card-mini"
               id="kpiTotalCard"
@@ -390,11 +56,13 @@
               data-filter=""
             >
               <div class="label">
-                <i data-lucide="layers"></i> Total cadastrados
+                <i data-lucide="layers"></i>
+                Total cadastrados
               </div>
               <div class="value" id="kpiTotal">0</div>
               <div class="sub">Medicamentos no sistema</div>
             </div>
+
             <div
               class="kpi-card-mini"
               id="kpiBaixoCard"
@@ -402,11 +70,13 @@
               data-filter="baixo"
             >
               <div class="label">
-                <i data-lucide="alert-triangle"></i> Estoque baixo
+                <i data-lucide="alert-triangle"></i>
+                Estoque baixo
               </div>
               <div class="value" id="kpiBaixo">0</div>
               <div class="sub">Abaixo do mínimo</div>
             </div>
+
             <div
               class="kpi-card-mini"
               id="kpiVencendoCard"
@@ -414,18 +84,21 @@
               data-filter="vencendo"
             >
               <div class="label">
-                <i data-lucide="calendar-clock"></i> Próximo vencimento
+                <i data-lucide="calendar-clock"></i>
+                Próximo vencimento
               </div>
               <div class="value" id="kpiVencendo">0</div>
               <div class="sub">Até 30 dias</div>
             </div>
+
             <div
               class="kpi-card-mini"
               id="kpiValorCard"
               data-tooltip="Resumo do estoque"
             >
               <div class="label">
-                <i data-lucide="wallet"></i> Valor em estoque
+                <i data-lucide="wallet"></i>
+                Valor em estoque
               </div>
               <div class="value" id="kpiValor">R$ 0,00</div>
               <div class="sub">Quantidade × valor unitário</div>
@@ -433,19 +106,9 @@
           </div>
         </section>
 
-        <!-- Ações + tabela no mesmo card -->
-        <section class="content-section animate-fadeIn">
+        <section class="content-section">
           <div class="card">
-            <div
-              class="card-header"
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 12px;
-                flex-wrap: wrap;
-              "
-            >
+            <div class="card-header">
               <div class="actions-left">
                 <div class="search-box">
                   <i data-lucide="search"></i>
@@ -503,10 +166,7 @@
                   >
                     <i data-lucide="download"></i>
                     Exportar
-                    <i
-                      data-lucide="chevron-down"
-                      style="width: 14px; height: 14px"
-                    ></i>
+                    <i data-lucide="chevron-down" class="chevron-mini"></i>
                   </button>
 
                   <div class="dropdown-menu" id="dropdownExportar">
@@ -515,15 +175,16 @@
                       class="dropdown-item"
                       id="btnExportarCSV"
                     >
-                      <i data-lucide="file-text"></i> Exportar CSV
+                      <i data-lucide="file-text"></i>
+                      Exportar CSV
                     </button>
                     <button
                       type="button"
                       class="dropdown-item"
                       id="btnExportarExcel"
                     >
-                      <i data-lucide="file-spreadsheet"></i> Exportar Excel
-                      (.xlsx)
+                      <i data-lucide="file-spreadsheet"></i>
+                      Exportar Excel (.xlsx)
                     </button>
                   </div>
                 </div>
@@ -533,7 +194,8 @@
                   id="btnNovoProduto"
                   type="button"
                 >
-                  <i data-lucide="plus"></i> Novo Medicamento
+                  <i data-lucide="plus"></i>
+                  Novo Medicamento
                 </button>
               </div>
             </div>
@@ -557,6 +219,7 @@
                   <tbody id="tabelaProdutos"></tbody>
                 </table>
               </div>
+
               <div class="pagination" id="pagination"></div>
             </div>
           </div>
@@ -564,24 +227,38 @@
       </main>
     </div>
 
-    <!-- Modal Novo / Editar -->
     <div class="modal" id="modalProduto">
       <div class="modal-overlay" id="modalOverlay"></div>
+
       <div class="modal-content modal-lg">
         <div class="modal-header">
           <h2 class="modal-title" id="modalTitle">
-            <i data-lucide="package-plus"></i> Novo Medicamento
+            <i data-lucide="package-plus"></i>
+            Novo Medicamento
           </h2>
+
           <button class="modal-close" id="modalClose" type="button">
             <i data-lucide="x"></i>
           </button>
         </div>
+
         <form id="formProduto" class="modal-body">
           <div class="form-grid">
             <div class="form-group">
               <label for="nome" class="required">Nome do Medicamento</label>
               <input type="text" id="nome" class="form-input" required />
             </div>
+
+            <div class="form-group">
+              <label for="miligrama">Dosagem (mg/ml)</label>
+              <input
+                type="text"
+                id="miligrama"
+                class="form-input"
+                placeholder="Ex.: 500mg"
+              />
+            </div>
+
             <div class="form-group">
               <label for="categoria" class="required">Categoria</label>
               <select id="categoria" class="form-input" required>
@@ -614,14 +291,17 @@
                 <option value="outros">Outros</option>
               </select>
             </div>
+
             <div class="form-group">
-              <label for="lote">Lote</label>
-              <input type="text" id="lote" class="form-input" />
+              <label for="lote" class="required">Lote</label>
+              <input type="text" id="lote" class="form-input" required />
             </div>
+
             <div class="form-group">
               <label for="validade" class="required">Validade</label>
               <input type="date" id="validade" class="form-input" required />
             </div>
+
             <div class="form-group">
               <label for="quantidade" class="required">Quantidade</label>
               <input
@@ -632,10 +312,11 @@
                 required
               />
             </div>
+
             <div class="form-group">
-              <label for="quantidadeMinima" class="required"
-                >Quantidade Mínima</label
-              >
+              <label for="quantidadeMinima" class="required">
+                Quantidade Mínima
+              </label>
               <input
                 type="number"
                 id="quantidadeMinima"
@@ -644,10 +325,11 @@
                 required
               />
             </div>
+
             <div class="form-group">
-              <label for="valorUnitario" class="required"
-                >Valor Unitário (R$)</label
-              >
+              <label for="valorUnitario" class="required">
+                Valor Unitário (R$)
+              </label>
               <input
                 type="number"
                 id="valorUnitario"
@@ -657,9 +339,17 @@
                 required
               />
             </div>
+
             <div class="form-group">
-              <label for="unidade" class="required">Unidade</label>
-              <select id="unidade" class="form-input" required>
+              <label for="fornecedor" class="required">Fornecedor</label>
+              <select id="fornecedor" class="form-input" required>
+                <option value="">Selecione...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="unidade">Unidade</label>
+              <select id="unidade" class="form-input">
                 <option value="un">Unidade</option>
                 <option value="cx">Caixa</option>
                 <option value="fr">Frasco</option>
@@ -668,193 +358,71 @@
                 <option value="g">Grama</option>
               </select>
             </div>
+
             <div class="form-group full-width">
               <label for="descricao">Descrição</label>
               <textarea id="descricao" class="form-input" rows="3"></textarea>
             </div>
           </div>
+
           <input type="hidden" id="produtoId" />
+
           <div class="modal-footer">
-            <button type="button" class="btn-secondary" id="btnCancelar">
+            <button type="button" class="btn btn-secondary" id="btnCancelar">
               Cancelar
             </button>
-            <button type="submit" class="btn-primary" id="btnSalvar">
-              <i data-lucide="save"></i> Salvar
+
+            <button type="submit" class="btn btn-primary" id="btnSalvar">
+              <i data-lucide="save"></i>
+              Salvar
             </button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Modal Excluir -->
     <div class="modal" id="modalExcluir">
       <div class="modal-overlay" id="modalExcluirOverlay"></div>
+
       <div class="modal-content modal-sm">
         <div class="modal-header">
           <h2 class="modal-title">
-            <i data-lucide="alert-triangle" style="color: #ef4444"></i>
+            <i data-lucide="alert-triangle" class="icon-danger"></i>
             Confirmar Exclusão
           </h2>
+
           <button class="modal-close" id="modalExcluirClose" type="button">
             <i data-lucide="x"></i>
           </button>
         </div>
-        <div class="modal-body">
+
+        <div class="modal-body modal-text">
           <p>
             Tem certeza que deseja excluir o medicamento
             <strong id="nomeProdutoExcluir"></strong>?
           </p>
-          <p style="color: #ef4444; margin-top: 10px">
-            Esta ação não pode ser desfeita!
-          </p>
+          <p class="text-danger">Esta ação não pode ser desfeita.</p>
         </div>
+
         <div class="modal-footer">
-          <button type="button" class="btn-secondary" id="btnCancelarExcluir">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="btnCancelarExcluir"
+          >
             Cancelar
           </button>
-          <button type="button" class="btn-danger" id="btnConfirmarExcluir">
-            <i data-lucide="trash-2"></i> Excluir
+
+          <button type="button" class="btn btn-danger" id="btnConfirmarExcluir">
+            <i data-lucide="trash-2"></i>
+            Excluir
           </button>
         </div>
       </div>
     </div>
 
-<script src="../Javascript/Storage.js"></script>
-<script src="../Javascript/autenticacao.js"></script>
-<script src="../Javascript/medicamentos.js"></script>
-<script>
-  protectPage();
-</script>
-      lucide.createIcons();
-
-      // ── Dropdown exportar ──
-      const btnEx = document.getElementById('btnExportar');
-      const ddEx = document.getElementById('dropdownExportar');
-
-      btnEx?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        ddEx.classList.toggle('active');
-        lucide.createIcons();
-      });
-
-      document.addEventListener('click', () =>
-        ddEx?.classList.remove('active')
-      );
-
-      // ── Exportar CSV ──
-      document
-        .getElementById('btnExportarCSV')
-        ?.addEventListener('click', () => {
-          const lista = window.produtosFiltrados?.length
-            ? window.produtosFiltrados
-            : typeof produtos !== 'undefined'
-              ? produtos
-              : [];
-          if (!lista.length) return alert('Não há dados para exportar.');
-
-          const header = [
-            'Código',
-            'Nome',
-            'Categoria',
-            'Estoque',
-            'Estoque Mín.',
-            'Valor Unit. (R$)',
-            'Validade',
-          ];
-
-          const rows = lista.map((p) => [
-            String(p.id || '').padStart(4, '0'),
-            p.nome || '',
-            p.categoria || '',
-            Number(p.stock_atual || 0),
-            Number(p.stock_minimo || 0),
-            Number(p.preco || 0).toFixed(2),
-            p.vencimento || '',
-          ]);
-
-          const csv = [header, ...rows]
-            .map((r) =>
-              r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')
-            )
-            .join('\n');
-
-          const a = Object.assign(document.createElement('a'), {
-            href: URL.createObjectURL(
-              new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
-            ),
-            download: `medicamentos_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`,
-          });
-
-          a.click();
-          ddEx.classList.remove('active');
-        });
-
-      // ── Exportar Excel ──
-      document
-        .getElementById('btnExportarExcel')
-        ?.addEventListener('click', () => {
-          const lista = window.produtosFiltrados?.length
-            ? window.produtosFiltrados
-            : typeof produtos !== 'undefined'
-              ? produtos
-              : [];
-          if (!lista.length) return alert('Não há dados para exportar.');
-          if (typeof XLSX === 'undefined')
-            return alert('SheetJS não carregado.');
-
-          const dados = lista.map((p) => ({
-            Código: String(p.id || '').padStart(4, '0'),
-            Nome: p.nome || '',
-            Categoria: p.categoria || '',
-            Estoque: Number(p.stock_atual || 0),
-            'Estoque Mín.': Number(p.stock_minimo || 0),
-            'Valor Unit.': Number(p.preco || 0),
-            Validade: p.vencimento || '',
-          }));
-
-          const ws = XLSX.utils.json_to_sheet(dados);
-          ws['!cols'] = [8, 30, 20, 10, 12, 12, 12].map((w) => ({ wch: w }));
-
-          const wb = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(wb, ws, 'Medicamentos');
-
-          XLSX.writeFile(
-            wb,
-            `medicamentos_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.xlsx`
-          );
-
-          ddEx.classList.remove('active');
-        });
-
-      // ── KPI Cards clicáveis ──
-      document
-        .querySelectorAll('.kpi-card-mini[data-filter]')
-        .forEach((card) => {
-          card.addEventListener('click', () => {
-            const filterEstoque = document.getElementById('filterEstoque');
-            const tableContainer = document.getElementById('tableContainer');
-
-            tableContainer?.classList.add('filtering');
-            setTimeout(
-              () => tableContainer?.classList.remove('filtering'),
-              300
-            );
-
-            document
-              .querySelectorAll('.kpi-card-mini')
-              .forEach((c) => c.classList.remove('active'));
-
-            card.classList.add('pulse');
-            setTimeout(() => card.classList.remove('pulse'), 500);
-
-            const val = card.dataset.filter || '';
-            filterEstoque.value = val;
-
-            if (val) card.classList.add('active');
-
-            filterEstoque.dispatchEvent(new Event('change'));
-          });
-        });
-    </script>
+    <script src="../Javascript/Storage.js"></script>
+    <script src="../Javascript/autenticacao.js"></script>
+    <script src="../Javascript/medicamentos.js"></script>
   </body>
 </html>

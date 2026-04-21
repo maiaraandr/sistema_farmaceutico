@@ -1,26 +1,124 @@
-(function () {
-  const form = document.getElementById('formFornecedor');
-  const busca = document.getElementById('buscaFornecedor');
+const API_FORNECEDORES = 'http://127.0.0.1:8000/api/fornecedores/';
 
-  // estado local para edição
-  window.__fornecedorEditandoId = null;
-  window.__filtroFornecedorStatus = 'todos';
+let fornecedoresCache = [];
+window.__fornecedorEditandoId = null;
+window.__filtroFornecedorStatus = 'todos';
 
-  // eventos
-  if (form) form.addEventListener('submit', onSubmitFornecedor);
-  if (busca) busca.addEventListener('input', renderFornecedores);
+document.addEventListener('DOMContentLoaded', () => {
+  inicializarPagina();
+});
 
-  // render inicial
-  renderFornecedores();
+function inicializarPagina() {
+  if (typeof protectPage === 'function') {
+    protectPage();
+  }
 
-  if (typeof lucide !== 'undefined') lucide.createIcons();
-})();
-
-function voltarDashboard() {
-  window.location.href = 'dashboard.html';
+  preencherUsuario();
+  inicializarEventos();
+  carregarFornecedores();
+  monitorarModoEdicao();
+  criarIcones();
 }
 
-function onSubmitFornecedor(e) {
+function criarIcones() {
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+}
+
+function preencherUsuario() {
+  const userName = document.getElementById('userName');
+  const currentUser =
+    typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+
+  if (userName) {
+    userName.textContent = currentUser?.nome || 'Usuário';
+  }
+}
+
+function inicializarEventos() {
+  const form = document.getElementById('formFornecedor');
+  const busca = document.getElementById('buscaFornecedor');
+  const btnLimpar = document.getElementById('btnLimpar');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  if (form) {
+    form.addEventListener('submit', onSubmitFornecedor);
+  }
+
+  if (busca) {
+    busca.addEventListener('input', renderFornecedores);
+  }
+
+  if (btnLimpar) {
+    btnLimpar.addEventListener('click', () => {
+      setTimeout(() => {
+        if (!window.__fornecedorEditandoId) {
+          resetFormPadrao();
+        }
+      }, 0);
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      if (typeof logout === 'function') {
+        logout();
+        return;
+      }
+
+      localStorage.removeItem('farm_current_user');
+      localStorage.removeItem('farm_session_token');
+      window.location.href = 'index.html';
+    });
+  }
+
+  document.querySelectorAll('.kpi-card-mini').forEach((card) => {
+    card.addEventListener('click', () => {
+      const jaAtivo = card.classList.contains('active');
+      const filtro = card.dataset.filtro || 'todos';
+
+      document
+        .querySelectorAll('.kpi-card-mini')
+        .forEach((c) => c.classList.remove('active', 'pulse'));
+
+      if (jaAtivo) {
+        window.__filtroFornecedorStatus = 'todos';
+      } else {
+        window.__filtroFornecedorStatus = filtro;
+        card.classList.add('active');
+        card.classList.add('pulse');
+        setTimeout(() => card.classList.remove('pulse'), 500);
+      }
+
+      renderFornecedores();
+    });
+  });
+}
+
+async function carregarFornecedores() {
+  try {
+    const resp = await fetch(API_FORNECEDORES);
+    if (!resp.ok) throw new Error('Erro ao carregar fornecedores.');
+
+    const data = await resp.json();
+
+    fornecedoresCache = Array.isArray(data)
+      ? data.map((f) => ({
+          ...f,
+          ativo: f.ativo !== false,
+          endereco: f.endereco || '',
+        }))
+      : [];
+
+    renderFornecedores();
+  } catch (err) {
+    console.error(err);
+    alert('Não foi possível carregar os fornecedores da API.');
+  }
+}
+
+async function onSubmitFornecedor(e) {
   e.preventDefault();
 
   const nome = getVal('nome');
@@ -35,44 +133,60 @@ function onSubmitFornecedor(e) {
     return;
   }
 
-  const idEditando = window.__fornecedorEditandoId;
+  const payload = {
+    nome,
+    cnpj: cnpj || null,
+    telefone: telefone || null,
+    email: email || null,
+    endereco: endereco || null,
+    ativo,
+  };
 
-  if (idEditando) {
-    // ATUALIZAR
-    atualizarFornecedorSafe(idEditando, {
-      nome,
-      cnpj,
-      telefone,
-      email,
-      endereco,
-      ativo,
-      atualizadoEm: new Date().toISOString(),
-    });
-    limparEdicao();
-  } else {
-    // CRIAR
-    if (typeof addFornecedor === 'function') {
-      addFornecedor({ nome, cnpj, telefone, email, endereco, ativo });
-    } else {
-      // fallback se não existir addFornecedor
-      const lista = getFornecedoresSafe();
-      lista.push({
-        id: Date.now(),
-        nome,
-        cnpj,
-        telefone,
-        email,
-        endereco,
-        ativo,
-        criadoEm: new Date().toISOString(),
+  try {
+    const idEditando = window.__fornecedorEditandoId;
+
+    if (idEditando) {
+      const resp = await fetch(`${API_FORNECEDORES}${idEditando}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
-      setFornecedoresSafe(lista);
-    }
-    resetFormPadrao();
-  }
 
-  renderFornecedores();
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+      if (!resp.ok) {
+        const erro = await safeJson(resp);
+        console.error(erro);
+        alert('Não foi possível atualizar o fornecedor.');
+        return;
+      }
+
+      limparEdicao();
+    } else {
+      const resp = await fetch(API_FORNECEDORES, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        const erro = await safeJson(resp);
+        console.error(erro);
+        alert('Não foi possível cadastrar o fornecedor.');
+        return;
+      }
+
+      resetFormPadrao();
+    }
+
+    await carregarFornecedores();
+    criarIcones();
+  } catch (err) {
+    console.error(err);
+    alert('Erro de conexão com a API.');
+  }
 }
 
 function renderFornecedores() {
@@ -85,11 +199,11 @@ function renderFornecedores() {
 
   const filtroStatus = window.__filtroFornecedorStatus || 'todos';
 
-  const fornecedores = getFornecedoresSafe()
+  const fornecedores = fornecedoresCache
     .filter((f) => f)
     .map((f) => ({
       ...f,
-      ativo: f.ativo === true || f.ativo === 'true',
+      ativo: f.ativo === true || f.ativo === 'true' || f.ativo == null,
     }))
     .filter((f) => {
       if (filtroStatus === 'ativos') return f.ativo === true;
@@ -109,12 +223,12 @@ function renderFornecedores() {
   if (fornecedores.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" style="text-align:center;color:var(--gray-600);padding:18px;">
+        <td colspan="6" class="empty-row">
           Nenhum fornecedor encontrado.
         </td>
       </tr>
     `;
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    criarIcones();
     return;
   }
 
@@ -128,17 +242,23 @@ function renderFornecedores() {
         <td>${escapeHtml(f.email || '—')}</td>
         <td>
           <span class="status-pill ${f.ativo ? 'ativo' : 'inativo'}">
-            <i data-lucide="${f.ativo ? 'badge-check' : 'badge-x'}" style="width:14px;height:14px;"></i>
+            <i data-lucide="${f.ativo ? 'badge-check' : 'badge-x'}"></i>
             ${f.ativo ? 'Ativo' : 'Inativo'}
           </span>
         </td>
         <td>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-outline btn-sm" type="button" onclick="editarFornecedor(${Number(f.id)})">
-              <i data-lucide="pencil"></i> Editar
+          <div class="table-actions">
+            <button class="btn btn-outline btn-sm" type="button" onclick="editarFornecedor(${Number(
+              f.id
+            )})">
+              <i data-lucide="pencil"></i>
+              Editar
             </button>
-            <button class="btn btn-danger btn-sm" type="button" onclick="excluirFornecedor(${Number(f.id)})">
-              <i data-lucide="trash-2"></i> Excluir
+            <button class="btn btn-danger btn-sm" type="button" onclick="excluirFornecedor(${Number(
+              f.id
+            )})">
+              <i data-lucide="trash-2"></i>
+              Excluir
             </button>
           </div>
         </td>
@@ -147,13 +267,13 @@ function renderFornecedores() {
     )
     .join('');
 
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  criarIcones();
 }
 
 function atualizarKPIs(listaFiltrada) {
   const lista = Array.isArray(listaFiltrada)
     ? listaFiltrada
-    : getFornecedoresSafe();
+    : fornecedoresCache;
 
   const total = lista.length;
   const ativos = lista.filter((f) => f.ativo === true).length;
@@ -169,7 +289,7 @@ function atualizarKPIs(listaFiltrada) {
 }
 
 function editarFornecedor(id) {
-  const f = getFornecedoresSafe().find((x) => Number(x.id) === Number(id));
+  const f = fornecedoresCache.find((x) => Number(x.id) === Number(id));
   if (!f) return;
 
   window.__fornecedorEditandoId = Number(id);
@@ -183,17 +303,16 @@ function editarFornecedor(id) {
   const selAtivo = document.getElementById('ativo');
   if (selAtivo) selAtivo.value = f.ativo === true ? 'true' : 'false';
 
-  // muda botão principal para "Atualizar"
-  const btnSubmit = document.querySelector(
-    "#formFornecedor button[type='submit']"
-  );
-  if (btnSubmit)
-    btnSubmit.innerHTML = `<i data-lucide="save"></i> Atualizar fornecedor`;
+  const btnSubmit = document.getElementById('btnSubmitFornecedor');
+  if (btnSubmit) {
+    btnSubmit.innerHTML = `
+      <i data-lucide="save"></i>
+      Atualizar fornecedor
+    `;
+  }
 
-  // coloca um botão "Cancelar edição" se não existir
   garantirBotaoCancelarEdicao();
-
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  criarIcones();
 
   document.getElementById('formFornecedor')?.scrollIntoView({
     behavior: 'smooth',
@@ -202,41 +321,41 @@ function editarFornecedor(id) {
 }
 
 function garantirBotaoCancelarEdicao() {
-  if (document.getElementById('btnCancelarEdicao')) return;
+  let btnCancelar = document.getElementById('btnCancelarEdicao');
+  const wrap = document.querySelector('.form-actions-wrap');
 
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.id = 'btnCancelarEdicao';
-  btn.className = 'btn btn-outline btn-sm';
-  btn.innerHTML = `<i data-lucide="x"></i> Cancelar edição`;
+  if (!wrap || btnCancelar) return;
 
-  btn.addEventListener('click', () => {
-    limparEdicao();
-    renderFornecedores();
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-  });
+  btnCancelar = document.createElement('button');
+  btnCancelar.type = 'button';
+  btnCancelar.id = 'btnCancelarEdicao';
+  btnCancelar.className = 'btn btn-outline';
+  btnCancelar.innerHTML = `
+    <i data-lucide="x"></i>
+    Cancelar edição
+  `;
 
-  const submit = document.querySelector(
-    "#formFornecedor button[type='submit']"
-  );
-  if (submit?.parentElement) submit.parentElement.insertBefore(btn, submit);
-  else document.getElementById('formFornecedor')?.appendChild(btn);
+  btnCancelar.addEventListener('click', limparEdicao);
+  wrap.prepend(btnCancelar);
+  criarIcones();
 }
 
 function limparEdicao() {
   window.__fornecedorEditandoId = null;
   resetFormPadrao();
 
-  const btnSubmit = document.querySelector(
-    "#formFornecedor button[type='submit']"
-  );
-  if (btnSubmit)
-    btnSubmit.innerHTML = `<i data-lucide="check"></i> Salvar fornecedor`;
+  const btnSubmit = document.getElementById('btnSubmitFornecedor');
+  if (btnSubmit) {
+    btnSubmit.innerHTML = `
+      <i data-lucide="check"></i>
+      Salvar fornecedor
+    `;
+  }
 
   const btnCancelar = document.getElementById('btnCancelarEdicao');
   if (btnCancelar) btnCancelar.remove();
 
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  criarIcones();
 }
 
 function resetFormPadrao() {
@@ -247,122 +366,67 @@ function resetFormPadrao() {
   if (ativo) ativo.value = 'true';
 }
 
-function excluirFornecedor(id) {
+async function excluirFornecedor(id) {
   if (!confirm('Deseja realmente excluir este fornecedor?')) return;
 
-  if (typeof deleteFornecedor === 'function') {
-    deleteFornecedor(id);
-  } else {
-    const lista = getFornecedoresSafe().filter(
-      (x) => Number(x.id) !== Number(id)
-    );
-    setFornecedoresSafe(lista);
-  }
-
-  if (Number(window.__fornecedorEditandoId) === Number(id)) limparEdicao();
-  renderFornecedores();
-
-  if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-function exportarFornecedoresCSV() {
-  const fornecedores = getFornecedoresSafe();
-
-  const header = [
-    'id',
-    'nome',
-    'cnpj',
-    'telefone',
-    'email',
-    'endereco',
-    'ativo',
-    'criadoEm',
-    'atualizadoEm',
-  ];
-  const rows = fornecedores.map((f) => [
-    f.id,
-    f.nome,
-    f.cnpj,
-    f.telefone,
-    f.email,
-    f.endereco,
-    f.ativo,
-    f.criadoEm,
-    f.atualizadoEm,
-  ]);
-
-  const csv = [header, ...rows]
-    .map((r) =>
-      r.map((v) => `"${String(v ?? '').replaceAll('"', '""')}"`).join(',')
-    )
-    .join('\n');
-
-  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `fornecedores_${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-
-  URL.revokeObjectURL(url);
-}
-
-/**
- * Atualiza fornecedor:
- */
-function atualizarFornecedorSafe(id, patch) {
-  if (typeof updateFornecedor === 'function') {
-    updateFornecedor(id, patch);
-    return;
-  }
-
   try {
-    const list = getFornecedoresSafe();
-    const idx = list.findIndex((x) => Number(x.id) === Number(id));
-    if (idx >= 0) {
-      list[idx] = { ...list[idx], ...patch };
-    } else {
-      list.push({ id: Number(id), ...patch });
+    const resp = await fetch(`${API_FORNECEDORES}${id}/`, {
+      method: 'DELETE',
+    });
+
+    if (!resp.ok) {
+      const erro = await safeJson(resp);
+      console.error(erro);
+      alert('Não foi possível excluir o fornecedor.');
+      return;
     }
-    setFornecedoresSafe(list);
+
+    if (Number(window.__fornecedorEditandoId) === Number(id)) {
+      limparEdicao();
+    }
+
+    await carregarFornecedores();
+    criarIcones();
   } catch (err) {
     console.error(err);
-    alert('Não foi possível atualizar o fornecedor. Verifique o Storage.js.');
+    alert('Erro de conexão com a API.');
   }
 }
 
-/* ============================
-   HELPERS SAFE (Storage)
-   ============================ */
-function getFornecedoresSafe() {
-  if (typeof getFornecedores === 'function') {
-    const x = getFornecedores();
-    return Array.isArray(x) ? x : [];
-  }
+function monitorarModoEdicao() {
+  const cardForm = document.getElementById('cardFormulario');
+  const tituloForm = document.getElementById('tituloFormulario');
+  const btnSubmit = document.getElementById('btnSubmitFornecedor');
+
+  if (!btnSubmit) return;
+
+  const observer = new MutationObserver(() => {
+    const emEdicao = btnSubmit.textContent.includes('Atualizar');
+
+    cardForm?.classList.toggle('form-editando', !!emEdicao);
+
+    if (tituloForm) {
+      tituloForm.textContent = emEdicao
+        ? 'Editar fornecedor'
+        : 'Cadastrar fornecedor';
+    }
+  });
+
+  observer.observe(btnSubmit, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+}
+
+async function safeJson(resp) {
   try {
-    const raw = localStorage.getItem('farm_fornecedores');
-    const list = raw ? JSON.parse(raw) : [];
-    return Array.isArray(list) ? list : [];
+    return await resp.json();
   } catch {
-    return [];
+    return null;
   }
 }
 
-function setFornecedoresSafe(lista) {
-  try {
-    localStorage.setItem(
-      'farm_fornecedores',
-      JSON.stringify(Array.isArray(lista) ? lista : [])
-    );
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-/* ============================
-   HELPERS UI
-   ============================ */
 function getVal(id) {
   const el = document.getElementById(id);
   return el ? String(el.value).trim() : '';

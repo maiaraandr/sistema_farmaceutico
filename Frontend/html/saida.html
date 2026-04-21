@@ -4,167 +4,88 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Saída de Medicamentos | GestMed</title>
-    <link rel="stylesheet" href="../CSS/Style.css" />
-    <link rel="stylesheet" href="../CSS/Components.css" />
-    <link rel="stylesheet" href="../CSS/dashboard.css" />
-    <link rel="stylesheet" href="../CSS/farmaui.css" />
-    <link rel="stylesheet" href="../CSS/table_style.css" />
+
+    <link rel="stylesheet" href="../CSS/base.css" />
+    <link rel="stylesheet" href="../CSS/saida.css" />
+
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <style>
-      .filters-row {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .filters-left {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        align-items: center;
-      }
-      .table-actions {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-      .form-grid-2 {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 12px;
-      }
-      .helper {
-        font-size: 12px;
-        color: var(--gray-600, #4b5563);
-        margin-top: 6px;
-      }
-      .badge-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 5px 10px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 600;
-        border: 1px solid var(--gray-200, #e5e7eb);
-        background: var(--gray-50, #f9fafb);
-      }
-      .badge-out {
-        background: rgba(239, 68, 68, 0.12);
-        color: #dc2626;
-        border-color: rgba(239, 68, 68, 0.25);
-      }
-    </style>
   </head>
-  <body>
-    <div class="dashboard-layout">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="logo">
-            <div class="logo-icon"><i data-lucide="pill"></i></div>
-            <span>GestMed</span>
+
+  <body class="page-saida">
+    <div class="saida-shell">
+      <header class="saida-topbar">
+        <div class="saida-topbar-left">
+          <button
+            class="btn-home"
+            type="button"
+            onclick="window.location.href = 'inicio.html'"
+          >
+            <i data-lucide="arrow-left"></i>
+            Início
+          </button>
+
+          <div class="saida-title-wrap">
+            <p class="saida-kicker">GestMed</p>
+            <h1 class="saida-title">
+              <i data-lucide="package-minus"></i>
+              Saída de Medicamentos
+            </h1>
+            <p class="saida-subtitle">Registro de saída do estoque</p>
           </div>
         </div>
-        <nav class="sidebar-nav">
-          <a href="dashboard.html" class="nav-item"
-            ><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a
-          >
-          <a href="medicamentos.html" class="nav-item"
-            ><i data-lucide="package"></i><span>Medicamentos</span></a
-          >
-          <a href="fornecedores.html" class="nav-item"
-            ><i data-lucide="truck"></i><span>Fornecedores</span></a
-          >
-          <a href="entrada.html" class="nav-item"
-            ><i data-lucide="package-plus"></i><span>Entrada</span></a
-          >
-          <a href="saida.html" class="nav-item active"
-            ><i data-lucide="package-minus"></i><span>Saída</span></a
-          >
-          <a href="relatorio.html" class="nav-item"
-            ><i data-lucide="file-text"></i><span>Relatórios</span></a
-          >
-          <a href="importacao.html" class="nav-item"
-            ><i data-lucide="upload"></i><span>Importação</span></a
-          >
-        </nav>
-        <div class="sidebar-footer">
-          <button class="nav-item" id="logoutBtn">
-            <i data-lucide="log-out"></i><span>Sair</span>
+
+        <div class="saida-topbar-right">
+          <div class="saida-user-chip">
+            <i data-lucide="user"></i>
+            <span id="userName">Carregando...</span>
+          </div>
+
+          <button class="btn btn-outline btn-sm" id="logoutBtn" type="button">
+            <i data-lucide="log-out"></i>
+            Sair
           </button>
         </div>
-      </aside>
+      </header>
 
-      <main class="main-content">
-        <header class="content-header">
-          <div class="header-left">
-            <h1 class="page-title">
-              <i data-lucide="package-minus"></i> Saída de Medicamentos
-            </h1>
-            <p class="page-subtitle">Registro de saída do estoque</p>
-          </div>
-          <div class="header-right">
-            <div class="user-info">
-              <span class="user-name" id="userName">Carregando...</span>
+      <main class="saida-content">
+        <section class="saida-section">
+          <div class="saida-card">
+            <div class="saida-card-header">
+              <h2 class="saida-card-title">
+                <i data-lucide="clipboard-edit"></i>
+                Registrar Saída
+              </h2>
             </div>
-          </div>
-        </header>
 
-        <!-- KPI Cards -->
-        <div class="kpi-row">
-          <div class="kpi-card-mini" data-tooltip="Total de saídas registradas">
-            <div class="label">
-              <i data-lucide="package-minus"></i> Total de Saídas
-            </div>
-            <div class="value" id="kpiSaidas">0</div>
-            <div class="sub">No histórico</div>
-          </div>
-          <div class="kpi-card-mini" data-tooltip="Data atual do sistema">
-            <div class="label"><i data-lucide="calendar"></i> Hoje</div>
-            <div class="value" id="kpiHoje">—</div>
-            <div class="sub">Data atual</div>
-          </div>
-          <div
-            class="kpi-card-mini"
-            data-tooltip="Medicamento do último registro"
-          >
-            <div class="label">
-              <i data-lucide="activity"></i> Último Registro
-            </div>
-            <div class="value" id="kpiUltimo">—</div>
-            <div class="sub">Saída mais recente</div>
-          </div>
-        </div>
-
-        <!-- Formulário -->
-        <section class="content-section">
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title" style="margin: 0">
-                <i data-lucide="clipboard-edit"></i> Registrar Saída
-              </h3>
-            </div>
-            <div class="card-body">
+            <div class="saida-card-body">
               <form id="formSaida">
-                <div class="form-grid-2">
-                  <div class="form-group">
-                    <label>Medicamento</label>
-                    <input
-                      type="text"
-                      id="medicamento"
-                      class="form-input"
-                      placeholder="Nome do medicamento"
-                      required
-                    />
+                <div class="form-grid-saida">
+                  <div class="form-group col-6">
+                    <label for="medicamento" class="required"
+                      >Medicamento</label
+                    >
+                    <select id="medicamento" class="form-input" required>
+                      <option value="">Selecione...</option>
+                    </select>
                     <div class="helper">
-                      Dica: use o mesmo nome cadastrado em "Medicamentos".
+                      Selecione um medicamento já cadastrado.
                     </div>
                   </div>
-                  <div class="form-group">
-                    <label>Quantidade</label>
+
+                  <div class="form-group col-3">
+                    <label for="estoqueAtual">Estoque disponível</label>
+                    <input
+                      type="text"
+                      id="estoqueAtual"
+                      class="form-input"
+                      placeholder="Selecione um medicamento"
+                      readonly
+                    />
+                  </div>
+
+                  <div class="form-group col-3">
+                    <label for="quantidade" class="required">Quantidade</label>
                     <input
                       type="number"
                       id="quantidade"
@@ -174,8 +95,23 @@
                       required
                     />
                   </div>
-                  <div class="form-group">
-                    <label>Destino / Motivo</label>
+
+                  <div class="form-group col-6">
+                    <label for="dataSaida" class="required"
+                      >Data da Saída</label
+                    >
+                    <input
+                      type="date"
+                      id="dataSaida"
+                      class="form-input"
+                      required
+                    />
+                  </div>
+
+                  <div class="form-group col-6">
+                    <label for="destino" class="required"
+                      >Destino / Motivo</label
+                    >
                     <input
                       type="text"
                       id="destino"
@@ -184,77 +120,118 @@
                       required
                     />
                   </div>
-                  <div class="form-group">
-                    <label>Data da Saída</label>
-                    <input
-                      type="date"
-                      id="dataSaida"
-                      class="form-input"
-                      required
-                    />
-                  </div>
                 </div>
-                <div
-                  class="form-actions"
-                  style="margin-top: 12px; display: flex; gap: 10px"
-                >
-                  <button type="submit" class="btn btn-danger">
-                    <i data-lucide="check"></i> Registrar Saída
-                  </button>
-                  <a href="dashboard.html" class="btn btn-outline"
-                    ><i data-lucide="arrow-left"></i> Voltar</a
+
+                <div class="form-actions">
+                  <button
+                    type="reset"
+                    class="btn btn-secondary"
+                    id="btnLimparSaida"
                   >
+                    <i data-lucide="rotate-ccw"></i>
+                    Limpar
+                  </button>
+
+                  <button type="submit" class="btn btn-primary">
+                    <i data-lucide="check"></i>
+                    Registrar Saída
+                  </button>
                 </div>
               </form>
             </div>
           </div>
         </section>
 
-        <!-- Tabela -->
-        <section class="content-section">
-          <div class="card">
-            <div class="card-header">
-              <div class="filters-row">
-                <div class="filters-left">
-                  <h3 class="card-title" style="margin: 0">
-                    <i data-lucide="list"></i> Histórico de Saídas
-                  </h3>
-                  <span class="badge-pill badge-out" id="badgeSaidas">
-                    <i data-lucide="hash" style="width: 14px; height: 14px"></i>
-                    <span id="totalLinhasSaida">0</span> registros
-                  </span>
+        <section class="saida-section">
+          <div class="saida-kpi-row">
+            <div class="saida-kpi-card">
+              <div class="label">
+                <i data-lucide="package-minus"></i>
+                Total de Saídas
+              </div>
+              <div class="value" id="kpiSaidas">0</div>
+              <div class="sub">No histórico</div>
+            </div>
+
+            <div class="saida-kpi-card">
+              <div class="label">
+                <i data-lucide="calendar"></i>
+                Hoje
+              </div>
+              <div class="value" id="kpiHoje">—</div>
+              <div class="sub">Data atual</div>
+            </div>
+
+            <div class="saida-kpi-card">
+              <div class="label">
+                <i data-lucide="activity"></i>
+                Último Registro
+              </div>
+              <div class="value" id="kpiUltimo">—</div>
+              <div class="sub">Saída mais recente</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="saida-section">
+          <div class="saida-card">
+            <div class="saida-card-header saida-card-header-table">
+              <div class="filters-left">
+                <h2 class="saida-card-title">
+                  <i data-lucide="list"></i>
+                  Histórico de Saídas
+                </h2>
+
+                <span class="badge-pill badge-out" id="badgeSaidas">
+                  <i data-lucide="hash" style="width: 14px; height: 14px"></i>
+                  <span id="totalLinhasSaida">0</span> registros
+                </span>
+              </div>
+
+              <div class="table-actions">
+                <div class="search-box">
+                  <i data-lucide="search"></i>
+                  <input
+                    type="text"
+                    id="searchSaida"
+                    placeholder="Buscar medicamento"
+                  />
                 </div>
-                <div class="table-actions">
-                  <div class="search-box" style="max-width: 340px">
-                    <i data-lucide="search"></i>
-                    <input
-                      type="text"
-                      id="searchSaida"
-                      placeholder="Buscar medicamento"
-                    />
-                  <div class="dropdown-export">
-                    <button
-                      type="button"
-                      class="btn btn-primary btn-sm"
-                      id="btnExportarSaida"
-                     >
-                    <i data-lucide="download"></i> Exportar
-                    </button>
+
+                <div class="dropdown-export">
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm"
+                    id="btnExportarSaida"
+                  >
+                    <i data-lucide="download"></i>
+                    Exportar
+                  </button>
 
                   <div class="dropdown-menu" id="dropdownExportarSaida">
-                  <button type="button" id="btnExportarCSVSaida">
-                  <i data-lucide="file-text"></i> Exportar CSV
-                  </button>
-                  <button type="button" id="btnExportarExcelSaida">
-                  <i data-lucide="file-spreadsheet"></i> Exportar Excel (.xlsx)
-                  </button>
-                </div>
-              </div>
-                  </button>
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      id="btnExportarCSVSaida"
+                    >
+                      <i data-lucide="file-text"></i>
+                      Exportar CSV
+                    </button>
+
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      id="btnExportarExcelSaida"
+                    >
+                      <i data-lucide="file-spreadsheet"></i>
+                      Exportar Excel (.xlsx)
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="card-body">
+
+            <div class="saida-card-body">
               <div class="table-container">
                 <table class="data-table">
                   <thead>
@@ -265,9 +242,16 @@
                       <th>Data da Saída</th>
                     </tr>
                   </thead>
-                  <tbody id="tabelaSaida"></tbody>
+                  <tbody id="tabelaSaida">
+                    <tr>
+                      <td colspan="4" class="empty-row">
+                        Nenhuma saída registrada ainda.
+                      </td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
+
               <div class="pagination" id="paginationSaida"></div>
             </div>
           </div>
@@ -277,26 +261,6 @@
 
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/autenticacao.js"></script>
-
-    <script>
-      protectPage();
-    </script>
-
     <script src="../Javascript/saida.js"></script>
-        lucide.createIcons();
-
-      // KPI interatividade
-      document.querySelectorAll('.kpi-card-mini').forEach((card) => {
-        card.addEventListener('click', () => {
-          const jaAtivo = card.classList.contains('active');
-          document
-            .querySelectorAll('.kpi-card-mini')
-            .forEach((c) => c.classList.remove('active', 'pulse'));
-          card.classList.add('pulse');
-          setTimeout(() => card.classList.remove('pulse'), 500);
-          if (!jaAtivo) card.classList.add('active');
-        });
-      });
-    </script>
   </body>
 </html>

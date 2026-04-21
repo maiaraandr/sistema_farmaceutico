@@ -10,6 +10,8 @@ class Fornecedor(models.Model):
     cnpj = models.CharField(max_length=18, verbose_name="CNPJ", blank=True, null=True)
     telefone = models.CharField(max_length=20, verbose_name="Telefone", blank=True, null=True)
     email = models.EmailField(verbose_name="E-mail", blank=True, null=True)
+    endereco = models.CharField(max_length=255, verbose_name="Endereço", blank=True, null=True)
+    ativo = models.BooleanField(default=True, verbose_name="Ativo")
 
     data_cadastro = models.DateTimeField(auto_now_add=True, verbose_name="Data de cadastro")
     data_atualizacao = models.DateTimeField(auto_now=True, verbose_name="Última atualização")

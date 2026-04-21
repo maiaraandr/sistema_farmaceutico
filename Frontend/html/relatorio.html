@@ -3,189 +3,170 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Relatórios | FarmaSys</title>
+    <title>Dashboard e Relatórios | GestMed</title>
 
-    <link rel="stylesheet" href="../CSS/Style.css" />
-    <link rel="stylesheet" href="../CSS/Components.css" />
-    <link rel="stylesheet" href="../CSS/dashboard.css" />
-    <link rel="stylesheet" href="../CSS/table_style.css" />
-    <link rel="stylesheet" href="../CSS/farmaui.css" />
+    <link rel="stylesheet" href="../CSS/base.css" />
+    <link rel="stylesheet" href="../CSS/relatorio.css" />
 
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-
-    <style>
-      .filters-row {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .filters-left {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        align-items: center;
-      }
-      .table-actions {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-
-      .badge-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 5px 10px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 600;
-        border: 1px solid var(--gray-200, #e5e7eb);
-        background: var(--gray-50, #f9fafb);
-      }
-      .badge-in {
-        background: rgba(34, 197, 94, 0.12);
-        color: #16a34a;
-        border-color: rgba(34, 197, 94, 0.25);
-      }
-      .badge-out {
-        background: rgba(239, 68, 68, 0.12);
-        color: #dc2626;
-        border-color: rgba(239, 68, 68, 0.25);
-      }
-
-      /* ✅ Período (De/Até) alinhado */
-      .periodo-filtros {
-        display: flex;
-        gap: 10px;
-        align-items: flex-end;
-        flex-wrap: wrap;
-      }
-      .periodo-campo {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        min-width: 140px;
-      }
-      .periodo-campo label {
-        font-size: 12px;
-        color: var(--gray-500, #6b7280);
-      }
-      .periodo-campo .filter-input {
-        height: 38px;
-        padding: 8px 10px;
-        border-radius: 10px;
-      }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
 
-  <body>
-    <div class="dashboard-layout">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="logo">
-            <div class="logo-icon"><i data-lucide="pill"></i></div>
-            <span>GestMed</span>
+  <body class="page-relatorio">
+    <div class="relatorio-shell">
+      <header class="relatorio-topbar">
+        <div class="relatorio-topbar-left">
+          <button
+            class="btn-home"
+            type="button"
+            onclick="window.location.href = 'inicio.html'"
+          >
+            <i data-lucide="arrow-left"></i>
+            Início
+          </button>
+
+          <div class="relatorio-title-wrap">
+            <p class="relatorio-kicker">GestMed</p>
+            <h1 class="relatorio-title">
+              <i data-lucide="bar-chart-3"></i>
+              Dashboard e Relatórios
+            </h1>
+            <p class="relatorio-subtitle">
+              Visão consolidada do estoque, entradas e saídas
+            </p>
           </div>
         </div>
 
-        <nav class="sidebar-nav">
-          <a href="dashboard.html" class="nav-item">
-            <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
-          </a>
-          <a href="medicamentos.html" class="nav-item">
-            <i data-lucide="package"></i><span>Medicamentos</span>
-          </a>
-          <a href="fornecedores.html" class="nav-item">
-            <i data-lucide="truck"></i><span>Fornecedores</span>
-          </a>
-          <a href="entrada.html" class="nav-item">
-            <i data-lucide="package-plus"></i><span>Entrada</span>
-          </a>
-          <a href="saida.html" class="nav-item">
-            <i data-lucide="package-minus"></i><span>Saída</span>
-          </a>
-          <a href="relatorio.html" class="nav-item active">
-            <i data-lucide="file-text"></i><span>Relatórios</span>
-          </a>
-          <a href="importacao.html" class="nav-item">
-            <i data-lucide="upload"></i><span>Importação</span>
-          </a>
-        </nav>
+        <div class="relatorio-topbar-right">
+          <div class="relatorio-user-chip">
+            <i data-lucide="user"></i>
+            <span id="userName">Carregando...</span>
+          </div>
 
-        <div class="sidebar-footer">
-          <button class="nav-item" id="logoutBtn">
-            <i data-lucide="log-out"></i><span>Sair</span>
+          <button
+            class="btn btn-primary btn-sm"
+            id="btnBaixarPDF"
+            type="button"
+          >
+            <i data-lucide="file-down"></i>
+            Baixar PDF
+          </button>
+
+          <button class="btn btn-outline btn-sm" id="logoutBtn" type="button">
+            <i data-lucide="log-out"></i>
+            Sair
           </button>
         </div>
-      </aside>
+      </header>
 
-      <main class="main-content">
-        <header class="content-header">
-          <div class="header-left">
-            <h1 class="page-title">
-              <i data-lucide="file-text"></i> Relatórios
-            </h1>
-            <p class="page-subtitle">Resumo consolidado de entradas e saídas</p>
-          </div>
-          <div class="header-right">
-            <div class="user-info">
-              <span class="user-name" id="userName">Carregando...</span>
+      <main class="relatorio-content" id="areaRelatorioPDF">
+        <section class="relatorio-section">
+          <div class="relatorio-kpi-row">
+            <div class="relatorio-kpi-card">
+              <div class="label">
+                <i data-lucide="package-plus"></i>
+                Total de Entradas
+              </div>
+              <div class="value" id="totalEntradas">0</div>
+              <div class="sub">Quantidade total recebida</div>
+            </div>
+
+            <div class="relatorio-kpi-card">
+              <div class="label">
+                <i data-lucide="package-minus"></i>
+                Total de Saídas
+              </div>
+              <div class="value" id="totalSaidas">0</div>
+              <div class="sub">Quantidade total distribuída</div>
+            </div>
+
+            <div class="relatorio-kpi-card">
+              <div class="label">
+                <i data-lucide="layers"></i>
+                Saldo Atual
+              </div>
+              <div class="value" id="saldo">0</div>
+              <div class="sub">Entradas menos saídas</div>
+            </div>
+
+            <div class="relatorio-kpi-card">
+              <div class="label">
+                <i data-lucide="calendar"></i>
+                Hoje
+              </div>
+              <div class="value" id="dataHoje">--/--/----</div>
+              <div class="sub">Data atual</div>
             </div>
           </div>
-        </header>
+        </section>
 
-        <!-- KPI Cards -->
-        <div class="kpi-row">
-          <div
-            class="kpi-card-mini"
-            data-tooltip="Total de entradas no sistema"
-          >
-            <div class="label">
-              <i data-lucide="package-plus"></i> Total de Entradas
+        <section class="relatorio-section">
+          <div class="relatorio-mini-grid">
+            <div class="mini-card">
+              <div class="mini-card-label">Registros carregados</div>
+              <div class="mini-card-value" id="totalLinhas">0</div>
             </div>
-            <div class="value" id="totalEntradas">0</div>
-            <div class="sub">Registros de entrada</div>
-          </div>
 
-          <div class="kpi-card-mini" data-tooltip="Total de saídas no sistema">
-            <div class="label">
-              <i data-lucide="package-minus"></i> Total de Saídas
+            <div class="mini-card">
+              <div class="mini-card-label">Filtro atual</div>
+              <div class="mini-card-value" id="filtroAtual">Entradas</div>
             </div>
-            <div class="value" id="totalSaidas">0</div>
-            <div class="sub">Registros de saída</div>
+
+            <div class="mini-card">
+              <div class="mini-card-label">Top medicamento</div>
+              <div class="mini-card-value" id="topMedicamento">—</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="relatorio-section relatorio-grid-2">
+          <div class="relatorio-card">
+            <div class="relatorio-card-header">
+              <h2 class="relatorio-card-title">
+                <i data-lucide="bar-chart-3"></i>
+                Top 10 Medicamentos
+              </h2>
+            </div>
+
+            <div class="relatorio-card-body">
+              <canvas id="chartTopMovimentacoes" height="120"></canvas>
+            </div>
           </div>
 
-          <div
-            class="kpi-card-mini"
-            data-tooltip="Saldo atual de movimentações"
-          >
-            <div class="label"><i data-lucide="layers"></i> Saldo Atual</div>
-            <div class="value" id="saldo">0</div>
-            <div class="sub">Entradas menos saídas</div>
-          </div>
-        </div>
+          <div class="relatorio-card">
+            <div class="relatorio-card-header">
+              <h2 class="relatorio-card-title">
+                <i data-lucide="pie-chart"></i>
+                Entradas x Saídas
+              </h2>
+            </div>
 
-        <!-- Tabela consolidada -->
-        <section class="content-section">
-          <div class="card">
-            <div class="card-header">
+            <div class="relatorio-card-body chart-small">
+              <canvas id="chartResumoTipos"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <section class="relatorio-section">
+          <div class="relatorio-card">
+            <div class="relatorio-card-header">
               <div class="filters-row">
                 <div class="filters-left">
-                  <h3 class="card-title" style="margin: 0">
-                    <i data-lucide="list"></i> Histórico Consolidado
-                  </h3>
+                  <h2 class="relatorio-card-title">
+                    <i data-lucide="list"></i>
+                    Histórico Consolidado
+                  </h2>
 
-                  <span class="badge-pill" id="badgeTotalLinhas">
-                    <i data-lucide="hash" style="width: 14px; height: 14px"></i>
-                    <span id="totalLinhas">0</span> registros
+                  <span class="badge-pill">
+                    <i data-lucide="hash"></i>
+                    <span id="badgeTotalRegistros">0</span> registros
                   </span>
                 </div>
 
                 <div class="table-actions">
-                  <div class="search-box" style="max-width: 360px">
+                  <div class="search-box">
                     <i data-lucide="search"></i>
                     <input
                       type="text"
@@ -194,14 +175,13 @@
                     />
                   </div>
 
-                  <!-- Período alinhado -->
                   <div class="periodo-filtros">
                     <div class="periodo-campo">
                       <label for="filterDataInicio">De</label>
                       <input
                         type="date"
                         id="filterDataInicio"
-                        class="filter-input"
+                        class="form-input"
                       />
                     </div>
 
@@ -210,7 +190,7 @@
                       <input
                         type="date"
                         id="filterDataFim"
-                        class="filter-input"
+                        class="form-input"
                       />
                     </div>
 
@@ -223,38 +203,16 @@
                     </button>
                   </div>
 
-                  <select
-                    id="filterTipo"
-                    class="filter-select"
-                    style="min-width: 180px"
-                  >
+                  <select id="filterTipo" class="form-input filter-select">
                     <option value="E" selected>Entradas</option>
                     <option value="S">Saídas</option>
+                    <option value="T">Tudo</option>
                   </select>
-
-                  <a href="dashboard.html" class="btn btn-outline btn-sm">
-                    <i
-                      data-lucide="arrow-left"
-                      style="width: 16px; height: 16px"
-                    ></i>
-                    Voltar
-                  </a>
                 </div>
               </div>
             </div>
 
-            <div class="card-body">
-              <div class="card" style="margin-bottom: 14px">
-                <div class="card-header">
-                  <h3 class="card-title" id="top10Title" style="margin: 0">
-                    <i data-lucide="bar-chart-3"></i> Top 10 Medicamentos
-                  </h3>
-                </div>
-                <div class="card-body">
-                  <canvas id="chartTopSaidas" height="110"></canvas>
-                </div>
-              </div>
-
+            <div class="relatorio-card-body">
               <div class="table-container">
                 <table class="data-table">
                   <thead>
@@ -266,7 +224,14 @@
                       <th>Data</th>
                     </tr>
                   </thead>
-                  <tbody id="tabelaRelatorios"></tbody>
+
+                  <tbody id="tabelaRelatorios">
+                    <tr>
+                      <td colspan="5" class="empty-row">
+                        Nenhuma movimentação encontrada.
+                      </td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
 
@@ -277,30 +242,9 @@
       </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script src="../Javascript/Storage.js"></script>
-<script src="../Javascript/autenticacao.js"></script>
-<script src="../Javascript/api.js"></script>
-
-<script>
-  protectPage();
-</script>
-
-<script src="../Javascript/relatorios.js"></script>
-      lucide.createIcons();
-
-      document.querySelectorAll('.kpi-card-mini').forEach((card) => {
-        card.addEventListener('click', () => {
-          const jaAtivo = card.classList.contains('active');
-          document
-            .querySelectorAll('.kpi-card-mini')
-            .forEach((c) => c.classList.remove('active', 'pulse'));
-          card.classList.add('pulse');
-          setTimeout(() => card.classList.remove('pulse'), 500);
-          if (!jaAtivo) card.classList.add('active');
-        });
-      });
-    </script>
+    <script src="../Javascript/Storage.js"></script>
+    <script src="../Javascript/autenticacao.js"></script>
+    <script src="../Javascript/api.js"></script>
+    <script src="../Javascript/relatorios.js"></script>
   </body>
 </html>

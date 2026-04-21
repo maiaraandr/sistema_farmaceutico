@@ -1,15 +1,14 @@
-// api.js - Comunicação com Backend Django
-// Mantém compatibilidade com Storage.js como fallback
+// api.js - Comunicação com Backend Django REST
+// Usa a API como prioridade e localStorage como fallback, quando existir Storage.js
 
 const API_CONFIG = {
-  // ✅ Seus endpoints estão na raiz, não em /api
-  BASE_URL: 'http://127.0.0.1:8000',
+  BASE_URL: 'http://127.0.0.1:8000/api',
   TIMEOUT: 10000,
   USE_API: true,
 };
 
 // ========================================
-// FUNÇÕES AUXILIARES
+// AUXILIARES
 // ========================================
 
 function showError(message, error) {
@@ -20,11 +19,14 @@ function showSuccess(message) {
   console.log('✅', message);
 }
 
-// ✅ Suporta resposta paginada (DRF pode retornar {count, next, previous, results})
 function normalizeListResponse(data) {
   if (Array.isArray(data)) return data;
   if (data && Array.isArray(data.results)) return data.results;
   return [];
+}
+
+function hasFn(name) {
+  return typeof window !== 'undefined' && typeof window[name] === 'function';
 }
 
 async function apiRequest(endpoint, options = {}) {
@@ -55,14 +57,14 @@ async function apiRequest(endpoint, options = {}) {
       );
     }
 
-    if (options.method === 'DELETE') {
+    if (defaultOptions.method === 'DELETE') {
       return { success: true };
     }
 
     return await response.json();
   } catch (error) {
     if (error.name === 'AbortError') {
-      throw new Error('Timeout: O servidor demorou muito para responder');
+      throw new Error('Timeout: o servidor demorou muito para responder.');
     }
     throw error;
   }
@@ -73,32 +75,44 @@ async function apiRequest(endpoint, options = {}) {
 // ========================================
 
 async function apiGetMedicamentos() {
-  if (!API_CONFIG.USE_API) return getProdutos();
+  if (!API_CONFIG.USE_API) {
+    return hasFn('getProdutos') ? getProdutos() : [];
+  }
 
   try {
     const data = await apiRequest('/medicamentos/');
     const list = normalizeListResponse(data);
-    console.log('📦 Medicamentos carregados da API:', list.length);
+    showSuccess(`Medicamentos carregados da API: ${list.length}`);
     return list;
   } catch (error) {
-    showError('Erro ao buscar medicamentos da API, usando cache local:', error);
-    return getProdutos();
+    showError(
+      'Erro ao buscar medicamentos da API. Usando fallback local.',
+      error
+    );
+    return hasFn('getProdutos') ? getProdutos() : [];
   }
 }
 
 async function apiGetMedicamentoById(id) {
-  if (!API_CONFIG.USE_API) return getProdutoById(id);
+  if (!API_CONFIG.USE_API) {
+    return hasFn('getProdutoById') ? getProdutoById(id) : null;
+  }
 
   try {
     return await apiRequest(`/medicamentos/${id}/`);
   } catch (error) {
-    showError('Erro ao buscar medicamento, usando cache local:', error);
-    return getProdutoById(id);
+    showError(
+      'Erro ao buscar medicamento na API. Usando fallback local.',
+      error
+    );
+    return hasFn('getProdutoById') ? getProdutoById(id) : null;
   }
 }
 
 async function apiCreateMedicamento(medicamento) {
-  if (!API_CONFIG.USE_API) return addProduto(medicamento);
+  if (!API_CONFIG.USE_API) {
+    return hasFn('addProduto') ? addProduto(medicamento) : null;
+  }
 
   try {
     const data = await apiRequest('/medicamentos/', {
@@ -108,13 +122,18 @@ async function apiCreateMedicamento(medicamento) {
     showSuccess('Medicamento criado com sucesso!');
     return data;
   } catch (error) {
-    showError('Erro ao criar medicamento na API, salvando localmente:', error);
-    return addProduto(medicamento);
+    showError(
+      'Erro ao criar medicamento na API. Usando fallback local.',
+      error
+    );
+    return hasFn('addProduto') ? addProduto(medicamento) : null;
   }
 }
 
 async function apiUpdateMedicamento(id, medicamento) {
-  if (!API_CONFIG.USE_API) return updateProduto(id, medicamento);
+  if (!API_CONFIG.USE_API) {
+    return hasFn('updateProduto') ? updateProduto(id, medicamento) : null;
+  }
 
   try {
     const data = await apiRequest(`/medicamentos/${id}/`, {
@@ -125,15 +144,17 @@ async function apiUpdateMedicamento(id, medicamento) {
     return data;
   } catch (error) {
     showError(
-      'Erro ao atualizar medicamento na API, salvando localmente:',
+      'Erro ao atualizar medicamento na API. Usando fallback local.',
       error
     );
-    return updateProduto(id, medicamento);
+    return hasFn('updateProduto') ? updateProduto(id, medicamento) : null;
   }
 }
 
 async function apiDeleteMedicamento(id) {
-  if (!API_CONFIG.USE_API) return deleteProduto(id);
+  if (!API_CONFIG.USE_API) {
+    return hasFn('deleteProduto') ? deleteProduto(id) : false;
+  }
 
   try {
     await apiRequest(`/medicamentos/${id}/`, { method: 'DELETE' });
@@ -141,10 +162,10 @@ async function apiDeleteMedicamento(id) {
     return true;
   } catch (error) {
     showError(
-      'Erro ao deletar medicamento na API, deletando localmente:',
+      'Erro ao deletar medicamento na API. Usando fallback local.',
       error
     );
-    return deleteProduto(id);
+    return hasFn('deleteProduto') ? deleteProduto(id) : false;
   }
 }
 
@@ -153,21 +174,50 @@ async function apiDeleteMedicamento(id) {
 // ========================================
 
 async function apiGetFornecedores() {
-  if (!API_CONFIG.USE_API) return getFornecedores();
+  if (!API_CONFIG.USE_API) {
+    return hasFn('getFornecedores') ? getFornecedores() : [];
+  }
 
   try {
     const data = await apiRequest('/fornecedores/');
     const list = normalizeListResponse(data);
-    console.log('🏢 Fornecedores carregados da API:', list.length);
+    showSuccess(`Fornecedores carregados da API: ${list.length}`);
     return list;
   } catch (error) {
-    showError('Erro ao buscar fornecedores da API, usando cache local:', error);
-    return getFornecedores();
+    showError(
+      'Erro ao buscar fornecedores da API. Usando fallback local.',
+      error
+    );
+    return hasFn('getFornecedores') ? getFornecedores() : [];
+  }
+}
+
+async function apiGetFornecedorById(id) {
+  if (!API_CONFIG.USE_API) {
+    const lista = hasFn('getFornecedores') ? getFornecedores() : [];
+    return Array.isArray(lista)
+      ? lista.find((f) => Number(f.id) === Number(id)) || null
+      : null;
+  }
+
+  try {
+    return await apiRequest(`/fornecedores/${id}/`);
+  } catch (error) {
+    showError(
+      'Erro ao buscar fornecedor na API. Usando fallback local.',
+      error
+    );
+    const lista = hasFn('getFornecedores') ? getFornecedores() : [];
+    return Array.isArray(lista)
+      ? lista.find((f) => Number(f.id) === Number(id)) || null
+      : null;
   }
 }
 
 async function apiCreateFornecedor(fornecedor) {
-  if (!API_CONFIG.USE_API) return addFornecedor(fornecedor);
+  if (!API_CONFIG.USE_API) {
+    return hasFn('addFornecedor') ? addFornecedor(fornecedor) : null;
+  }
 
   try {
     const data = await apiRequest('/fornecedores/', {
@@ -177,13 +227,15 @@ async function apiCreateFornecedor(fornecedor) {
     showSuccess('Fornecedor criado com sucesso!');
     return data;
   } catch (error) {
-    showError('Erro ao criar fornecedor na API, salvando localmente:', error);
-    return addFornecedor(fornecedor);
+    showError('Erro ao criar fornecedor na API. Usando fallback local.', error);
+    return hasFn('addFornecedor') ? addFornecedor(fornecedor) : null;
   }
 }
 
 async function apiUpdateFornecedor(id, fornecedor) {
-  if (!API_CONFIG.USE_API) return updateFornecedor(id, fornecedor);
+  if (!API_CONFIG.USE_API) {
+    return hasFn('updateFornecedor') ? updateFornecedor(id, fornecedor) : null;
+  }
 
   try {
     const data = await apiRequest(`/fornecedores/${id}/`, {
@@ -194,15 +246,17 @@ async function apiUpdateFornecedor(id, fornecedor) {
     return data;
   } catch (error) {
     showError(
-      'Erro ao atualizar fornecedor na API, salvando localmente:',
+      'Erro ao atualizar fornecedor na API. Usando fallback local.',
       error
     );
-    return updateFornecedor(id, fornecedor);
+    return hasFn('updateFornecedor') ? updateFornecedor(id, fornecedor) : null;
   }
 }
 
 async function apiDeleteFornecedor(id) {
-  if (!API_CONFIG.USE_API) return deleteFornecedor(id);
+  if (!API_CONFIG.USE_API) {
+    return hasFn('deleteFornecedor') ? deleteFornecedor(id) : false;
+  }
 
   try {
     await apiRequest(`/fornecedores/${id}/`, { method: 'DELETE' });
@@ -210,11 +264,95 @@ async function apiDeleteFornecedor(id) {
     return true;
   } catch (error) {
     showError(
-      'Erro ao deletar fornecedor na API, deletando localmente:',
+      'Erro ao deletar fornecedor na API. Usando fallback local.',
       error
     );
-    return deleteFornecedor(id);
+    return hasFn('deleteFornecedor') ? deleteFornecedor(id) : false;
   }
+}
+
+// ========================================
+// MOVIMENTAÇÕES
+// ========================================
+
+async function apiGetMovimentacoes() {
+  if (!API_CONFIG.USE_API) {
+    return hasFn('getMovimentacoes') ? getMovimentacoes() : [];
+  }
+
+  try {
+    const data = await apiRequest('/movimentacoes/');
+    const list = normalizeListResponse(data);
+    showSuccess(`Movimentações carregadas da API: ${list.length}`);
+    return list;
+  } catch (error) {
+    showError(
+      'Erro ao buscar movimentações da API. Usando fallback local.',
+      error
+    );
+    return hasFn('getMovimentacoes') ? getMovimentacoes() : [];
+  }
+}
+
+async function apiCreateMovimentacao(movimentacao) {
+  if (!API_CONFIG.USE_API) {
+    return hasFn('addMovimentacao') ? addMovimentacao(movimentacao) : null;
+  }
+
+  try {
+    const data = await apiRequest('/movimentacoes/', {
+      method: 'POST',
+      body: JSON.stringify(movimentacao),
+    });
+    showSuccess('Movimentação criada com sucesso!');
+    return data;
+  } catch (error) {
+    showError(
+      'Erro ao criar movimentação na API. Usando fallback local.',
+      error
+    );
+    return hasFn('addMovimentacao') ? addMovimentacao(movimentacao) : null;
+  }
+}
+
+async function apiGetRelatorioGeral(dataInicio = '', dataFim = '') {
+  if (!API_CONFIG.USE_API) {
+    return null;
+  }
+
+  try {
+    const params = new URLSearchParams();
+    if (dataInicio) params.append('data_inicio', dataInicio);
+    if (dataFim) params.append('data_fim', dataFim);
+
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return await apiRequest(`/movimentacoes/relatorio-geral/${query}`);
+  } catch (error) {
+    showError('Erro ao buscar relatório geral na API.', error);
+    return null;
+  }
+}
+
+// ========================================
+// RECUPERAÇÃO DE SENHA
+// ========================================
+
+async function apiSolicitarRecuperacaoSenha(email) {
+  return await apiRequest('/recuperar-senha/', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+async function apiRedefinirSenha(uid, token, novaSenha) {
+  return await apiRequest('/redefinir-senha/', {
+    method: 'POST',
+    body: JSON.stringify({
+      uid,
+      token,
+      nova_senha: novaSenha,
+    }),
+  });
 }
 
 // ========================================
@@ -233,13 +371,13 @@ async function testarConexaoAPI() {
     const data = await response.json();
     const list = normalizeListResponse(data);
 
-    console.log('✅ API Django CONECTADA!');
-    console.log(`📦 Total de medicamentos no backend: ${list.length}`);
+    console.log('API Django conectada!');
+    console.log(`Total de medicamentos no backend: ${list.length}`);
     API_CONFIG.USE_API = true;
     return true;
   } catch (error) {
-    console.warn('⚠️ API Django não está disponível:', error.message);
-    console.log('💾 Usando localStorage como fallback');
+    console.warn('API Django não está disponível:', error.message);
+    console.log('Usando localStorage como fallback');
     API_CONFIG.USE_API = false;
     return false;
   }

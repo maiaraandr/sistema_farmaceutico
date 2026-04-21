@@ -31,6 +31,18 @@
   document.addEventListener('DOMContentLoaded', () => {
     verificarAutenticacao();
 
+    const logoutBtn = document.getElementById('logoutBtn');
+    logoutBtn?.addEventListener('click', () => {
+      if (typeof logout === 'function') {
+        logout();
+        return;
+      }
+
+      localStorage.removeItem('farm_current_user');
+      localStorage.removeItem('farm_session_token');
+      window.location.href = 'index.html';
+    });
+
     logInfo('Aguardando arquivo…');
     setPill(pillStatus, 'Aguardando arquivo…');
     setPill(pillTipo, `Tipo: ${labelTipo(elTipo?.value)}`);

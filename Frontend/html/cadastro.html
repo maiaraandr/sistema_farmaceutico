@@ -4,31 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cadastro - Sistema Farmacêutico</title>
-    <link rel="stylesheet" href="../CSS/Auth_minimal.css" />
+    <link rel="stylesheet" href="../CSS/base.css" />
+    <link rel="stylesheet" href="../CSS/auth.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
 
-  <body>
+  <body class="register-page">
     <div class="auth-page">
-      <div class="auth-container wide">
-        <div class="register-box">
-          <div class="auth-icon">
-            <i data-lucide="user-plus"></i>
+      <div class="auth-container auth-wide">
+        <div class="auth-card">
+          <div class="auth-header">
+            <div class="auth-icon">
+              <i data-lucide="user-plus"></i>
+            </div>
+
+            <h1 class="register-title">Cadastro de Usuário</h1>
+            <p class="register-subtitle">Crie seu acesso ao sistema</p>
           </div>
 
-          <h1 class="register-title">Cadastro de Usuário</h1>
-
           <div id="registerError" class="message error hidden"></div>
-          <div id="registerSuccess" class="message success hidden"></div>
+          <div id="registerSuccess" class="success-message hidden"></div>
 
-          <form id="registerForm" autocomplete="off" novalidate>
+          <form
+            id="registerForm"
+            class="register-form"
+            autocomplete="off"
+            novalidate
+          >
             <div class="form-field">
               <div class="input-wrapper">
-                <i
-                  data-lucide="user"
-                  class="input-icon"
-                  style="width: 18px; height: 18px"
-                ></i>
+                <i data-lucide="user" class="input-icon"></i>
                 <input
                   type="text"
                   id="nome"
@@ -42,11 +47,7 @@
 
             <div class="form-field">
               <div class="input-wrapper">
-                <i
-                  data-lucide="mail"
-                  class="input-icon"
-                  style="width: 18px; height: 18px"
-                ></i>
+                <i data-lucide="mail" class="input-icon"></i>
                 <input
                   type="email"
                   id="email"
@@ -58,13 +59,9 @@
               </div>
             </div>
 
-            <div class="form-field small">
+            <div class="form-field">
               <div class="input-wrapper">
-                <i
-                  data-lucide="phone"
-                  class="input-icon"
-                  style="width: 18px; height: 18px"
-                ></i>
+                <i data-lucide="phone" class="input-icon"></i>
                 <input
                   type="tel"
                   id="telefone"
@@ -78,11 +75,7 @@
 
             <div class="form-field">
               <div class="input-wrapper">
-                <i
-                  data-lucide="user-check"
-                  class="input-icon"
-                  style="width: 18px; height: 18px"
-                ></i>
+                <i data-lucide="user-check" class="input-icon"></i>
                 <input
                   type="text"
                   id="usuario"
@@ -95,14 +88,9 @@
               </div>
             </div>
 
-            <div class="form-field small">
+            <div class="form-field">
               <div class="input-wrapper">
-                <i
-                  data-lucide="lock"
-                  class="input-icon"
-                  style="width: 18px; height: 18px"
-                ></i>
-
+                <i data-lucide="lock" class="input-icon"></i>
                 <div class="password-wrapper">
                   <input
                     type="password"
@@ -118,22 +106,17 @@
                     type="button"
                     class="password-toggle"
                     id="toggleSenha"
-                    aria-label="Mostrar/ocultar senha"
+                    aria-label="Mostrar ou ocultar senha"
                   >
-                    <i data-lucide="eye" style="width: 18px; height: 18px"></i>
+                    <i data-lucide="eye"></i>
                   </button>
                 </div>
               </div>
             </div>
 
-            <div class="form-field small">
+            <div class="form-field">
               <div class="input-wrapper">
-                <i
-                  data-lucide="lock"
-                  class="input-icon"
-                  style="width: 18px; height: 18px"
-                ></i>
-
+                <i data-lucide="lock" class="input-icon"></i>
                 <div class="password-wrapper">
                   <input
                     type="password"
@@ -149,15 +132,19 @@
                     type="button"
                     class="password-toggle"
                     id="toggleSenhaConfirm"
-                    aria-label="Mostrar/ocultar confirmação de senha"
+                    aria-label="Mostrar ou ocultar confirmação de senha"
                   >
-                    <i data-lucide="eye" style="width: 18px; height: 18px"></i>
+                    <i data-lucide="eye"></i>
                   </button>
                 </div>
               </div>
             </div>
 
-            <button type="submit" class="btn-primary" id="registerBtn">
+            <button
+              type="submit"
+              class="btn-primary register-btn"
+              id="registerBtn"
+            >
               Cadastrar
             </button>
 
@@ -171,13 +158,11 @@
 
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/autenticacao.js"></script>
+    <script src="../Javascript/cadastro.js"></script>
 
     <script>
       redirectIfAuthenticated();
-    </script>
-
-    <script src="../Javascript/cadastro.js"></script>
-        lucide.createIcons();
+      lucide.createIcons();
 
       const elNome = document.getElementById('nome');
       const elEmail = document.getElementById('email');
@@ -191,7 +176,7 @@
       const successDiv = document.getElementById('registerSuccess');
       const form = document.getElementById('registerForm');
 
-      elNome.focus();
+      if (elNome) elNome.focus();
 
       function mostrarErro(msg) {
         successDiv.classList.add('hidden');
@@ -214,16 +199,20 @@
       }
 
       function toggleSenha(btnId, inputId) {
-        document.getElementById(btnId).addEventListener('click', function () {
-          const input = document.getElementById(inputId);
+        const botao = document.getElementById(btnId);
+        const input = document.getElementById(inputId);
+
+        if (!botao || !input) return;
+
+        botao.addEventListener('click', function () {
           const icon = this.querySelector('i');
 
           if (input.type === 'password') {
             input.type = 'text';
-            icon.setAttribute('data-lucide', 'eye-off');
+            if (icon) icon.setAttribute('data-lucide', 'eye-off');
           } else {
             input.type = 'password';
-            icon.setAttribute('data-lucide', 'eye');
+            if (icon) icon.setAttribute('data-lucide', 'eye');
           }
 
           lucide.createIcons();
@@ -246,16 +235,33 @@
         const senha = elSenha.value || '';
         const senhaConfirm = elSenhaConfirm.value || '';
 
-        if (!nome) return mostrarErro('Informe o nome completo.');
-        if (!email) return mostrarErro('Informe um e-mail válido.');
-        if (usuario.length < 4)
-          return mostrarErro('O usuário deve ter no mínimo 4 caracteres.');
-        if (senha.length < 6)
-          return mostrarErro('A senha deve ter no mínimo 6 caracteres.');
-        if (senha !== senhaConfirm)
-          return mostrarErro('As senhas não coincidem.');
+        if (!nome) {
+          mostrarErro('Informe o nome completo.');
+          return;
+        }
+
+        if (!email) {
+          mostrarErro('Informe um e-mail válido.');
+          return;
+        }
+
+        if (usuario.length < 4) {
+          mostrarErro('O usuário deve ter no mínimo 4 caracteres.');
+          return;
+        }
+
+        if (senha.length < 6) {
+          mostrarErro('A senha deve ter no mínimo 6 caracteres.');
+          return;
+        }
+
+        if (senha !== senhaConfirm) {
+          mostrarErro('As senhas não coincidem.');
+          return;
+        }
 
         let users = [];
+
         try {
           users = getUsers();
           if (!Array.isArray(users)) users = [];
@@ -266,12 +272,18 @@
         const usuarioExiste = users.some(
           (u) => normalizarUsuario(u?.usuario) === usuario
         );
-        if (usuarioExiste) return mostrarErro('Este usuário já existe.');
+        if (usuarioExiste) {
+          mostrarErro('Este usuário já existe.');
+          return;
+        }
 
         const emailExiste = users.some(
           (u) => normalizarEmail(u?.email) === email
         );
-        if (emailExiste) return mostrarErro('Este e-mail já está cadastrado.');
+        if (emailExiste) {
+          mostrarErro('Este e-mail já está cadastrado.');
+          return;
+        }
 
         btn.disabled = true;
         btn.textContent = 'Cadastrando...';
@@ -295,10 +307,12 @@
 
         try {
           const result = await login(usuario, senha, false);
+
           if (result && result.success) {
-            window.location.href = 'dashboard.html';
+            window.location.href = 'inicio.html';
             return;
           }
+
           btn.disabled = false;
           btn.textContent = 'Cadastrar';
           mostrarErro(

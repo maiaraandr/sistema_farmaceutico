@@ -1,23 +1,23 @@
-// relatorios.js — Consolidado via API /movimentacoes/ + gráfico Top 10 dinâmico
-// Filtros: tipo (E/S), busca e período (data início/fim)
-// (fallback: Storage.js)
-
 let movimentacoes = [];
 let paginaAtual = 1;
 const itensPorPagina = 10;
 
 let chartTop = null;
+let chartResumo = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   verificarAutenticacao();
+  preencherUsuario();
+  inicializarLogout();
+  inicializarListeners();
+  atualizarDataHoje();
 
   await carregarTudo();
-  inicializarListeners();
-
-  // filtro inicial (tipo selecionado)
   aplicarFiltros();
 
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
 });
 
 function inicializarListeners() {
@@ -44,6 +44,47 @@ function inicializarListeners() {
     if (fim) fim.value = '';
     aplicarFiltros();
   });
+
+  document
+    .getElementById('btnBaixarPDF')
+    ?.addEventListener('click', baixarRelatorioPDF);
+}
+
+function inicializarLogout() {
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  logoutBtn?.addEventListener('click', () => {
+    if (typeof logout === 'function') {
+      logout();
+      return;
+    }
+
+    localStorage.removeItem('farm_current_user');
+    localStorage.removeItem('farm_session_token');
+    window.location.href = 'index.html';
+  });
+}
+
+function preencherUsuario() {
+  let currentUser = null;
+
+  try {
+    if (typeof getCurrentUser === 'function') {
+      currentUser = getCurrentUser();
+    }
+  } catch (e) {}
+
+  const el = document.getElementById('userName');
+  if (el) {
+    el.textContent = currentUser?.nome || currentUser?.name || 'Usuário';
+  }
+}
+
+function atualizarDataHoje() {
+  const el = document.getElementById('dataHoje');
+  if (el) {
+    el.textContent = new Date().toLocaleDateString('pt-BR');
+  }
 }
 
 // =============================
@@ -58,9 +99,9 @@ async function carregarMovimentacoes() {
 
   try {
     if (typeof apiGetMovimentacoes === 'function') {
-      data = await apiGetMovimentacoes(); // API Django
+      data = await apiGetMovimentacoes();
     } else if (typeof getMovimentacoes === 'function') {
-      data = getMovimentacoes(); // fallback local
+      data = getMovimentacoes();
     }
   } catch (e) {
     console.error('Erro ao buscar movimentações:', e);
@@ -69,7 +110,6 @@ async function carregarMovimentacoes() {
   if (!Array.isArray(data)) data = [];
   movimentacoes = data.map(normalizarMov);
 
-  // mais recente primeiro
   movimentacoes.sort((a, b) => {
     const da = new Date(a.data_movimentacao || 0).getTime();
     const db = new Date(b.data_movimentacao || 0).getTime();
@@ -81,7 +121,6 @@ async function carregarMovimentacoes() {
 // NORMALIZAÇÃO
 // =============================
 function normalizarMov(m) {
-  // Formato API:
   if (m && (m.tipo === 'E' || m.tipo === 'S')) {
     return {
       id: m.id ?? null,
@@ -94,7 +133,6 @@ function normalizarMov(m) {
     };
   }
 
-  // Formato antigo (Storage.js): tipo "entrada"/"saida"
   const tipo = m?.tipo === 'entrada' ? 'E' : m?.tipo === 'saida' ? 'S' : '';
   const parceiro = m?.tipo === 'entrada' ? m.fornecedor || '' : m.destino || '';
 
@@ -112,16 +150,14 @@ function normalizarMov(m) {
 // =============================
 // FILTROS
 // =============================
-function obterTipoSelecionadoAPI() {
-  // Seu HTML agora manda: "E" ou "S"
+function obterTipoSelecionado() {
   const v = String(
-    document.getElementById('filterTipo')?.value || ''
+    document.getElementById('filterTipo')?.value || 'E'
   ).toUpperCase();
-  return v === 'E' || v === 'S' ? v : 'E';
+  return v;
 }
 
 function parseDateInputStart(valueYYYYMMDD) {
-  // início do dia local
   if (!valueYYYYMMDD) return null;
   const [y, m, d] = valueYYYYMMDD.split('-').map(Number);
   if (!y || !m || !d) return null;
@@ -129,7 +165,6 @@ function parseDateInputStart(valueYYYYMMDD) {
 }
 
 function parseDateInputEnd(valueYYYYMMDD) {
-  // fim do dia local
   if (!valueYYYYMMDD) return null;
   const [y, m, d] = valueYYYYMMDD.split('-').map(Number);
   if (!y || !m || !d) return null;
@@ -143,7 +178,6 @@ function obterPeriodoSelecionado() {
   const ini = parseDateInputStart(iniVal);
   const fim = parseDateInputEnd(fimVal);
 
-  // se usuário colocou invertido, ajusta
   if (ini && fim && ini > fim) return { ini: fim, fim: ini };
   return { ini, fim };
 }
@@ -153,14 +187,12 @@ function obterMovimentacoesFiltradas() {
     .toLowerCase()
     .trim();
 
-  const tipo = obterTipoSelecionadoAPI(); // 'E' ou 'S'
+  const tipo = obterTipoSelecionado();
   const { ini, fim } = obterPeriodoSelecionado();
 
   return movimentacoes.filter((m) => {
-    // filtro tipo (obrigatório)
-    if (m.tipo !== tipo) return false;
+    if (tipo !== 'T' && m.tipo !== tipo) return false;
 
-    // filtro período
     if (ini || fim) {
       const dt = new Date(m.data_movimentacao || 0);
       if (isNaN(dt.getTime())) return false;
@@ -168,8 +200,8 @@ function obterMovimentacoesFiltradas() {
       if (fim && dt > fim) return false;
     }
 
-    // filtro busca
     if (!search) return true;
+
     const nome = String(m.medicamento_nome || '').toLowerCase();
     const obs = String(m.observacao || '').toLowerCase();
     return nome.includes(search) || obs.includes(search);
@@ -179,39 +211,51 @@ function obterMovimentacoesFiltradas() {
 function aplicarFiltros() {
   paginaAtual = 1;
 
-  const tipo = obterTipoSelecionadoAPI();
-  atualizarTituloTop10(tipo);
-
-  renderizarRelatorio();
-
+  const tipo = obterTipoSelecionado();
   const filtradas = obterMovimentacoesFiltradas();
-  const top10 = montarTop10(filtradas);
-  renderizarGraficoTop(top10, tipo);
 
-  if (typeof lucide !== 'undefined') lucide.createIcons();
-}
+  atualizarKpisGerais();
+  atualizarMiniCards(filtradas, tipo);
+  renderizarRelatorio(filtradas);
+  renderizarGraficos(filtradas, tipo);
 
-// =============================
-// KPIs (seguem filtros)
-// =============================
-function atualizarKPIs(listaFiltrada, tipoSelecionado) {
-  const totalTipo = listaFiltrada.reduce(
-    (acc, m) => acc + Number(m.quantidade || 0),
-    0
-  );
-
-  if (tipoSelecionado === 'E') {
-    setTextSeExistir('totalEntradas', totalTipo);
-    setTextSeExistir('totalSaidas', 0);
-    setTextSeExistir('saldo', totalTipo);
-  } else {
-    setTextSeExistir('totalEntradas', 0);
-    setTextSeExistir('totalSaidas', totalTipo);
-    setTextSeExistir('saldo', 0 - totalTipo);
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
   }
 }
 
-function setTextSeExistir(id, value) {
+// =============================
+// KPIs
+// =============================
+function atualizarKpisGerais() {
+  const entradas = movimentacoes
+    .filter((m) => m.tipo === 'E')
+    .reduce((acc, m) => acc + Number(m.quantidade || 0), 0);
+
+  const saidas = movimentacoes
+    .filter((m) => m.tipo === 'S')
+    .reduce((acc, m) => acc + Number(m.quantidade || 0), 0);
+
+  const saldo = entradas - saidas;
+
+  setText('totalEntradas', entradas);
+  setText('totalSaidas', saidas);
+  setText('saldo', saldo);
+}
+
+function atualizarMiniCards(listaFiltrada, tipo) {
+  setText('totalLinhas', listaFiltrada.length);
+  setText('badgeTotalRegistros', listaFiltrada.length);
+
+  const filtroAtual =
+    tipo === 'E' ? 'Entradas' : tipo === 'S' ? 'Saídas' : 'Tudo';
+  setText('filtroAtual', filtroAtual);
+
+  const top10 = montarTop10(listaFiltrada);
+  setText('topMedicamento', top10[0]?.medicamento || '—');
+}
+
+function setText(id, value) {
   const el = document.getElementById(id);
   if (el) el.textContent = String(value);
 }
@@ -219,28 +263,22 @@ function setTextSeExistir(id, value) {
 // =============================
 // TABELA
 // =============================
-function renderizarRelatorio() {
+function renderizarRelatorio(listaFiltrada) {
   const tbody = document.getElementById('tabelaRelatorios');
   if (!tbody) return;
 
-  const tipoSelecionado = obterTipoSelecionadoAPI();
-  const filtradas = obterMovimentacoesFiltradas();
-
-  setTextSeExistir('totalLinhas', filtradas.length);
-  atualizarKPIs(filtradas, tipoSelecionado);
-
-  const totalPaginas = Math.ceil(filtradas.length / itensPorPagina) || 1;
+  const totalPaginas = Math.ceil(listaFiltrada.length / itensPorPagina) || 1;
   if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
 
   const inicio = (paginaAtual - 1) * itensPorPagina;
-  const pagina = filtradas.slice(inicio, inicio + itensPorPagina);
+  const pagina = listaFiltrada.slice(inicio, inicio + itensPorPagina);
 
   tbody.innerHTML = '';
 
   if (pagina.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" style="padding:16px;color:var(--gray-600);text-align:center;">
+        <td colspan="5" class="empty-row">
           Nenhuma movimentação encontrada.
         </td>
       </tr>
@@ -254,8 +292,8 @@ function renderizarRelatorio() {
 
     const tipoCol =
       m.tipo === 'E'
-        ? `<span class="badge-pill badge-in"><i data-lucide="arrow-down-circle" style="width:14px;height:14px"></i> Entrada</span>`
-        : `<span class="badge-pill badge-out"><i data-lucide="arrow-up-circle" style="width:14px;height:14px"></i> Saída</span>`;
+        ? `<span class="badge-in"><i data-lucide="arrow-down-circle" style="width:14px;height:14px"></i> Entrada</span>`
+        : `<span class="badge-out"><i data-lucide="arrow-up-circle" style="width:14px;height:14px"></i> Saída</span>`;
 
     const parceiro = m.observacao || m.parceiro || '—';
 
@@ -273,9 +311,6 @@ function renderizarRelatorio() {
   renderizarPaginacao(totalPaginas);
 }
 
-// =============================
-// PAGINAÇÃO
-// =============================
 function renderizarPaginacao(totalPaginas) {
   const el = document.getElementById('paginationRelatorios');
   if (!el) return;
@@ -304,18 +339,11 @@ function renderizarPaginacao(totalPaginas) {
 
 window.mudarPagina = function (p) {
   paginaAtual = p;
-  renderizarRelatorio();
-
-  const tipo = obterTipoSelecionadoAPI();
-  const filtradas = obterMovimentacoesFiltradas();
-  const top10 = montarTop10(filtradas);
-  renderizarGraficoTop(top10, tipo);
-
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  aplicarFiltros();
 };
 
 // =============================
-// TOP 10
+// TOP 10 + GRÁFICOS
 // =============================
 function montarTop10(listaFiltrada) {
   const mapa = new Map();
@@ -336,24 +364,14 @@ function montarTop10(listaFiltrada) {
     .slice(0, 10);
 }
 
-function atualizarTituloTop10(tipo) {
-  const alvo = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5')).find(
-    (x) => (x.textContent || '').trim().startsWith('Top 10 Medicamentos')
-  );
-
-  if (!alvo) return;
-
-  if (tipo === 'E') alvo.textContent = 'Top 10 Medicamentos (Entradas)';
-  else alvo.textContent = 'Top 10 Medicamentos (Saídas)';
+function renderizarGraficos(listaFiltrada, tipo) {
+  renderizarGraficoTop(montarTop10(listaFiltrada), tipo);
+  renderizarGraficoResumoTipos();
 }
 
-// =============================
-// GRÁFICO (Chart.js)
-// =============================
 function renderizarGraficoTop(lista, tipo) {
-  const canvas = document.getElementById('chartTopSaidas');
-  if (!canvas) return;
-  if (typeof Chart === 'undefined') return;
+  const canvas = document.getElementById('chartTopMovimentacoes');
+  if (!canvas || typeof Chart === 'undefined') return;
 
   const labels = (lista || []).map(
     (x) => x.medicamento || `ID ${x.medicamento_id}`
@@ -368,52 +386,77 @@ function renderizarGraficoTop(lista, tipo) {
       labels,
       datasets: [
         {
-          label: tipo === 'E' ? 'Total de entradas' : 'Total de saídas',
+          label:
+            tipo === 'E'
+              ? 'Total de entradas'
+              : tipo === 'S'
+                ? 'Total de saídas'
+                : 'Total movimentado',
           data: valores,
         },
       ],
     },
     options: {
       responsive: true,
-      plugins: { legend: { display: true } },
-      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+      plugins: {
+        legend: { display: true },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { precision: 0 },
+        },
+      },
+    },
+  });
+}
+
+function renderizarGraficoResumoTipos() {
+  const canvas = document.getElementById('chartResumoTipos');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  const entradas = movimentacoes
+    .filter((m) => m.tipo === 'E')
+    .reduce((acc, m) => acc + Number(m.quantidade || 0), 0);
+
+  const saidas = movimentacoes
+    .filter((m) => m.tipo === 'S')
+    .reduce((acc, m) => acc + Number(m.quantidade || 0), 0);
+
+  if (chartResumo) chartResumo.destroy();
+
+  chartResumo = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: ['Entradas', 'Saídas'],
+      datasets: [
+        {
+          data: [entradas, saidas],
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+        },
+      },
     },
   });
 }
 
 // =============================
-// AUTH + HELPERS
+// HELPERS
 // =============================
 function verificarAutenticacao() {
-  let currentUser = null;
-
-  try {
-    if (typeof getCurrentUser === 'function') currentUser = getCurrentUser();
-  } catch (e) {}
+  const currentUser =
+    typeof getCurrentUser === 'function' ? getCurrentUser() : null;
 
   if (!currentUser) {
-    const keys = [
-      'currentUser',
-      'current_user',
-      'usuarioLogado',
-      'loggedUser',
-      'user',
-    ];
-    for (const k of keys) {
-      try {
-        const raw = localStorage.getItem(k);
-        if (!raw) continue;
-        const obj = JSON.parse(raw);
-        if (obj && typeof obj === 'object') {
-          currentUser = obj;
-          break;
-        }
-      } catch (e) {}
-    }
+    window.location.href = '../html/index.html';
   }
-
-  const el = document.getElementById('userName');
-  if (el) el.textContent = currentUser?.nome || currentUser?.name || 'Usuário';
 }
 
 function formatarDataHora(iso) {
@@ -434,4 +477,74 @@ function escapeHTML(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+async function baixarRelatorioPDF() {
+  const alvo = document.getElementById('areaRelatorioPDF');
+  const botao = document.getElementById('btnBaixarPDF');
+
+  if (!alvo) {
+    alert('Área do relatório não encontrada.');
+    return;
+  }
+
+  if (
+    typeof html2canvas === 'undefined' ||
+    typeof window.jspdf === 'undefined'
+  ) {
+    alert('Bibliotecas de PDF não carregadas.');
+    return;
+  }
+
+  try {
+    if (botao) {
+      botao.disabled = true;
+      botao.innerHTML = '<i data-lucide="loader-circle"></i> Gerando PDF...';
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    const canvas = await html2canvas(alvo, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#f7faff',
+      scrollX: 0,
+      scrollY: -window.scrollY,
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    const imgWidth = pdfWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pdfHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+    }
+
+    const hoje = new Date().toISOString().slice(0, 10);
+    pdf.save(`relatorio_gestmed_${hoje}.pdf`);
+  } catch (error) {
+    console.error('Erro ao gerar PDF:', error);
+    alert('Não foi possível gerar o PDF.');
+  } finally {
+    if (botao) {
+      botao.disabled = false;
+      botao.innerHTML = '<i data-lucide="file-down"></i> Baixar PDF';
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+  }
 }

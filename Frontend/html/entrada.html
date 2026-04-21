@@ -3,166 +3,62 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Entrada de Medicamentos | FarmaSys</title>
-    <link rel="stylesheet" href="../CSS/Style.css" />
-    <link rel="stylesheet" href="../CSS/Components.css" />
-    <link rel="stylesheet" href="../CSS/dashboard.css" />
-    <link rel="stylesheet" href="../CSS/farmaui.css" />
-    <link rel="stylesheet" href="../CSS/table_style.css" />
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-      .subnav-actions {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-      .form-grid-entrada {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        gap: 14px;
-      }
-      .col-12 {
-        grid-column: span 12;
-      }
-      .col-6 {
-        grid-column: span 6;
-      }
-      .col-4 {
-        grid-column: span 4;
-      }
-      .col-3 {
-        grid-column: span 3;
-      }
-      @media (max-width: 900px) {
-        .col-6,
-        .col-4,
-        .col-3 {
-          grid-column: span 12;
-        }
-      }
-      .hint {
-        font-size: 12px;
-        color: var(--gray-600, #4b5563);
-        margin-top: 6px;
-      }
-      .table-actions {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="dashboard-layout">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="logo">
-            <div class="logo-icon"><i data-lucide="pill"></i></div>
-            <span>GestMed</span>
-          </div>
-        </div>
-        <nav class="sidebar-nav">
-          <a href="dashboard.html" class="nav-item"
-            ><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a
-          >
-          <a href="medicamentos.html" class="nav-item"
-            ><i data-lucide="package"></i><span>Medicamentos</span></a
-          >
-          <a href="fornecedores.html" class="nav-item"
-            ><i data-lucide="truck"></i><span>Fornecedores</span></a
-          >
-          <a href="entrada.html" class="nav-item active"
-            ><i data-lucide="package-plus"></i><span>Entrada</span></a
-          >
-          <a href="saida.html" class="nav-item"
-            ><i data-lucide="package-minus"></i><span>Saída</span></a
-          >
-          <a href="relatorios.html" class="nav-item"
-            ><i data-lucide="file-text"></i><span>Relatórios</span></a
-          >
-          <a href="importacao.html" class="nav-item"
-            ><i data-lucide="upload"></i><span>Importação</span></a
-          >
-        </nav>
-        <div class="sidebar-footer">
-          <button class="nav-item" id="logoutBtn">
-            <i data-lucide="log-out"></i><span>Sair</span>
-          </button>
-        </div>
-      </aside>
+    <title>Entrada de Medicamentos | GestMed</title>
 
-      <main class="main-content">
-        <header class="content-header">
-          <div class="header-left">
-            <h1 class="page-title">
-              <i data-lucide="package-plus"></i> Entrada de Medicamentos
+    <link rel="stylesheet" href="../CSS/base.css" />
+    <link rel="stylesheet" href="../CSS/entrada.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+
+  <body class="page-entrada">
+    <div class="entrada-shell">
+      <header class="entrada-topbar">
+        <div class="entrada-topbar-left">
+          <button
+            class="btn-home"
+            type="button"
+            onclick="window.location.href = 'inicio.html'"
+          >
+            <i data-lucide="arrow-left"></i>
+            Início
+          </button>
+
+          <div class="entrada-title-wrap">
+            <p class="entrada-kicker">GestMed</p>
+            <h1 class="entrada-title">
+              <i data-lucide="package-plus"></i>
+              Entrada de Medicamentos
             </h1>
-            <p class="page-subtitle">
+            <p class="entrada-subtitle">
               Registre entradas no estoque com rastreabilidade
             </p>
           </div>
-          <div class="header-right">
-            <div class="user-info">
-              <span class="user-name" id="userName">Carregando...</span>
-            </div>
-          </div>
-        </header>
-
-        <!-- KPI Cards -->
-        <div class="kpi-row">
-          <div class="kpi-card-mini" data-tooltip="Data atual do sistema">
-            <div class="label"><i data-lucide="calendar"></i> Data de hoje</div>
-            <div class="value" id="kpiHoje">--/--/----</div>
-            <div class="sub">Data atual</div>
-          </div>
-          <div
-            class="kpi-card-mini"
-            data-tooltip="Total de entradas registradas"
-          >
-            <div class="label">
-              <i data-lucide="list-plus"></i> Entradas registradas
-            </div>
-            <div class="value" id="kpiTotalEntradas">0</div>
-            <div class="sub">No histórico</div>
-          </div>
-          <div
-            class="kpi-card-mini"
-            data-tooltip="Somatório de itens recebidos"
-          >
-            <div class="label">
-              <i data-lucide="package"></i> Itens recebidos
-            </div>
-            <div class="value" id="kpiTotalItens">0</div>
-            <div class="sub">Quantidade total</div>
-          </div>
         </div>
 
-        <!-- Formulário -->
-        <section class="content-section">
-          <div class="card">
-            <div
-              class="card-header"
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 12px;
-              "
-            >
-              <h3 class="card-title" style="margin: 0">
-                <i data-lucide="clipboard-pen"></i> Registrar entrada
-              </h3>
-              <div class="subnav-actions">
-                <a href="dashboard.html" class="btn btn-outline btn-sm">
-                  <i
-                    data-lucide="arrow-left"
-                    style="width: 16px; height: 16px"
-                  ></i>
-                  Voltar ao Dashboard
-                </a>
-              </div>
+        <div class="entrada-topbar-right">
+          <div class="entrada-user-chip">
+            <i data-lucide="user"></i>
+            <span id="userName">Carregando...</span>
+          </div>
+
+          <button class="btn btn-outline btn-sm" id="logoutBtn" type="button">
+            <i data-lucide="log-out"></i>
+            Sair
+          </button>
+        </div>
+      </header>
+
+      <main class="entrada-content">
+        <section class="entrada-section">
+          <div class="entrada-card">
+            <div class="entrada-card-header">
+              <h2 class="entrada-card-title">
+                <i data-lucide="clipboard-pen"></i>
+                Registrar entrada
+              </h2>
             </div>
-            <div class="card-body">
+
+            <div class="entrada-card-body">
               <form id="formEntrada" class="form-grid-entrada">
                 <div class="form-group col-6">
                   <label for="medicamento" class="required">Medicamento</label>
@@ -170,13 +66,15 @@
                     type="text"
                     id="medicamento"
                     class="form-input"
-                    placeholder="Ex.: Dipirona 500mg"
+                    placeholder="Selecione o medicamento"
                     required
                   />
                   <div class="hint">
-                    Informe o nome exatamente como cadastrado.
+                    O campo será carregado automaticamente com os medicamentos
+                    cadastrados.
                   </div>
                 </div>
+
                 <div class="form-group col-3">
                   <label for="quantidade" class="required">Quantidade</label>
                   <input
@@ -184,31 +82,25 @@
                     id="quantidade"
                     class="form-input"
                     min="1"
-                    placeholder="0"
-                    required
-                  />
-                </div>
-                <div class="form-group col-3">
-                  <label for="validade" class="required">Validade</label>
-                  <input
-                    type="date"
-                    id="validade"
-                    class="form-input"
-                    required
-                  />
-                </div>
-                <div class="form-group col-6">
-                  <label for="fornecedor" class="required">Fornecedor</label>
-                  <input
-                    type="text"
-                    id="fornecedor"
-                    class="form-input"
-                    placeholder="Ex.: MedSupply Distribuidora"
                     required
                   />
                 </div>
 
-                <!-- CAMPO CORRIGIDO: date picker livre, bloqueando apenas datas futuras -->
+                <div class="form-group col-3">
+                  <label for="validade">Validade</label>
+                  <input type="date" id="validade" class="form-input" />
+                </div>
+
+                <div class="form-group col-6">
+                  <label for="fornecedor">Fornecedor</label>
+                  <input
+                    type="text"
+                    id="fornecedor"
+                    class="form-input"
+                    placeholder="Fornecedor desta entrada"
+                  />
+                </div>
+
                 <div class="form-group col-6">
                   <label for="dataEntrada" class="required"
                     >Data de Entrada</label
@@ -219,25 +111,21 @@
                     class="form-input"
                     required
                   />
-                  <div class="hint">
-                    Selecione a data real da entrada (hoje ou anterior).
-                  </div>
                 </div>
 
-                <div
-                  class="form-group col-12"
-                  style="
-                    display: flex;
-                    justify-content: flex-end;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                  "
-                >
-                  <button type="reset" class="btn btn-secondary">
-                    <i data-lucide="rotate-ccw"></i> Limpar
+                <div class="form-group col-12 form-actions">
+                  <button
+                    type="reset"
+                    class="btn btn-secondary"
+                    id="btnLimparEntrada"
+                  >
+                    <i data-lucide="rotate-ccw"></i>
+                    Limpar
                   </button>
+
                   <button type="submit" class="btn btn-primary">
-                    <i data-lucide="check"></i> Registrar Entrada
+                    <i data-lucide="check"></i>
+                    Registrar Entrada
                   </button>
                 </div>
               </form>
@@ -245,33 +133,58 @@
           </div>
         </section>
 
-        <!-- Tabela -->
-        <section class="content-section">
-          <div class="card">
-            <div
-              class="card-header"
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 12px;
-              "
-            >
-              <h3 class="card-title" style="margin: 0">
-                <i data-lucide="list"></i> Histórico de Entradas
-              </h3>
+        <section class="entrada-section">
+          <div class="entrada-kpi-row">
+            <div class="entrada-kpi-card">
+              <div class="label">
+                <i data-lucide="calendar"></i>
+                Data de hoje
+              </div>
+              <div class="value" id="kpiHoje">--/--/----</div>
+              <div class="sub">Data atual</div>
+            </div>
+
+            <div class="entrada-kpi-card">
+              <div class="label">
+                <i data-lucide="list-plus"></i>
+                Entradas registradas
+              </div>
+              <div class="value" id="kpiTotalEntradas">0</div>
+              <div class="sub">No histórico</div>
+            </div>
+
+            <div class="entrada-kpi-card">
+              <div class="label">
+                <i data-lucide="package"></i>
+                Itens recebidos
+              </div>
+              <div class="value" id="kpiTotalItens">0</div>
+              <div class="sub">Quantidade total</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="entrada-section">
+          <div class="entrada-card">
+            <div class="entrada-card-header entrada-card-header-table">
+              <h2 class="entrada-card-title">
+                <i data-lucide="list"></i>
+                Histórico de Entradas
+              </h2>
+
               <div class="table-actions">
-                <div class="search-box" style="max-width: 360px">
+                <div class="search-box">
                   <i data-lucide="search"></i>
                   <input
                     type="text"
                     id="searchEntrada"
-                    placeholder="Buscar por medicamento ou fornecedor..."
+                    placeholder="Buscar por medicamento..."
                   />
                 </div>
               </div>
             </div>
-            <div class="card-body">
+
+            <div class="entrada-card-body">
               <div class="table-container">
                 <table class="data-table">
                   <thead>
@@ -281,12 +194,19 @@
                       <th>Fornecedor</th>
                       <th>Validade</th>
                       <th>Data de Entrada</th>
-                      <th style="width: 120px">Ações</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
-                  <tbody id="tabelaEntrada"></tbody>
+                  <tbody id="tabelaEntrada">
+                    <tr>
+                      <td colspan="6" class="empty-row">
+                        Nenhuma entrada registrada ainda.
+                      </td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
+
               <div class="pagination" id="paginationEntrada"></div>
             </div>
           </div>
@@ -296,36 +216,6 @@
 
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/autenticacao.js"></script>
-
-    <script>
-      protectPage();
-    </script>
-
     <script src="../Javascript/entrada.js"></script>
-      lucide.createIcons();
-
-      // KPI data de hoje
-      const el = document.getElementById('kpiHoje');
-      if (el) el.textContent = new Date().toLocaleDateString('pt-BR');
-
-      // Bloqueia datas futuras no campo Data de Entrada
-      const campoData = document.getElementById('dataEntrada');
-      if (campoData) {
-        campoData.max = new Date().toISOString().split('T')[0];
-      }
-
-      // KPI interatividade
-      document.querySelectorAll('.kpi-card-mini').forEach((card) => {
-        card.addEventListener('click', () => {
-          const jaAtivo = card.classList.contains('active');
-          document
-            .querySelectorAll('.kpi-card-mini')
-            .forEach((c) => c.classList.remove('active', 'pulse'));
-          card.classList.add('pulse');
-          setTimeout(() => card.classList.remove('pulse'), 500);
-          if (!jaAtivo) card.classList.add('active');
-        });
-      });
-    </script>
   </body>
 </html>

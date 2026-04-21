@@ -5,7 +5,7 @@ from .models import Movimentacao
 class FornecedorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Fornecedor
-        fields = ["id", "nome", "cnpj", "telefone", "email"]
+        fields = ["id", "nome", "cnpj", "telefone", "email", "endereco", "ativo"]
 
 
 class MedicamentoSerializer(serializers.ModelSerializer):

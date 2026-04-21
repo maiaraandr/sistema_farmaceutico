@@ -1,4 +1,8 @@
+const API_MEDICAMENTOS = 'http://127.0.0.1:8000/api/medicamentos/';
+const API_FORNECEDORES = 'http://127.0.0.1:8000/api/fornecedores/';
+
 let produtos = [];
+let fornecedores = [];
 let produtoEditando = null;
 let produtoExcluindo = null;
 
@@ -7,105 +11,44 @@ const itensPorPagina = 10;
 
 window.produtosFiltrados = [];
 
-// ===============================
-// INIT
-// ===============================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   verificarAutenticacao();
   inicializarEventListeners();
-  carregarProdutos();
+  preencherUsuario();
+  await carregarFornecedores();
+  await carregarProdutos();
   renderizarTabela();
+  criarIcones();
+});
 
+function criarIcones() {
   if (typeof lucide !== 'undefined') {
     lucide.createIcons();
   }
-});
-
-// ===============================
-// STORAGE HELPERS
-// ===============================
-function obterProdutosStorage() {
-  try {
-    if (typeof getProdutos === 'function') {
-      const lista = getProdutos();
-      return Array.isArray(lista) ? lista : [];
-    }
-
-    const raw = localStorage.getItem('produtos');
-    if (!raw) return [];
-
-    const lista = JSON.parse(raw);
-    return Array.isArray(lista) ? lista : [];
-  } catch (error) {
-    console.warn('Erro ao obter produtos do storage:', error);
-    return [];
-  }
 }
 
-function salvarProdutosStorage(lista) {
-  try {
-    localStorage.setItem('produtos', JSON.stringify(lista));
-  } catch (error) {
-    console.error('Erro ao salvar produtos no storage:', error);
-  }
+function preencherUsuario() {
+  const el = document.getElementById('userName');
+  if (!el) return;
+
+  const currentUser =
+    typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+
+  el.textContent = currentUser?.nome || 'Usuário';
 }
 
-function excluirProdutoStorage(id) {
-  try {
-    const lista = obterProdutosStorage();
-    const novaLista = lista.filter((p) => Number(p.id) !== Number(id));
-    salvarProdutosStorage(novaLista);
-    return true;
-  } catch (error) {
-    console.error('Erro ao excluir produto do storage:', error);
-    return false;
-  }
-}
-
-function gerarNovoId() {
-  const lista = obterProdutosStorage();
-  const maxId = lista.reduce((max, item) => {
-    const idAtual = Number(item.id) || 0;
-    return idAtual > max ? idAtual : max;
-  }, 0);
-
-  return maxId + 1;
-}
-
-// ===============================
-// CARREGAMENTO
-// ===============================
-function carregarProdutos() {
-  try {
-    produtos = obterProdutosStorage().filter((p) => p && p.ativo !== false);
-  } catch (error) {
-    console.warn('Erro ao carregar produtos:', error);
-    produtos = [];
-  }
-
-  if (!Array.isArray(produtos)) {
-    produtos = [];
-  }
-}
-
-// ===============================
-// EVENT LISTENERS
-// ===============================
 function inicializarEventListeners() {
   document
     .getElementById('btnNovoProduto')
     ?.addEventListener('click', abrirModalNovo);
 
   document.getElementById('modalClose')?.addEventListener('click', fecharModal);
-
   document
     .getElementById('modalOverlay')
     ?.addEventListener('click', fecharModal);
-
   document
     .getElementById('btnCancelar')
     ?.addEventListener('click', fecharModal);
-
   document
     .getElementById('formProduto')
     ?.addEventListener('submit', salvarProduto);
@@ -113,11 +56,9 @@ function inicializarEventListeners() {
   document
     .getElementById('searchInput')
     ?.addEventListener('input', aplicarFiltros);
-
   document
     .getElementById('filterCategoria')
     ?.addEventListener('change', aplicarFiltros);
-
   document
     .getElementById('filterEstoque')
     ?.addEventListener('change', aplicarFiltros);
@@ -125,23 +66,154 @@ function inicializarEventListeners() {
   document
     .getElementById('modalExcluirClose')
     ?.addEventListener('click', fecharModalExcluir);
-
   document
     .getElementById('modalExcluirOverlay')
     ?.addEventListener('click', fecharModalExcluir);
-
   document
     .getElementById('btnCancelarExcluir')
     ?.addEventListener('click', fecharModalExcluir);
-
   document
     .getElementById('btnConfirmarExcluir')
     ?.addEventListener('click', confirmarExclusaoDefinitiva);
+
+  document
+    .getElementById('btnExportar')
+    ?.addEventListener('click', toggleExport);
+  document
+    .getElementById('btnExportarCSV')
+    ?.addEventListener('click', exportarCSV);
+  document
+    .getElementById('btnExportarExcel')
+    ?.addEventListener('click', exportarExcel);
+
+  document.addEventListener('click', fecharExportAoClicarFora);
+
+  document.querySelectorAll('.kpi-card-mini[data-filter]').forEach((card) => {
+    card.addEventListener('click', () => {
+      const filterEstoque = document.getElementById('filterEstoque');
+      const tableContainer = document.getElementById('tableContainer');
+
+      tableContainer?.classList.add('filtering');
+      setTimeout(() => tableContainer?.classList.remove('filtering'), 250);
+
+      document
+        .querySelectorAll('.kpi-card-mini')
+        .forEach((c) => c.classList.remove('active'));
+
+      card.classList.add('pulse');
+      setTimeout(() => card.classList.remove('pulse'), 400);
+
+      const val = card.dataset.filter || '';
+      if (filterEstoque) {
+        filterEstoque.value = val;
+        filterEstoque.dispatchEvent(new Event('change'));
+      }
+
+      if (val) {
+        card.classList.add('active');
+      }
+    });
+  });
+
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    if (typeof logout === 'function') {
+      logout();
+      return;
+    }
+
+    localStorage.removeItem('farm_current_user');
+    localStorage.removeItem('farm_session_token');
+    window.location.href = 'index.html';
+  });
 }
 
-// ===============================
-// FILTROS
-// ===============================
+function toggleExport(event) {
+  event.stopPropagation();
+  document.getElementById('dropdownExportar')?.classList.toggle('active');
+}
+
+function fecharExportAoClicarFora(event) {
+  const dropdown = document.getElementById('dropdownExportar');
+  const btn = document.getElementById('btnExportar');
+
+  if (!dropdown || !btn) return;
+
+  if (!dropdown.contains(event.target) && !btn.contains(event.target)) {
+    dropdown.classList.remove('active');
+  }
+}
+
+async function carregarFornecedores() {
+  try {
+    const resp = await fetch(API_FORNECEDORES);
+    if (!resp.ok) throw new Error('Erro ao carregar fornecedores.');
+
+    const data = await resp.json();
+    fornecedores = Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error('Erro ao carregar fornecedores:', error);
+    fornecedores = [];
+  }
+}
+
+async function carregarProdutos() {
+  try {
+    const resp = await fetch(API_MEDICAMENTOS);
+    if (!resp.ok) throw new Error('Erro ao carregar medicamentos.');
+
+    const data = await resp.json();
+    produtos = Array.isArray(data) ? data.map(normalizarProdutoDaAPI) : [];
+  } catch (error) {
+    console.error('Erro ao carregar medicamentos:', error);
+    produtos = [];
+    alert('Não foi possível carregar os medicamentos da API.');
+  }
+}
+
+function normalizarProdutoDaAPI(item) {
+  return {
+    id: item.id,
+    nome: item.nome || '',
+    miligrama: item.miligrama || '',
+    categoria: item.categoria || '',
+    lote: item.lote || '',
+    vencimento: item.validade || '',
+    stock_atual: Number(item.quantidade ?? 0),
+    stock_minimo: Number(item.estoque_min ?? 0),
+    preco: Number(item.valor_unit ?? 0),
+    fornecedor: item.fornecedor ?? '',
+    fornecedor_nome: item.fornecedor_nome || '',
+    unidade: item.unidade || 'un',
+    descricao: item.descricao || '',
+    ativo: true,
+  };
+}
+
+function montarPayloadParaAPI() {
+  const nome = getValorCampo('nome');
+  const categoria = getValorCampo('categoria');
+  const lote = getValorCampo('lote');
+  const validade = getValorCampo('validade');
+  const quantidade = parseInt(getValorCampo('quantidade'), 10);
+  const quantidadeMinima = parseInt(getValorCampo('quantidadeMinima'), 10);
+  const valorUnitario = parseFloat(getValorCampo('valorUnitario'));
+
+  let fornecedorId = getValorCampo('fornecedor');
+  if (!fornecedorId) fornecedorId = 1;
+
+  return {
+    nome,
+    miligrama: getValorCampo('miligrama') || null,
+    categoria,
+    lote,
+    validade,
+    quantidade: isNaN(quantidade) ? 0 : quantidade,
+    estoque_min: isNaN(quantidadeMinima) ? 0 : quantidadeMinima,
+    valor_unit: isNaN(valorUnitario) ? 0 : valorUnitario,
+    fornecedor: Number(fornecedorId),
+  };
+}
+
 function obterProdutosFiltrados() {
   const search = (document.getElementById('searchInput')?.value || '')
     .toLowerCase()
@@ -186,9 +258,6 @@ function aplicarFiltros() {
   renderizarTabela();
 }
 
-// ===============================
-// KPIs
-// ===============================
 function atualizarKPIs(lista) {
   const total = lista.length;
 
@@ -222,9 +291,6 @@ function atualizarTexto(id, valor) {
   if (el) el.textContent = valor;
 }
 
-// ===============================
-// TABELA
-// ===============================
 function renderizarTabela() {
   const tbody = document.getElementById('tabelaProdutos');
   if (!tbody) return;
@@ -245,17 +311,14 @@ function renderizarTabela() {
   if (pagina.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="9" style="text-align:center;padding:40px;color:var(--gray-500)">
+        <td colspan="9" style="text-align:center;padding:40px;color:#64748b">
           <i data-lucide="inbox" style="width:40px;height:40px;margin-bottom:8px"></i>
           <p>Nenhum medicamento encontrado</p>
         </td>
       </tr>
     `;
     renderizarPaginacao(1);
-
-    if (typeof lucide !== 'undefined') {
-      lucide.createIcons();
-    }
+    criarIcones();
     return;
   }
 
@@ -270,7 +333,7 @@ function renderizarTabela() {
         <strong>${escapeHTML(produto.nome)}</strong>
         ${
           produto.miligrama
-            ? `<br><small style="color:var(--gray-500)">${escapeHTML(produto.miligrama)}</small>`
+            ? `<br><small style="color:#64748b">${escapeHTML(produto.miligrama)}</small>`
             : ''
         }
       </td>
@@ -284,7 +347,7 @@ function renderizarTabela() {
         ${formatarData(produto.vencimento)}
         ${
           dias <= 90 && dias > 0
-            ? `<br><small style="color:#f59e0b">${dias} dias</small>`
+            ? `<br><small style="color:#d97706">${dias} dias</small>`
             : ''
         }
       </td>
@@ -315,10 +378,7 @@ function renderizarTabela() {
   });
 
   renderizarPaginacao(totalPaginas);
-
-  if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-  }
+  criarIcones();
 }
 
 function renderizarPaginacao(totalPaginas) {
@@ -365,10 +425,7 @@ function renderizarPaginacao(totalPaginas) {
   `;
 
   paginacao.innerHTML = html;
-
-  if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-  }
+  criarIcones();
 }
 
 function mudarPagina(pagina) {
@@ -376,9 +433,6 @@ function mudarPagina(pagina) {
   renderizarTabela();
 }
 
-// ===============================
-// STATUS
-// ===============================
 function getStatusProduto(produto) {
   const dias = calcularDiasParaVencer(produto.vencimento);
   const atual = Number(produto.stock_atual ?? 0);
@@ -404,9 +458,6 @@ function renderizarBadgeStatus(status) {
   return `<span class="badge ${classes[status.type] || 'badge-secondary'}">${status.text}</span>`;
 }
 
-// ===============================
-// MODAL NOVO / EDITAR
-// ===============================
 function abrirModalNovo() {
   produtoEditando = null;
 
@@ -421,11 +472,25 @@ function abrirModalNovo() {
   const produtoId = document.getElementById('produtoId');
   if (produtoId) produtoId.value = '';
 
-  document.getElementById('modalProduto')?.classList.add('active');
+  preencherSelectFornecedores();
 
-  if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-  }
+  document.getElementById('modalProduto')?.classList.add('active');
+  criarIcones();
+}
+
+function preencherSelectFornecedores() {
+  const select = document.getElementById('fornecedor');
+  if (!select) return;
+
+  select.innerHTML = `
+    <option value="">Selecione...</option>
+    ${fornecedores
+      .map(
+        (f) =>
+          `<option value="${f.id}">${escapeHTML(f.nome || 'Fornecedor')}</option>`
+      )
+      .join('')}
+  `;
 }
 
 function editarProduto(id) {
@@ -442,22 +507,23 @@ function editarProduto(id) {
     modalTitle.innerHTML = '<i data-lucide="edit"></i> Editar Medicamento';
   }
 
+  preencherSelectFornecedores();
+
   setValorCampo('produtoId', produto.id);
   setValorCampo('nome', produto.nome);
+  setValorCampo('miligrama', produto.miligrama);
   setValorCampo('categoria', produto.categoria);
   setValorCampo('lote', produto.lote);
   setValorCampo('validade', produto.vencimento);
   setValorCampo('quantidade', Number(produto.stock_atual ?? 0));
   setValorCampo('quantidadeMinima', Number(produto.stock_minimo ?? 0));
   setValorCampo('valorUnitario', Number(produto.preco ?? 0));
+  setValorCampo('fornecedor', produto.fornecedor || '');
   setValorCampo('unidade', produto.unidade || 'un');
   setValorCampo('descricao', produto.descricao);
 
   document.getElementById('modalProduto')?.classList.add('active');
-
-  if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-  }
+  criarIcones();
 }
 
 function fecharModal() {
@@ -465,23 +531,11 @@ function fecharModal() {
   produtoEditando = null;
 }
 
-function salvarProduto(event) {
+async function salvarProduto(event) {
   event.preventDefault();
 
   const id = getValorCampo('produtoId');
-
-  const payload = {
-    nome: getValorCampo('nome'),
-    categoria: getValorCampo('categoria'),
-    lote: getValorCampo('lote'),
-    vencimento: getValorCampo('validade'),
-    stock_atual: parseInt(getValorCampo('quantidade'), 10),
-    stock_minimo: parseInt(getValorCampo('quantidadeMinima'), 10),
-    preco: parseFloat(getValorCampo('valorUnitario')),
-    unidade: getValorCampo('unidade') || 'un',
-    descricao: getValorCampo('descricao'),
-    ativo: true,
-  };
+  const payload = montarPayloadParaAPI();
 
   if (!payload.nome) {
     alert('Informe o nome do medicamento.');
@@ -493,85 +547,64 @@ function salvarProduto(event) {
     return;
   }
 
-  if (!payload.vencimento) {
+  if (!payload.lote) {
+    alert('Informe o lote.');
+    return;
+  }
+
+  if (!payload.validade) {
     alert('Informe a validade.');
     return;
   }
 
-  if (isNaN(payload.stock_atual) || payload.stock_atual < 0) {
-    alert('Quantidade inválida.');
-    return;
-  }
-
-  if (isNaN(payload.stock_minimo) || payload.stock_minimo < 0) {
-    alert('Quantidade mínima inválida.');
-    return;
-  }
-
-  if (isNaN(payload.preco) || payload.preco < 0) {
-    alert('Valor unitário inválido.');
+  if (!payload.fornecedor) {
+    alert('Selecione o fornecedor.');
     return;
   }
 
   try {
+    let resp;
+
     if (id) {
-      atualizarProdutoExistente(Number(id), payload);
-      alert('Medicamento atualizado com sucesso.');
+      resp = await fetch(`${API_MEDICAMENTOS}${id}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
     } else {
-      criarNovoProduto(payload);
-      alert('Medicamento cadastrado com sucesso.');
+      resp = await fetch(API_MEDICAMENTOS, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
     }
 
-    carregarProdutos();
+    if (!resp.ok) {
+      const erro = await safeJson(resp);
+      console.error(erro);
+      alert('Erro ao salvar medicamento.');
+      return;
+    }
+
+    await carregarProdutos();
     renderizarTabela();
     fecharModal();
+
+    alert(
+      id
+        ? 'Medicamento atualizado com sucesso.'
+        : 'Medicamento cadastrado com sucesso.'
+    );
   } catch (error) {
     console.error('Erro ao salvar medicamento:', error);
-    alert('Erro ao salvar medicamento.');
+    alert('Erro de conexão com a API.');
   }
 }
 
-function criarNovoProduto(payload) {
-  if (typeof addProduto === 'function') {
-    addProduto(payload);
-    return;
-  }
-
-  const lista = obterProdutosStorage();
-  const novoProduto = {
-    id: gerarNovoId(),
-    ...payload,
-  };
-
-  lista.push(novoProduto);
-  salvarProdutosStorage(lista);
-}
-
-function atualizarProdutoExistente(id, payload) {
-  if (typeof updateProduto === 'function') {
-    updateProduto(id, payload);
-    return;
-  }
-
-  const lista = obterProdutosStorage();
-  const index = lista.findIndex((p) => Number(p.id) === Number(id));
-
-  if (index === -1) {
-    throw new Error('Produto não encontrado para atualização.');
-  }
-
-  lista[index] = {
-    ...lista[index],
-    ...payload,
-    id: lista[index].id,
-  };
-
-  salvarProdutosStorage(lista);
-}
-
-// ===============================
-// MODAL EXCLUIR
-// ===============================
 function confirmarExclusao(id) {
   const produto = produtos.find((p) => Number(p.id) === Number(id));
 
@@ -588,33 +621,27 @@ function confirmarExclusao(id) {
   }
 
   document.getElementById('modalExcluir')?.classList.add('active');
-
-  if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-  }
+  criarIcones();
 }
 
-function confirmarExclusaoDefinitiva() {
+async function confirmarExclusaoDefinitiva() {
   if (!produtoExcluindo) return;
 
   const id = Number(produtoExcluindo.id);
 
   try {
-    let excluiu = false;
+    const resp = await fetch(`${API_MEDICAMENTOS}${id}/`, {
+      method: 'DELETE',
+    });
 
-    if (typeof deleteProduto === 'function') {
-      deleteProduto(id);
-      excluiu = true;
-    } else {
-      excluiu = excluirProdutoStorage(id);
-    }
-
-    if (!excluiu) {
+    if (!resp.ok) {
+      const erro = await safeJson(resp);
+      console.error(erro);
       alert('Não foi possível excluir o medicamento.');
       return;
     }
 
-    carregarProdutos();
+    await carregarProdutos();
 
     const totalFiltrados = obterProdutosFiltrados().length;
     if (
@@ -630,7 +657,7 @@ function confirmarExclusaoDefinitiva() {
     alert('Medicamento excluído com sucesso.');
   } catch (error) {
     console.error('Erro ao excluir medicamento:', error);
-    alert('Erro ao excluir medicamento.');
+    alert('Erro de conexão com a API.');
   }
 }
 
@@ -639,9 +666,101 @@ function fecharModalExcluir() {
   produtoExcluindo = null;
 }
 
-// ===============================
-// HELPERS
-// ===============================
+function exportarCSV() {
+  const lista = window.produtosFiltrados?.length
+    ? window.produtosFiltrados
+    : produtos;
+
+  if (!lista.length) {
+    alert('Não há dados para exportar.');
+    return;
+  }
+
+  const header = [
+    'Código',
+    'Nome',
+    'Categoria',
+    'Estoque',
+    'Estoque Mín.',
+    'Valor Unit. (R$)',
+    'Validade',
+  ];
+
+  const rows = lista.map((p) => [
+    String(p.id || '').padStart(4, '0'),
+    p.nome || '',
+    p.categoria || '',
+    Number(p.stock_atual ?? p.quantidade ?? 0),
+    Number(p.stock_minimo ?? p.quantidadeMinima ?? 0),
+    Number(p.preco ?? p.valorUnitario ?? 0).toFixed(2),
+    p.vencimento ?? p.validade ?? '',
+  ]);
+
+  const csv = [header, ...rows]
+    .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(
+    new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+  );
+  a.download = `medicamentos_${new Date()
+    .toLocaleDateString('pt-BR')
+    .replace(/\//g, '-')}.csv`;
+
+  a.click();
+  document.getElementById('dropdownExportar')?.classList.remove('active');
+}
+
+function exportarExcel() {
+  const lista = window.produtosFiltrados?.length
+    ? window.produtosFiltrados
+    : produtos;
+
+  if (!lista.length) {
+    alert('Não há dados para exportar.');
+    return;
+  }
+
+  if (typeof XLSX === 'undefined') {
+    alert('Biblioteca de exportação não carregada.');
+    return;
+  }
+
+  const dados = lista.map((p) => ({
+    Código: String(p.id || '').padStart(4, '0'),
+    Nome: p.nome || '',
+    Categoria: p.categoria || '',
+    Estoque: Number(p.stock_atual ?? 0),
+    'Estoque Mín.': Number(p.stock_minimo ?? 0),
+    'Valor Unit.': Number(p.preco ?? 0),
+    Validade: p.vencimento ?? '',
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(dados);
+  ws['!cols'] = [8, 30, 20, 10, 12, 12, 12].map((w) => ({ wch: w }));
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Medicamentos');
+
+  XLSX.writeFile(
+    wb,
+    `medicamentos_${new Date()
+      .toLocaleDateString('pt-BR')
+      .replace(/\//g, '-')}.xlsx`
+  );
+
+  document.getElementById('dropdownExportar')?.classList.remove('active');
+}
+
+async function safeJson(resp) {
+  try {
+    return await resp.json();
+  } catch {
+    return null;
+  }
+}
+
 function getValorCampo(id) {
   const el = document.getElementById(id);
   return el ? String(el.value).trim() : '';
@@ -689,11 +808,5 @@ function verificarAutenticacao() {
 
   if (!currentUser) {
     window.location.href = '../html/index.html';
-    return;
-  }
-
-  const el = document.getElementById('userName');
-  if (el) {
-    el.textContent = currentUser.nome || 'Usuário';
   }
 }
