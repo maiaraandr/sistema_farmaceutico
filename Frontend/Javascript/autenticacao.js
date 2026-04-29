@@ -1,7 +1,3 @@
-// ===============================
-// AUTENTICAÇÃO DO SISTEMA
-// ===============================
-
 function getUsuariosSistema() {
   if (typeof getUsers === 'function') {
     const users = getUsers();
@@ -92,9 +88,6 @@ function isAuthenticated() {
   return true;
 }
 
-// ===============================
-// PROTEGER PÁGINAS INTERNAS
-// ===============================
 function protectPage() {
   if (!isAuthenticated()) {
     limparSessaoUsuario();
@@ -105,21 +98,15 @@ function protectPage() {
   return true;
 }
 
-// ===============================
-// IMPEDIR VOLTA AO LOGIN SE JÁ ESTIVER LOGADO
-// ===============================
 function redirectIfAuthenticated() {
   if (isAuthenticated()) {
-    window.location.href = 'dashboard.html';
+    window.location.href = 'cadastro.html';
     return true;
   }
 
   return false;
 }
 
-// ===============================
-// LOGIN
-// ===============================
 function loginSistema(login, senha) {
   const usuarios = getUsuariosSistema();
 
@@ -160,17 +147,11 @@ function loginSistema(login, senha) {
   };
 }
 
-// ===============================
-// LOGOUT
-// ===============================
 function logout() {
   limparSessaoUsuario();
   window.location.href = 'index.html';
 }
 
-// ===============================
-// EXIBIR NOME DO USUÁRIO
-// ===============================
 function preencherNomeUsuario(elementId = 'userName') {
   const el = document.getElementById(elementId);
   if (!el) return;

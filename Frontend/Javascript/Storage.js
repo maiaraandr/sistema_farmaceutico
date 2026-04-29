@@ -9,9 +9,6 @@ const STORAGE_KEYS = {
 
 const DISABLE_SAMPLE_DATA = true;
 
-// ===============================
-// HELPERS GERAIS
-// ===============================
 function safeJSONParse(str, fallback) {
   try {
     return JSON.parse(str);
@@ -76,9 +73,6 @@ function clearStorage({ keepUsers = true } = {}) {
   }
 }
 
-// ===============================
-// NORMALIZAÇÃO DE PRODUTOS
-// ===============================
 function normalizeProduto(produto) {
   if (!produto || typeof produto !== 'object') return null;
 
@@ -128,9 +122,6 @@ function normalizeProdutosArray(lista) {
   return lista.map(normalizeProduto).filter(Boolean);
 }
 
-// ===============================
-// USERS
-// ===============================
 function getUsers() {
   return loadFromStorage(STORAGE_KEYS.USERS, []);
 }
@@ -175,9 +166,6 @@ function deleteUser(id) {
   return saveUsers(users);
 }
 
-// ===============================
-// SESSÃO / USUÁRIO LOGADO
-// ===============================
 function getCurrentUser() {
   return loadFromStorage(STORAGE_KEYS.CURRENT_USER, null);
 }
@@ -208,9 +196,6 @@ function logoutUser() {
   return true;
 }
 
-// ===============================
-// PRODUTOS / MEDICAMENTOS
-// ===============================
 function getProdutos() {
   return normalizeProdutosArray(loadFromStorage(STORAGE_KEYS.PRODUTOS, []));
 }
@@ -251,7 +236,6 @@ function updateProduto(id, dadosAtualizados) {
   return saveProdutos(produtos);
 }
 
-// EXCLUSÃO REAL
 function deleteProduto(id) {
   const produtos = getProdutos();
 
@@ -268,7 +252,6 @@ function getProdutoById(id) {
   );
 }
 
-// Alias para medicamentos
 function getMedicamentos() {
   return getProdutos();
 }
@@ -293,9 +276,6 @@ function getMedicamentoById(id) {
   return getProdutoById(id);
 }
 
-// ===============================
-// FORNECEDORES
-// ===============================
 function normalizeFornecedor(fornecedor) {
   if (!fornecedor || typeof fornecedor !== 'object') return null;
 
@@ -374,9 +354,6 @@ function getFornecedorById(id) {
   );
 }
 
-// ===============================
-// MOVIMENTAÇÕES
-// ===============================
 function normalizeMovimentacao(movimentacao) {
   if (!movimentacao || typeof movimentacao !== 'object') return null;
 
@@ -464,9 +441,6 @@ function getMovimentacaoById(id) {
   );
 }
 
-// ===============================
-// ENTRADAS / SAÍDAS
-// ===============================
 function getEntradas() {
   return getMovimentacoes().filter(
     (movimentacao) =>
@@ -498,9 +472,6 @@ function addSaida(saida) {
   });
 }
 
-// ===============================
-// DADOS DE EXEMPLO
-// ===============================
 function initializeSampleData() {
   if (DISABLE_SAMPLE_DATA) return;
 

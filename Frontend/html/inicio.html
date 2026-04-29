@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>GestMed — Início</title>
     <link rel="stylesheet" href="inicio.css" />
+
     <style>
       body {
         background: #0a2d8f;
       }
+
       .home-wrap {
         min-height: 100vh;
         display: flex;
@@ -33,6 +35,7 @@
             transparent 60%
           );
       }
+
       .city-bg {
         position: absolute;
         bottom: 0;
@@ -64,6 +67,7 @@
         color: rgba(255, 255, 255, 0.65);
         font-weight: 600;
       }
+
       .s-dot {
         width: 7px;
         height: 7px;
@@ -81,11 +85,13 @@
         backdrop-filter: blur(10px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       }
+
       .h-logo {
         display: flex;
         align-items: center;
         gap: 12px;
       }
+
       .h-logo-icon {
         width: 44px;
         height: 44px;
@@ -95,25 +101,30 @@
         align-items: center;
         justify-content: center;
       }
+
       .h-logo-icon svg {
         width: 26px;
         height: 26px;
       }
+
       .h-logo-name {
         font-size: 22px;
         font-weight: 900;
         color: white;
       }
+
       .h-logo-sub {
         font-size: 11px;
         color: rgba(255, 255, 255, 0.5);
         font-weight: 600;
       }
+
       .h-right {
         display: flex;
         align-items: center;
         gap: 10px;
       }
+
       .h-user {
         background: rgba(255, 255, 255, 0.12);
         border: 1px solid rgba(255, 255, 255, 0.18);
@@ -126,11 +137,13 @@
         align-items: center;
         gap: 7px;
       }
+
       .h-user svg {
         width: 14px;
         height: 14px;
         opacity: 0.7;
       }
+
       .h-out {
         background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.15);
@@ -146,10 +159,12 @@
         transition: 0.2s;
         font-family: 'Nunito', sans-serif;
       }
+
       .h-out:hover {
         background: rgba(255, 255, 255, 0.18);
         color: white;
       }
+
       .h-out svg {
         width: 15px;
         height: 15px;
@@ -161,14 +176,16 @@
         align-items: center;
         justify-content: space-between;
         gap: 48px;
-        padding: 64px 36px 80px;
+        padding: 20px 60px 360px;
         flex-wrap: wrap;
       }
+
       .hero-left {
         flex: 1;
         min-width: 300px;
         max-width: 480px;
       }
+
       .hero-badge {
         display: inline-flex;
         align-items: center;
@@ -182,16 +199,19 @@
         color: rgba(255, 255, 255, 0.92);
         margin-bottom: 22px;
       }
+
       .hero-badge svg {
         width: 13px;
         height: 13px;
       }
+
       .hero-sub {
         font-size: 16px;
         color: rgba(255, 255, 255, 0.6);
         font-weight: 500;
         margin-bottom: 8px;
       }
+
       .hero-title {
         font-size: 48px;
         font-weight: 900;
@@ -199,12 +219,14 @@
         color: white;
         margin-bottom: 18px;
       }
+
       .hero-desc {
         font-size: 15px;
         color: rgba(255, 255, 255, 0.65);
         line-height: 1.72;
         max-width: 390px;
       }
+
       .hero-cta {
         margin-top: 32px;
         display: inline-flex;
@@ -222,14 +244,17 @@
         transition: 0.22s;
         font-family: 'Nunito', sans-serif;
       }
+
       .hero-cta:hover {
         transform: translateY(-3px);
         box-shadow: 0 16px 38px rgba(0, 0, 80, 0.3);
       }
+
       .hero-cta svg {
         width: 20px;
         height: 20px;
       }
+
       .hero-cta-note {
         margin-top: 10px;
         font-size: 12px;
@@ -238,14 +263,15 @@
 
       .action-grid {
         display: grid;
-        grid-template-columns: repeat(3, 162px);
-        gap: 14px;
+        grid-template-columns: repeat(3, 200px);
+        gap: 16px;
         flex-shrink: 0;
       }
+
       .action-card {
         background: white;
         border-radius: 18px;
-        padding: 22px 18px;
+        padding: 28px 22px;
         display: flex;
         flex-direction: column;
         gap: 10px;
@@ -256,25 +282,121 @@
         box-shadow: 0 10px 28px rgba(0, 0, 60, 0.2);
         font-family: 'Nunito', sans-serif;
       }
+
       .action-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 18px 40px rgba(0, 0, 60, 0.3);
       }
+
       .action-card svg {
-        width: 28px;
-        height: 28px;
+        width: 36px;
+        height: 36px;
         color: #0a2d8f;
       }
+
       .action-card .ac-name {
-        font-size: 15px;
+        font-size: 18px;
         font-weight: 900;
         color: #0a2d8f;
         line-height: 1.2;
       }
+
       .action-card .ac-sub {
-        font-size: 11px;
+        font-size: 12px;
         color: #7a9cc8;
         font-weight: 600;
+      }
+
+      .help-chat {
+        position: fixed;
+        right: 28px;
+        bottom: 28px;
+        width: 350px;
+        background: white;
+        border-radius: 18px;
+        box-shadow: 0 18px 45px rgba(0, 0, 60, 0.28);
+        z-index: 999;
+        display: none;
+        overflow: hidden;
+        font-family: 'Nunito', sans-serif;
+      }
+
+      .help-chat.open {
+        display: block;
+      }
+
+      .help-chat-header {
+        background: #0a2d8f;
+        color: white;
+        padding: 14px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .help-chat-header strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .help-chat-header span {
+        display: block;
+        font-size: 11px;
+        opacity: 0.75;
+        margin-top: 2px;
+      }
+
+      .help-chat-header button {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 18px;
+      }
+
+      .help-chat-body {
+        padding: 14px;
+        background: #f7f9ff;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .chat-msg {
+        padding: 10px 12px;
+        border-radius: 13px;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .chat-msg.bot {
+        background: white;
+        color: #1f2937;
+        border: 1px solid #dde5ff;
+      }
+
+      .help-chat-body button {
+        background: white;
+        border: 1px solid #c8d8ff;
+        color: #0a2d8f;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        text-align: left;
+        font-family: 'Nunito', sans-serif;
+      }
+
+      .help-chat-body button:hover {
+        background: #eef2ff;
+      }
+
+      .hidden {
+        display: none;
       }
 
       @keyframes pulse {
@@ -283,6 +405,7 @@
           transform: scale(1);
           opacity: 1;
         }
+
         50% {
           transform: scale(1.5);
           opacity: 0.6;
@@ -290,10 +413,12 @@
       }
     </style>
   </head>
+
   <body>
     <div class="home-wrap">
       <div class="bg-overlay"></div>
       <div class="city-bg"></div>
+
       <div class="inner">
         <div class="status-bar">
           <span class="s-dot"></span>
@@ -317,11 +442,13 @@
                 />
               </svg>
             </div>
+
             <div>
               <div class="h-logo-name">GestMed</div>
               <div class="h-logo-sub">Gestão Farmacêutica</div>
             </div>
           </div>
+
           <div class="h-right">
             <div class="h-user">
               <svg
@@ -339,7 +466,8 @@
               </svg>
               Usuário
             </div>
-            <button class="h-out">
+
+            <button class="h-out" type="button">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -376,16 +504,20 @@
               </svg>
               Sistema Farmacêutico
             </div>
+
             <p class="hero-sub">Bem-vindo ao painel principal</p>
+
             <h1 class="hero-title">
-              Sistema<br /><strong>Farmaceutico </strong> <br />Gestão
+              Sistema<br /><strong>Farmacêutico</strong><br />Gestão
               Simplificada
             </h1>
+
             <p class="hero-desc">
               Gerencie medicamentos, fornecedores, entradas e saídas do estoque
               de forma simples, rápida e eficiente.
             </p>
-            <button class="hero-cta" onclick="openChat()">
+
+            <button class="hero-cta" type="button" onclick="toggleHelpChat()">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -420,9 +552,10 @@
                 />
                 <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
               </svg>
-              <span class="ac-name">Medicamentos</span
-              ><span class="ac-sub">Cadastro e estoque</span>
+              <span class="ac-name">Medicamentos</span>
+              <span class="ac-sub">Cadastro e estoque</span>
             </button>
+
             <button
               class="action-card"
               onclick="location.href = 'fornecedores.html'"
@@ -439,9 +572,10 @@
                 <circle cx="5.5" cy="18.5" r="2.5" />
                 <circle cx="18.5" cy="18.5" r="2.5" />
               </svg>
-              <span class="ac-name">Fornecedores</span
-              ><span class="ac-sub">Parceiros e contatos</span>
+              <span class="ac-name">Fornecedores</span>
+              <span class="ac-sub">Parceiros e contatos</span>
             </button>
+
             <button
               class="action-card"
               onclick="location.href = 'entrada.html'"
@@ -459,9 +593,10 @@
                 <line x1="12" y1="12" x2="12" y2="16" />
                 <line x1="10" y1="14" x2="14" y2="14" />
               </svg>
-              <span class="ac-name">Entrada</span
-              ><span class="ac-sub">Registrar recebimento</span>
+              <span class="ac-name">Entrada</span>
+              <span class="ac-sub">Registrar recebimento</span>
             </button>
+
             <button class="action-card" onclick="location.href = 'saida.html'">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -475,9 +610,10 @@
                 />
                 <line x1="10" y1="14" x2="14" y2="14" />
               </svg>
-              <span class="ac-name">Saída</span
-              ><span class="ac-sub">Registrar dispensação</span>
+              <span class="ac-name">Saída</span>
+              <span class="ac-sub">Registrar dispensação</span>
             </button>
+
             <button
               class="action-card"
               onclick="location.href = 'relatorio.html'"
@@ -494,9 +630,10 @@
                 />
                 <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
               </svg>
-              <span class="ac-name">Relatório</span
-              ><span class="ac-sub">Análises e exportação</span>
+              <span class="ac-name">Relatório</span>
+              <span class="ac-sub">Análises e exportação</span>
             </button>
+
             <button
               class="action-card"
               onclick="location.href = 'importacao.html'"
@@ -512,17 +649,82 @@
                 <polyline points="17 8 12 3 7 8" />
                 <line x1="12" y1="3" x2="12" y2="15" />
               </svg>
-              <span class="ac-name">Importação</span
-              ><span class="ac-sub">Upload de planilhas</span>
+              <span class="ac-name">Importação</span>
+              <span class="ac-sub">Upload de planilhas</span>
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <script src="inicio.js"></script>
+    <div id="helpChat" class="help-chat">
+      <div class="help-chat-header">
+        <div>
+          <strong>Assistente GestMed</strong>
+          <span>Ajuda rápida do sistema</span>
+        </div>
+
+        <button type="button" onclick="toggleHelpChat()">×</button>
+      </div>
+
+      <div class="help-chat-body">
+        <div class="chat-msg bot">
+          Olá! Escolha uma opção abaixo para entender como usar o sistema.
+        </div>
+
+        <button type="button" onclick="showHelpAnswer('medicamentos')">
+          Como cadastro medicamentos?
+        </button>
+
+        <button type="button" onclick="showHelpAnswer('entrada')">
+          Como registro entrada?
+        </button>
+
+        <button type="button" onclick="showHelpAnswer('saida')">
+          Como registro saída?
+        </button>
+
+        <button type="button" onclick="showHelpAnswer('relatorios')">
+          Como vejo relatórios?
+        </button>
+
+        <button type="button" onclick="showHelpAnswer('importacao')">
+          Como importar planilhas?
+        </button>
+
+        <div id="helpAnswer" class="chat-msg bot hidden"></div>
+      </div>
+    </div>
+
     <script>
-      document.body.insertAdjacentHTML('beforeend', buildHelpFab());
+      function toggleHelpChat() {
+        const chat = document.getElementById('helpChat');
+
+        if (!chat) return;
+
+        chat.classList.toggle('open');
+      }
+
+      function showHelpAnswer(type) {
+        const answer = document.getElementById('helpAnswer');
+
+        const texts = {
+          medicamentos:
+            'Na tela Medicamentos, você pode cadastrar novos medicamentos, consultar estoque, editar dados e acompanhar os itens disponíveis.',
+          entrada:
+            'Na tela Entrada, você registra os medicamentos recebidos. Ao salvar, o estoque do medicamento selecionado é atualizado automaticamente.',
+          saida:
+            'Na tela Saída, você registra a dispensação de medicamentos. O sistema reduz a quantidade do estoque automaticamente.',
+          relatorios:
+            'Na tela Relatório, você acompanha informações do estoque, movimentações e dados úteis para apoiar a tomada de decisão.',
+          importacao:
+            'Na tela Importação, você pode enviar planilhas para facilitar o cadastro ou atualização de dados no sistema.',
+        };
+
+        answer.textContent =
+          texts[type] || 'Não encontrei uma resposta para essa opção.';
+        answer.classList.remove('hidden');
+      }
     </script>
   </body>
 </html>
