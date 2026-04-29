@@ -211,6 +211,8 @@ function montarPayloadParaAPI() {
     estoque_min: isNaN(quantidadeMinima) ? 0 : quantidadeMinima,
     valor_unit: isNaN(valorUnitario) ? 0 : valorUnitario,
     fornecedor: Number(fornecedorId),
+    unidade: getValorCampo('unidade') || 'un',
+    descricao: getValorCampo('descricao') || '',
   };
 }
 
@@ -520,7 +522,7 @@ function editarProduto(id) {
   setValorCampo('valorUnitario', Number(produto.preco ?? 0));
   setValorCampo('fornecedor', produto.fornecedor || '');
   setValorCampo('unidade', produto.unidade || 'un');
-  setValorCampo('descricao', produto.descricao);
+  setValorCampo('descricao', produto.descricao || '');
 
   document.getElementById('modalProduto')?.classList.add('active');
   criarIcones();

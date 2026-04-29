@@ -1,8 +1,5 @@
 from django.db import models
 from django.db.models import Q
-from django.db import models   
-from django.db import models
-from django.db.models import Q
 
 
 class Fornecedor(models.Model):
@@ -27,10 +24,10 @@ class Fornecedor(models.Model):
     def __str__(self):
         return self.nome
 
+
 class Medicamento(models.Model):
     nome = models.CharField(max_length=120, verbose_name="Nome do medicamento")
 
-    # Como você já tem registros antigos no banco, deixe opcionais por enquanto
     miligrama = models.CharField(
         max_length=30,
         verbose_name="Dosagem (mg/ml)",
@@ -58,12 +55,19 @@ class Medicamento(models.Model):
         default=0
     )
 
+    # ✅ NOVO CAMPO (AQUI ESTAVA O PROBLEMA)
+    descricao = models.TextField(
+        verbose_name="Descrição",
+        blank=True,
+        null=True
+    )
+
     fornecedor = models.ForeignKey(
-    "Fornecedor",
-    on_delete=models.PROTECT,
-    related_name="medicamentos",
-    verbose_name="Fornecedor"
-)
+        "Fornecedor",
+        on_delete=models.PROTECT,
+        related_name="medicamentos",
+        verbose_name="Fornecedor"
+    )
 
     data_cadastro = models.DateTimeField(auto_now_add=True, verbose_name="Data de cadastro")
     data_atualizacao = models.DateTimeField(auto_now=True, verbose_name="Última atualização")
@@ -80,14 +84,11 @@ class Medicamento(models.Model):
         ]
 
         constraints = [
-            # Evita duplicar o mesmo medicamento no mesmo lote (quando miligrama estiver preenchido)
             models.UniqueConstraint(
                 fields=["nome", "lote", "miligrama"],
                 name="uq_medic_nome_lote_mg",
                 condition=Q(miligrama__isnull=False),
             ),
-
-            # ✅ Django 6: usa "condition=" (não "check=")
             models.CheckConstraint(
                 condition=Q(quantidade__gte=0) & Q(estoque_min__gte=0) & Q(valor_unit__gte=0),
                 name="ck_medic_valores_nao_negativos",
@@ -97,11 +98,12 @@ class Medicamento(models.Model):
     def __str__(self):
         mg = f" {self.miligrama}" if self.miligrama else ""
         return f"{self.nome}{mg} | Lote: {self.lote}"
-    
+
 
 class Movimentacao(models.Model):
     TIPO_ENTRADA = "E"
     TIPO_SAIDA = "S"
+
     TIPOS = [
         (TIPO_ENTRADA, "Entrada"),
         (TIPO_SAIDA, "Saída"),
@@ -124,10 +126,12 @@ class Movimentacao(models.Model):
         verbose_name = "Movimentação"
         verbose_name_plural = "Movimentações"
         ordering = ["-data_movimentacao"]
+
         indexes = [
             models.Index(fields=["tipo"], name="idx_mov_tipo"),
             models.Index(fields=["data_movimentacao"], name="idx_mov_data"),
         ]
+
         constraints = [
             models.CheckConstraint(
                 condition=Q(quantidade__gt=0),

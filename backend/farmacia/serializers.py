@@ -7,7 +7,6 @@ class FornecedorSerializer(serializers.ModelSerializer):
         model = Fornecedor
         fields = ["id", "nome", "cnpj", "telefone", "email", "endereco", "ativo"]
 
-
 class MedicamentoSerializer(serializers.ModelSerializer):
     fornecedor_nome = serializers.CharField(source="fornecedor.nome", read_only=True)
 
@@ -23,8 +22,9 @@ class MedicamentoSerializer(serializers.ModelSerializer):
             "quantidade",
             "estoque_min",
             "valor_unit",
-            "fornecedor",        # <- envia/recebe o ID
-            "fornecedor_nome",   # <- devolve o nome pronto pro frontend
+            "descricao",
+            "fornecedor",
+            "fornecedor_nome",
             "data_cadastro",
             "data_atualizacao",
         ]
