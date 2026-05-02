@@ -65,16 +65,16 @@
 
             <div
               class="kpi-card-mini"
-              id="kpiBaixoCard"
+              id="kpiSemEstoqueCard"
               data-tooltip="Clique para filtrar"
-              data-filter="baixo"
+              data-filter="sem-estoque"
             >
               <div class="label">
                 <i data-lucide="alert-triangle"></i>
-                Estoque baixo
+                Sem estoque
               </div>
-              <div class="value" id="kpiBaixo">0</div>
-              <div class="sub">Abaixo do mínimo</div>
+              <div class="value" id="kpiSemEstoque">0</div>
+              <div class="sub">Quantidade zerada</div>
             </div>
 
             <div
@@ -150,10 +150,10 @@
                 </select>
 
                 <select id="filterEstoque" class="filter-select">
-                  <option value="">Todos Estoques</option>
-                  <option value="baixo">Estoque Baixo</option>
-                  <option value="ok">Estoque OK</option>
-                  <option value="vencendo">Próximo Vencimento</option>
+                  <option value="">Todos os estoques</option>
+                  <option value="ok">Estoque Baixo</option>
+                  <option value="sem-estoque">Estoque Normal</option>
+                  <option value="vencendo">Proximo do Vencimento</option>
                 </select>
               </div>
 
@@ -178,6 +178,7 @@
                       <i data-lucide="file-text"></i>
                       Exportar CSV
                     </button>
+
                     <button
                       type="button"
                       class="dropdown-item"
@@ -188,15 +189,6 @@
                     </button>
                   </div>
                 </div>
-
-                <button
-                  class="btn btn-primary btn-sm"
-                  id="btnNovoProduto"
-                  type="button"
-                >
-                  <i data-lucide="plus"></i>
-                  Novo Medicamento
-                </button>
               </div>
             </div>
 
@@ -208,14 +200,14 @@
                       <th>Código</th>
                       <th>Nome</th>
                       <th>Categoria</th>
-                      <th>Estoque</th>
-                      <th>Estoque Min.</th>
+                      <th>Quantidade</th>
                       <th>Valor Unit.</th>
                       <th>Validade</th>
-                      <th>Status</th>
+                      <th>Estoque</th>
                       <th>Ações</th>
                     </tr>
                   </thead>
+
                   <tbody id="tabelaProdutos"></tbody>
                 </table>
               </div>
@@ -225,160 +217,6 @@
           </div>
         </section>
       </main>
-    </div>
-
-    <div class="modal" id="modalProduto">
-      <div class="modal-overlay" id="modalOverlay"></div>
-
-      <div class="modal-content modal-lg">
-        <div class="modal-header">
-          <h2 class="modal-title" id="modalTitle">
-            <i data-lucide="package-plus"></i>
-            Novo Medicamento
-          </h2>
-
-          <button class="modal-close" id="modalClose" type="button">
-            <i data-lucide="x"></i>
-          </button>
-        </div>
-
-        <form id="formProduto" class="modal-body">
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="nome" class="required">Nome do Medicamento</label>
-              <input type="text" id="nome" class="form-input" required />
-            </div>
-
-            <div class="form-group">
-              <label for="miligrama">Dosagem (mg/ml)</label>
-              <input
-                type="text"
-                id="miligrama"
-                class="form-input"
-                placeholder="Ex.: 500mg"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="categoria" class="required">Categoria</label>
-              <select id="categoria" class="form-input" required>
-                <option value="">Selecione...</option>
-                <option value="analgésico">Analgésico</option>
-                <option value="anestésico">Anestésico</option>
-                <option value="antiácido">Antiácido</option>
-                <option value="antialérgico">Antialérgico</option>
-                <option value="antibiótico">Antibiótico</option>
-                <option value="anticoagulante">Anticoagulante</option>
-                <option value="anticonvulsivante">Anticonvulsivante</option>
-                <option value="antidepressivo">Antidepressivo</option>
-                <option value="antidiabético">Antidiabético</option>
-                <option value="antiemético">Antiemético</option>
-                <option value="antifúngico">Antifúngico</option>
-                <option value="anti-hipertensivo">Anti-hipertensivo</option>
-                <option value="anti-inflamatório">Anti-inflamatório</option>
-                <option value="antiparasitário">Antiparasitário</option>
-                <option value="antipsicótico">Antipsicótico</option>
-                <option value="antitérmico">Antitérmico</option>
-                <option value="broncodilatador">Broncodilatador</option>
-                <option value="cardiológico">Cardiológico</option>
-                <option value="corticoide">Corticoide</option>
-                <option value="diurético">Diurético</option>
-                <option value="hormônio">Hormônio</option>
-                <option value="sedativo">Sedativo</option>
-                <option value="soro/solução">Soro/Solução</option>
-                <option value="vacina">Vacina</option>
-                <option value="vitamina">Vitamina/Suplemento</option>
-                <option value="outros">Outros</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="lote" class="required">Lote</label>
-              <input type="text" id="lote" class="form-input" required />
-            </div>
-
-            <div class="form-group">
-              <label for="validade" class="required">Validade</label>
-              <input type="date" id="validade" class="form-input" required />
-            </div>
-
-            <div class="form-group">
-              <label for="quantidade" class="required">Quantidade</label>
-              <input
-                type="number"
-                id="quantidade"
-                class="form-input"
-                min="0"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="quantidadeMinima" class="required">
-                Quantidade Mínima
-              </label>
-              <input
-                type="number"
-                id="quantidadeMinima"
-                class="form-input"
-                min="0"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="valorUnitario" class="required">
-                Valor Unitário (R$)
-              </label>
-              <input
-                type="number"
-                id="valorUnitario"
-                class="form-input"
-                min="0"
-                step="0.01"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="fornecedor" class="required">Fornecedor</label>
-              <select id="fornecedor" class="form-input" required>
-                <option value="">Selecione...</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="unidade">Unidade</label>
-              <select id="unidade" class="form-input">
-                <option value="un">Unidade</option>
-                <option value="cx">Caixa</option>
-                <option value="fr">Frasco</option>
-                <option value="cp">Comprimido</option>
-                <option value="ml">ML</option>
-                <option value="g">Grama</option>
-              </select>
-            </div>
-
-            <div class="form-group full-width">
-              <label for="descricao">Descrição</label>
-              <textarea id="descricao" class="form-input" rows="3"></textarea>
-            </div>
-          </div>
-
-          <input type="hidden" id="produtoId" />
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="btnCancelar">
-              Cancelar
-            </button>
-
-            <button type="submit" class="btn btn-primary" id="btnSalvar">
-              <i data-lucide="save"></i>
-              Salvar
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
 
     <div class="modal" id="modalExcluir">

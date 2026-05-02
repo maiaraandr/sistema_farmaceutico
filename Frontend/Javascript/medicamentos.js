@@ -1,9 +1,6 @@
 const API_MEDICAMENTOS = 'http://127.0.0.1:8000/api/medicamentos/';
-const API_FORNECEDORES = 'http://127.0.0.1:8000/api/fornecedores/';
 
 let produtos = [];
-let fornecedores = [];
-let produtoEditando = null;
 let produtoExcluindo = null;
 
 let paginaAtual = 1;
@@ -15,7 +12,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   verificarAutenticacao();
   inicializarEventListeners();
   preencherUsuario();
-  await carregarFornecedores();
   await carregarProdutos();
   renderizarTabela();
   criarIcones();
@@ -39,54 +35,46 @@ function preencherUsuario() {
 
 function inicializarEventListeners() {
   document
-    .getElementById('btnNovoProduto')
-    ?.addEventListener('click', abrirModalNovo);
-
-  document.getElementById('modalClose')?.addEventListener('click', fecharModal);
-  document
-    .getElementById('modalOverlay')
-    ?.addEventListener('click', fecharModal);
-  document
-    .getElementById('btnCancelar')
-    ?.addEventListener('click', fecharModal);
-  document
-    .getElementById('formProduto')
-    ?.addEventListener('submit', salvarProduto);
-
-  document
     .getElementById('searchInput')
     ?.addEventListener('input', aplicarFiltros);
+
   document
     .getElementById('filterCategoria')
     ?.addEventListener('change', aplicarFiltros);
+
   document
     .getElementById('filterEstoque')
     ?.addEventListener('change', aplicarFiltros);
 
   document
-    .getElementById('modalExcluirClose')
-    ?.addEventListener('click', fecharModalExcluir);
-  document
-    .getElementById('modalExcluirOverlay')
-    ?.addEventListener('click', fecharModalExcluir);
-  document
-    .getElementById('btnCancelarExcluir')
-    ?.addEventListener('click', fecharModalExcluir);
-  document
-    .getElementById('btnConfirmarExcluir')
-    ?.addEventListener('click', confirmarExclusaoDefinitiva);
-
-  document
     .getElementById('btnExportar')
     ?.addEventListener('click', toggleExport);
+
   document
     .getElementById('btnExportarCSV')
     ?.addEventListener('click', exportarCSV);
+
   document
     .getElementById('btnExportarExcel')
     ?.addEventListener('click', exportarExcel);
 
   document.addEventListener('click', fecharExportAoClicarFora);
+
+  document
+    .getElementById('modalExcluirClose')
+    ?.addEventListener('click', fecharModalExcluir);
+
+  document
+    .getElementById('modalExcluirOverlay')
+    ?.addEventListener('click', fecharModalExcluir);
+
+  document
+    .getElementById('btnCancelarExcluir')
+    ?.addEventListener('click', fecharModalExcluir);
+
+  document
+    .getElementById('btnConfirmarExcluir')
+    ?.addEventListener('click', confirmarExclusaoDefinitiva);
 
   document.querySelectorAll('.kpi-card-mini[data-filter]').forEach((card) => {
     card.addEventListener('click', () => {
@@ -104,6 +92,7 @@ function inicializarEventListeners() {
       setTimeout(() => card.classList.remove('pulse'), 400);
 
       const val = card.dataset.filter || '';
+
       if (filterEstoque) {
         filterEstoque.value = val;
         filterEstoque.dispatchEvent(new Event('change'));
@@ -127,41 +116,16 @@ function inicializarEventListeners() {
   });
 }
 
-function toggleExport(event) {
-  event.stopPropagation();
-  document.getElementById('dropdownExportar')?.classList.toggle('active');
-}
-
-function fecharExportAoClicarFora(event) {
-  const dropdown = document.getElementById('dropdownExportar');
-  const btn = document.getElementById('btnExportar');
-
-  if (!dropdown || !btn) return;
-
-  if (!dropdown.contains(event.target) && !btn.contains(event.target)) {
-    dropdown.classList.remove('active');
-  }
-}
-
-async function carregarFornecedores() {
-  try {
-    const resp = await fetch(API_FORNECEDORES);
-    if (!resp.ok) throw new Error('Erro ao carregar fornecedores.');
-
-    const data = await resp.json();
-    fornecedores = Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.error('Erro ao carregar fornecedores:', error);
-    fornecedores = [];
-  }
-}
-
 async function carregarProdutos() {
   try {
     const resp = await fetch(API_MEDICAMENTOS);
-    if (!resp.ok) throw new Error('Erro ao carregar medicamentos.');
+
+    if (!resp.ok) {
+      throw new Error('Erro ao carregar medicamentos.');
+    }
 
     const data = await resp.json();
+
     produtos = Array.isArray(data) ? data.map(normalizarProdutoDaAPI) : [];
   } catch (error) {
     console.error('Erro ao carregar medicamentos:', error);
@@ -179,40 +143,8 @@ function normalizarProdutoDaAPI(item) {
     lote: item.lote || '',
     vencimento: item.validade || '',
     stock_atual: Number(item.quantidade ?? 0),
-    stock_minimo: Number(item.estoque_min ?? 0),
     preco: Number(item.valor_unit ?? 0),
-    fornecedor: item.fornecedor ?? '',
-    fornecedor_nome: item.fornecedor_nome || '',
     unidade: item.unidade || 'un',
-    descricao: item.descricao || '',
-    ativo: true,
-  };
-}
-
-function montarPayloadParaAPI() {
-  const nome = getValorCampo('nome');
-  const categoria = getValorCampo('categoria');
-  const lote = getValorCampo('lote');
-  const validade = getValorCampo('validade');
-  const quantidade = parseInt(getValorCampo('quantidade'), 10);
-  const quantidadeMinima = parseInt(getValorCampo('quantidadeMinima'), 10);
-  const valorUnitario = parseFloat(getValorCampo('valorUnitario'));
-
-  let fornecedorId = getValorCampo('fornecedor');
-  if (!fornecedorId) fornecedorId = 1;
-
-  return {
-    nome,
-    miligrama: getValorCampo('miligrama') || null,
-    categoria,
-    lote,
-    validade,
-    quantidade: isNaN(quantidade) ? 0 : quantidade,
-    estoque_min: isNaN(quantidadeMinima) ? 0 : quantidadeMinima,
-    valor_unit: isNaN(valorUnitario) ? 0 : valorUnitario,
-    fornecedor: Number(fornecedorId),
-    unidade: getValorCampo('unidade') || 'un',
-    descricao: getValorCampo('descricao') || '',
   };
 }
 
@@ -229,23 +161,22 @@ function obterProdutosFiltrados() {
   return produtos.filter((p) => {
     const nome = String(p.nome || '').toLowerCase();
     const categoria = String(p.categoria || '').toLowerCase();
+    const codigo = String(p.id || '').toLowerCase();
 
     const matchSearch =
+      !search ||
       nome.includes(search) ||
       categoria.includes(search) ||
-      String(p.id || '').includes(search);
+      codigo.includes(search);
 
     const matchCategoria = !filterCategoria || p.categoria === filterCategoria;
 
     let matchEstoque = true;
 
-    const atual = Number(p.stock_atual ?? 0);
-    const minimo = Number(p.stock_minimo ?? 0);
-
-    if (filterEstoque === 'baixo') {
-      matchEstoque = atual < minimo;
+    if (filterEstoque === 'sem-estoque') {
+      matchEstoque = Number(p.stock_atual ?? 0) === 0;
     } else if (filterEstoque === 'ok') {
-      matchEstoque = atual >= minimo;
+      matchEstoque = Number(p.stock_atual ?? 0) > 0;
     } else if (filterEstoque === 'vencendo') {
       const dias = calcularDiasParaVencer(p.vencimento);
       matchEstoque = dias > 0 && dias <= 90;
@@ -263,9 +194,9 @@ function aplicarFiltros() {
 function atualizarKPIs(lista) {
   const total = lista.length;
 
-  const baixo = lista.filter(
-    (m) => Number(m.stock_atual ?? 0) < Number(m.stock_minimo ?? 0)
-  ).length;
+  const semEstoque = lista.filter((m) => {
+    return Number(m.stock_atual ?? 0) === 0;
+  }).length;
 
   const vencendo = lista.filter((m) => {
     const dias = calcularDiasParaVencer(m.vencimento);
@@ -277,7 +208,7 @@ function atualizarKPIs(lista) {
   }, 0);
 
   atualizarTexto('kpiTotal', total);
-  atualizarTexto('kpiBaixo', baixo);
+  atualizarTexto('kpiSemEstoque', semEstoque);
   atualizarTexto('kpiVencendo', vencendo);
   atualizarTexto(
     'kpiValor',
@@ -303,7 +234,10 @@ function renderizarTabela() {
   atualizarKPIs(filtrados);
 
   const totalPaginas = Math.ceil(filtrados.length / itensPorPagina) || 1;
-  if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+
+  if (paginaAtual > totalPaginas) {
+    paginaAtual = totalPaginas;
+  }
 
   const inicio = (paginaAtual - 1) * itensPorPagina;
   const pagina = filtrados.slice(inicio, inicio + itensPorPagina);
@@ -313,12 +247,13 @@ function renderizarTabela() {
   if (pagina.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="9" style="text-align:center;padding:40px;color:#64748b">
+        <td colspan="8" style="text-align:center;padding:40px;color:#64748b">
           <i data-lucide="inbox" style="width:40px;height:40px;margin-bottom:8px"></i>
           <p>Nenhum medicamento encontrado</p>
         </td>
       </tr>
     `;
+
     renderizarPaginacao(1);
     criarIcones();
     return;
@@ -331,6 +266,7 @@ function renderizarTabela() {
 
     tr.innerHTML = `
       <td><code>${String(produto.id ?? '').padStart(4, '0')}</code></td>
+
       <td>
         <strong>${escapeHTML(produto.nome)}</strong>
         ${
@@ -339,12 +275,20 @@ function renderizarTabela() {
             : ''
         }
       </td>
+
       <td>
         <span class="badge badge-info">${escapeHTML(produto.categoria || '-')}</span>
       </td>
-      <td>${Number(produto.stock_atual ?? 0)} ${escapeHTML(produto.unidade || 'un')}</td>
-      <td>${Number(produto.stock_minimo ?? 0)} ${escapeHTML(produto.unidade || 'un')}</td>
-      <td>R$ ${Number(produto.preco ?? 0).toFixed(2)}</td>
+
+      <td>
+        ${Number(produto.stock_atual ?? 0)}
+        ${escapeHTML(produto.unidade || 'un')}
+      </td>
+
+      <td>
+        ${formatarMoeda(produto.preco)}
+      </td>
+
       <td>
         ${formatarData(produto.vencimento)}
         ${
@@ -353,17 +297,11 @@ function renderizarTabela() {
             : ''
         }
       </td>
+
       <td>${renderizarBadgeStatus(status)}</td>
+
       <td>
         <div class="action-buttons">
-          <button
-            class="btn-icon btn-icon-primary"
-            onclick="editarProduto(${Number(produto.id)})"
-            title="Editar"
-            type="button"
-          >
-            <i data-lucide="edit"></i>
-          </button>
           <button
             class="btn-icon btn-icon-danger"
             onclick="confirmarExclusao(${Number(produto.id)})"
@@ -438,12 +376,11 @@ function mudarPagina(pagina) {
 function getStatusProduto(produto) {
   const dias = calcularDiasParaVencer(produto.vencimento);
   const atual = Number(produto.stock_atual ?? 0);
-  const minimo = Number(produto.stock_minimo ?? 0);
 
   if (dias < 0) return { type: 'vencido', text: 'Vencido' };
   if (dias <= 30) return { type: 'critico', text: 'Vence em breve' };
   if (dias <= 90) return { type: 'alerta', text: 'Próximo vencimento' };
-  if (atual < minimo) return { type: 'baixo', text: 'Estoque baixo' };
+  if (atual === 0) return { type: 'baixo', text: 'Sem estoque' };
 
   return { type: 'ok', text: 'Normal' };
 }
@@ -460,153 +397,6 @@ function renderizarBadgeStatus(status) {
   return `<span class="badge ${classes[status.type] || 'badge-secondary'}">${status.text}</span>`;
 }
 
-function abrirModalNovo() {
-  produtoEditando = null;
-
-  const modalTitle = document.getElementById('modalTitle');
-  if (modalTitle) {
-    modalTitle.innerHTML =
-      '<i data-lucide="package-plus"></i> Novo Medicamento';
-  }
-
-  document.getElementById('formProduto')?.reset();
-
-  const produtoId = document.getElementById('produtoId');
-  if (produtoId) produtoId.value = '';
-
-  preencherSelectFornecedores();
-
-  document.getElementById('modalProduto')?.classList.add('active');
-  criarIcones();
-}
-
-function preencherSelectFornecedores() {
-  const select = document.getElementById('fornecedor');
-  if (!select) return;
-
-  select.innerHTML = `
-    <option value="">Selecione...</option>
-    ${fornecedores
-      .map(
-        (f) =>
-          `<option value="${f.id}">${escapeHTML(f.nome || 'Fornecedor')}</option>`
-      )
-      .join('')}
-  `;
-}
-
-function editarProduto(id) {
-  const produto = produtos.find((p) => Number(p.id) === Number(id));
-  if (!produto) {
-    alert('Medicamento não encontrado.');
-    return;
-  }
-
-  produtoEditando = produto;
-
-  const modalTitle = document.getElementById('modalTitle');
-  if (modalTitle) {
-    modalTitle.innerHTML = '<i data-lucide="edit"></i> Editar Medicamento';
-  }
-
-  preencherSelectFornecedores();
-
-  setValorCampo('produtoId', produto.id);
-  setValorCampo('nome', produto.nome);
-  setValorCampo('miligrama', produto.miligrama);
-  setValorCampo('categoria', produto.categoria);
-  setValorCampo('lote', produto.lote);
-  setValorCampo('validade', produto.vencimento);
-  setValorCampo('quantidade', Number(produto.stock_atual ?? 0));
-  setValorCampo('quantidadeMinima', Number(produto.stock_minimo ?? 0));
-  setValorCampo('valorUnitario', Number(produto.preco ?? 0));
-  setValorCampo('fornecedor', produto.fornecedor || '');
-  setValorCampo('unidade', produto.unidade || 'un');
-  setValorCampo('descricao', produto.descricao || '');
-
-  document.getElementById('modalProduto')?.classList.add('active');
-  criarIcones();
-}
-
-function fecharModal() {
-  document.getElementById('modalProduto')?.classList.remove('active');
-  produtoEditando = null;
-}
-
-async function salvarProduto(event) {
-  event.preventDefault();
-
-  const id = getValorCampo('produtoId');
-  const payload = montarPayloadParaAPI();
-
-  if (!payload.nome) {
-    alert('Informe o nome do medicamento.');
-    return;
-  }
-
-  if (!payload.categoria) {
-    alert('Selecione a categoria.');
-    return;
-  }
-
-  if (!payload.lote) {
-    alert('Informe o lote.');
-    return;
-  }
-
-  if (!payload.validade) {
-    alert('Informe a validade.');
-    return;
-  }
-
-  if (!payload.fornecedor) {
-    alert('Selecione o fornecedor.');
-    return;
-  }
-
-  try {
-    let resp;
-
-    if (id) {
-      resp = await fetch(`${API_MEDICAMENTOS}${id}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-    } else {
-      resp = await fetch(API_MEDICAMENTOS, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-    }
-
-    if (!resp.ok) {
-      const erro = await safeJson(resp);
-      console.error(erro);
-      alert('Erro ao salvar medicamento.');
-      return;
-    }
-
-    await carregarProdutos();
-    renderizarTabela();
-    fecharModal();
-
-    alert(
-      id
-        ? 'Medicamento atualizado com sucesso.'
-        : 'Medicamento cadastrado com sucesso.'
-    );
-  } catch (error) {
-    console.error('Erro ao salvar medicamento:', error);
-    alert('Erro de conexão com a API.');
-  }
-}
-
 function confirmarExclusao(id) {
   const produto = produtos.find((p) => Number(p.id) === Number(id));
 
@@ -618,6 +408,7 @@ function confirmarExclusao(id) {
   produtoExcluindo = produto;
 
   const nomeEl = document.getElementById('nomeProdutoExcluir');
+
   if (nomeEl) {
     nomeEl.textContent = produto.nome || 'Medicamento';
   }
@@ -646,6 +437,7 @@ async function confirmarExclusaoDefinitiva() {
     await carregarProdutos();
 
     const totalFiltrados = obterProdutosFiltrados().length;
+
     if (
       (paginaAtual - 1) * itensPorPagina >= totalFiltrados &&
       paginaAtual > 1
@@ -681,36 +473,47 @@ function exportarCSV() {
   const header = [
     'Código',
     'Nome',
+    'Dosagem',
     'Categoria',
-    'Estoque',
-    'Estoque Mín.',
+    'Quantidade',
     'Valor Unit. (R$)',
     'Validade',
+    'Estoque',
   ];
 
-  const rows = lista.map((p) => [
-    String(p.id || '').padStart(4, '0'),
-    p.nome || '',
-    p.categoria || '',
-    Number(p.stock_atual ?? p.quantidade ?? 0),
-    Number(p.stock_minimo ?? p.quantidadeMinima ?? 0),
-    Number(p.preco ?? p.valorUnitario ?? 0).toFixed(2),
-    p.vencimento ?? p.validade ?? '',
-  ]);
+  const rows = lista.map((p) => {
+    const status = getStatusProduto(p);
+
+    return [
+      String(p.id || '').padStart(4, '0'),
+      p.nome || '',
+      p.miligrama || '',
+      p.categoria || '',
+      `${Number(p.stock_atual ?? 0)} ${p.unidade || 'un'}`,
+      Number(p.preco ?? 0).toFixed(2),
+      p.vencimento || '',
+      status.text,
+    ];
+  });
 
   const csv = [header, ...rows]
-    .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
+    .map((linha) =>
+      linha.map((valor) => `"${String(valor).replace(/"/g, '""')}"`).join(',')
+    )
     .join('\n');
 
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(
-    new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
-  );
-  a.download = `medicamentos_${new Date()
+  const arquivo = new Blob(['\uFEFF' + csv], {
+    type: 'text/csv;charset=utf-8;',
+  });
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(arquivo);
+  link.download = `medicamentos_${new Date()
     .toLocaleDateString('pt-BR')
     .replace(/\//g, '-')}.csv`;
 
-  a.click();
+  link.click();
+
   document.getElementById('dropdownExportar')?.classList.remove('active');
 }
 
@@ -729,18 +532,33 @@ function exportarExcel() {
     return;
   }
 
-  const dados = lista.map((p) => ({
-    Código: String(p.id || '').padStart(4, '0'),
-    Nome: p.nome || '',
-    Categoria: p.categoria || '',
-    Estoque: Number(p.stock_atual ?? 0),
-    'Estoque Mín.': Number(p.stock_minimo ?? 0),
-    'Valor Unit.': Number(p.preco ?? 0),
-    Validade: p.vencimento ?? '',
-  }));
+  const dados = lista.map((p) => {
+    const status = getStatusProduto(p);
+
+    return {
+      Código: String(p.id || '').padStart(4, '0'),
+      Nome: p.nome || '',
+      Dosagem: p.miligrama || '',
+      Categoria: p.categoria || '',
+      Quantidade: `${Number(p.stock_atual ?? 0)} ${p.unidade || 'un'}`,
+      'Valor Unit.': Number(p.preco ?? 0),
+      Validade: p.vencimento || '',
+      Estoque: status.text,
+    };
+  });
 
   const ws = XLSX.utils.json_to_sheet(dados);
-  ws['!cols'] = [8, 30, 20, 10, 12, 12, 12].map((w) => ({ wch: w }));
+
+  ws['!cols'] = [
+    { wch: 10 },
+    { wch: 30 },
+    { wch: 14 },
+    { wch: 22 },
+    { wch: 15 },
+    { wch: 15 },
+    { wch: 15 },
+    { wch: 20 },
+  ];
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Medicamentos');
@@ -755,22 +573,28 @@ function exportarExcel() {
   document.getElementById('dropdownExportar')?.classList.remove('active');
 }
 
+function toggleExport(event) {
+  event.stopPropagation();
+  document.getElementById('dropdownExportar')?.classList.toggle('active');
+}
+
+function fecharExportAoClicarFora(event) {
+  const dropdown = document.getElementById('dropdownExportar');
+  const btn = document.getElementById('btnExportar');
+
+  if (!dropdown || !btn) return;
+
+  if (!dropdown.contains(event.target) && !btn.contains(event.target)) {
+    dropdown.classList.remove('active');
+  }
+}
+
 async function safeJson(resp) {
   try {
     return await resp.json();
   } catch {
     return null;
   }
-}
-
-function getValorCampo(id) {
-  const el = document.getElementById(id);
-  return el ? String(el.value).trim() : '';
-}
-
-function setValorCampo(id, valor) {
-  const el = document.getElementById(id);
-  if (el) el.value = valor ?? '';
 }
 
 function calcularDiasParaVencer(vencimento) {
@@ -783,6 +607,7 @@ function calcularDiasParaVencer(vencimento) {
   dataVencimento.setHours(0, 0, 0, 0);
 
   const diferenca = dataVencimento - hoje;
+
   return Math.ceil(diferenca / (1000 * 60 * 60 * 24));
 }
 
@@ -790,9 +615,17 @@ function formatarData(data) {
   if (!data) return '-';
 
   const d = new Date(data);
+
   if (isNaN(d.getTime())) return String(data);
 
   return d.toLocaleDateString('pt-BR');
+}
+
+function formatarMoeda(valor) {
+  return Number(valor ?? 0).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  });
 }
 
 function escapeHTML(str) {

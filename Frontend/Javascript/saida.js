@@ -139,9 +139,6 @@ function limparEstoqueDisponivel() {
   }
 }
 
-// ==============================
-// CARREGAR MEDICAMENTOS
-// ==============================
 async function carregarMedicamentos() {
   try {
     const resp = await fetch(API_MEDICAMENTOS);
@@ -159,21 +156,18 @@ async function carregarMedicamentos() {
       ${medicamentos
         .map(
           (m) =>
-            `<option value="${m.id}">${escapeHTML(m.nome || '')} ${escapeHTML(
+            `<option value="${m.id}">${String(m.id).padStart(4, '0')} - ${escapeHTML(m.nome || '')} ${escapeHTML(
               m.miligrama || ''
             )}</option>`
         )
         .join('')}
-    `;
+  `;
   } catch (error) {
     console.error('Erro ao carregar medicamentos:', error);
     alert('Não foi possível carregar os medicamentos.');
   }
 }
 
-// ==============================
-// CARREGAR SAIDAS
-// ==============================
 async function carregarSaidas() {
   try {
     const resp = await fetch(API_MOVIMENTACOES);

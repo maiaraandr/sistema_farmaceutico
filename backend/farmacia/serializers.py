@@ -1,11 +1,20 @@
 from rest_framework import serializers
-from .models import Medicamento, Fornecedor
-from .models import Movimentacao
+from .models import Medicamento, Fornecedor, Movimentacao
+
 
 class FornecedorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Fornecedor
-        fields = ["id", "nome", "cnpj", "telefone", "email", "endereco", "ativo"]
+        fields = [
+            "id",
+            "nome",
+            "cnpj",
+            "telefone",
+            "email",
+            "endereco",
+            "ativo",
+        ]
+
 
 class MedicamentoSerializer(serializers.ModelSerializer):
     fornecedor_nome = serializers.CharField(source="fornecedor.nome", read_only=True)
@@ -20,7 +29,6 @@ class MedicamentoSerializer(serializers.ModelSerializer):
             "lote",
             "validade",
             "quantidade",
-            "estoque_min",
             "valor_unit",
             "descricao",
             "fornecedor",
@@ -28,6 +36,7 @@ class MedicamentoSerializer(serializers.ModelSerializer):
             "data_cadastro",
             "data_atualizacao",
         ]
+
 
 class MovimentacaoSerializer(serializers.ModelSerializer):
     medicamento_nome = serializers.CharField(source="medicamento.nome", read_only=True)
@@ -43,4 +52,3 @@ class MovimentacaoSerializer(serializers.ModelSerializer):
             "data_movimentacao",
             "observacao",
         ]
-

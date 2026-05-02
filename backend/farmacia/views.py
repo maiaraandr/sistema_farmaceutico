@@ -1,5 +1,3 @@
-# farmacia/views.py
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
@@ -43,7 +41,6 @@ class MovimentacaoViewSet(viewsets.ModelViewSet):
     def relatorio_geral(self, request):
         qs = self.get_queryset()
 
-        # filtros: ?data_inicio=YYYY-MM-DD&data_fim=YYYY-MM-DD
         data_inicio_str = request.query_params.get("data_inicio")
         data_fim_str = request.query_params.get("data_fim")
 
@@ -52,14 +49,16 @@ class MovimentacaoViewSet(viewsets.ModelViewSet):
 
         if data_inicio_str and not data_inicio:
             return Response(
-                {"erro": "data_inicio inválida. Use YYYY-MM-DD (ex: 2026-02-01)."},
+                {"erro": "data_inicio inválida. Use YYYY-MM-DD."},
                 status=400,
             )
+
         if data_fim_str and not data_fim:
             return Response(
-                {"erro": "data_fim inválida. Use YYYY-MM-DD (ex: 2026-02-28)."},
+                {"erro": "data_fim inválida. Use YYYY-MM-DD."},
                 status=400,
             )
+
         if data_inicio and data_fim and data_inicio > data_fim:
             return Response(
                 {"erro": "data_inicio não pode ser maior que data_fim."},
@@ -68,15 +67,18 @@ class MovimentacaoViewSet(viewsets.ModelViewSet):
 
         if data_inicio:
             qs = qs.filter(data_movimentacao__date__gte=data_inicio)
+
         if data_fim:
             qs = qs.filter(data_movimentacao__date__lte=data_fim)
 
         total_entradas = (
             qs.filter(tipo="E").aggregate(total=Sum("quantidade"))["total"] or 0
         )
+
         total_saidas = (
             qs.filter(tipo="S").aggregate(total=Sum("quantidade"))["total"] or 0
         )
+
         saldo_geral = total_entradas - total_saidas
 
         top_saidas = (
@@ -117,7 +119,6 @@ class MovimentacaoViewSet(viewsets.ModelViewSet):
         tipo = serializer.validated_data["tipo"]
         quantidade = serializer.validated_data["quantidade"]
 
-        # trava o registro do medicamento (evita concorrência)
         medicamento = Medicamento.objects.select_for_update().get(id=medicamento.id)
 
         if tipo == "E":
@@ -132,7 +133,118 @@ class MovimentacaoViewSet(viewsets.ModelViewSet):
 
         medicamento.save()
         self.perform_create(serializer)
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["POST"])
+@transaction.atomic
+def registrar_entrada(request):
+    nome = (request.data.get("nome") or "").strip()
+    miligrama = (request.data.get("miligrama") or "").strip() or None
+    categoria = (request.data.get("categoria") or "").strip()
+    lote = (request.data.get("lote") or "").strip()
+    validade = request.data.get("validade")
+    quantidade = request.data.get("quantidade")
+    valor_unit = request.data.get("valor_unit")
+    fornecedor_id = request.data.get("fornecedor")
+    descricao = request.data.get("descricao") or ""
+    data_entrada = request.data.get("data_entrada") or ""
+
+    if not nome:
+        return Response({"erro": "Nome do medicamento é obrigatório."}, status=400)
+
+    if not categoria:
+        return Response({"erro": "Categoria é obrigatória."}, status=400)
+
+    if not lote:
+        return Response({"erro": "Lote é obrigatório."}, status=400)
+
+    if not validade:
+        return Response({"erro": "Validade é obrigatória."}, status=400)
+
+    try:
+        quantidade = int(quantidade)
+    except (TypeError, ValueError):
+        return Response({"erro": "Quantidade inválida."}, status=400)
+
+    if quantidade <= 0:
+        return Response({"erro": "Quantidade deve ser maior que zero."}, status=400)
+
+    try:
+        valor_unit = float(valor_unit)
+    except (TypeError, ValueError):
+        return Response({"erro": "Valor unitário inválido."}, status=400)
+
+    if valor_unit < 0:
+        return Response({"erro": "Valor unitário não pode ser negativo."}, status=400)
+
+    try:
+        fornecedor = Fornecedor.objects.get(id=fornecedor_id)
+    except Fornecedor.DoesNotExist:
+        return Response({"erro": "Fornecedor não encontrado."}, status=400)
+
+    medicamento = (
+        Medicamento.objects.select_for_update()
+        .filter(
+            nome__iexact=nome,
+            miligrama=miligrama,
+            categoria__iexact=categoria,
+            lote__iexact=lote,
+            validade=validade,
+            valor_unit=valor_unit,
+            fornecedor=fornecedor,
+        )
+        .first()
+    )
+
+    criado = False
+
+    if medicamento:
+        medicamento.quantidade += quantidade
+        medicamento.descricao = descricao
+        medicamento.save()
+    else:
+        medicamento = Medicamento.objects.create(
+            nome=nome,
+            miligrama=miligrama,
+            categoria=categoria,
+            lote=lote,
+            validade=validade,
+            quantidade=quantidade,
+            valor_unit=valor_unit,
+            descricao=descricao,
+            fornecedor=fornecedor,
+        )
+        criado = True
+
+    observacao = " | ".join(
+        [
+            f"Fornecedor: {fornecedor.nome}",
+            f"Categoria: {categoria}",
+            f"Lote: {lote}",
+            f"Validade informada: {validade}",
+            f"Valor unitário: {valor_unit}",
+            f"Data da entrada: {data_entrada}",
+        ]
+    )
+
+    movimentacao = Movimentacao.objects.create(
+        medicamento=medicamento,
+        tipo=Movimentacao.TIPO_ENTRADA,
+        quantidade=quantidade,
+        observacao=observacao,
+    )
+
+    return Response(
+        {
+            "sucesso": True,
+            "criado": criado,
+            "medicamento": MedicamentoSerializer(medicamento).data,
+            "movimentacao": MovimentacaoSerializer(movimentacao).data,
+        },
+        status=status.HTTP_201_CREATED,
+    )
 
 
 @api_view(["POST"])
@@ -141,19 +253,18 @@ def solicitar_recuperacao_senha(request):
     email = (request.data.get("email") or "").strip().lower()
 
     if not email:
-      return Response(
-          {"erro": "Email é obrigatório."},
-          status=status.HTTP_400_BAD_REQUEST,
-      )
+        return Response(
+            {"erro": "Email é obrigatório."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     try:
         user = User.objects.get(email__iexact=email)
     except User.DoesNotExist:
-        # resposta neutra por segurança
         return Response(
             {
                 "sucesso": True,
-                "mensagem": "Se o email existir, o link de recuperação será enviado."
+                "mensagem": "Se o email existir, o link de recuperação será enviado.",
             },
             status=status.HTTP_200_OK,
         )
@@ -183,7 +294,7 @@ def solicitar_recuperacao_senha(request):
     return Response(
         {
             "sucesso": True,
-            "mensagem": "Se o email existir, o link de recuperação será enviado."
+            "mensagem": "Se o email existir, o link de recuperação será enviado.",
         },
         status=status.HTTP_200_OK,
     )

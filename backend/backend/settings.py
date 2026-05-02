@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     "farmacia",
 ]
 
-# Middlewares
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -58,7 +58,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
-# Banco de dados PostgreSQL
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -70,7 +70,7 @@ DATABASES = {
     }
 }
 
-# Validadores de senha
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
@@ -86,18 +86,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internacionalização
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Belem"
 USE_I18N = True
 USE_TZ = True
 
-# Arquivos estáticos
+
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# CORS
+
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
@@ -122,7 +121,7 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
 ]
 
-# Django REST Framework
+
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
@@ -133,16 +132,15 @@ REST_FRAMEWORK = {
     ],
 }
 
-# CSRF
+
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5500",
     "http://localhost:5500",
 ]
 
-# URL do frontend
 SITE_URL = "http://127.0.0.1:5500/Frontend/html"
 
-# Email
+
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587

@@ -62,6 +62,7 @@
       </header>
 
       <main class="relatorio-content" id="areaRelatorioPDF">
+        <!-- KPIs principais -->
         <section class="relatorio-section">
           <div class="relatorio-kpi-row">
             <div class="relatorio-kpi-card">
@@ -102,6 +103,7 @@
           </div>
         </section>
 
+        <!-- Mini cards -->
         <section class="relatorio-section">
           <div class="relatorio-mini-grid">
             <div class="mini-card">
@@ -121,6 +123,7 @@
           </div>
         </section>
 
+        <!-- Gráficos -->
         <section class="relatorio-section relatorio-grid-2">
           <div class="relatorio-card">
             <div class="relatorio-card-header">
@@ -129,7 +132,6 @@
                 Top 10 Medicamentos
               </h2>
             </div>
-
             <div class="relatorio-card-body">
               <canvas id="chartTopMovimentacoes" height="120"></canvas>
             </div>
@@ -142,39 +144,47 @@
                 Entradas x Saídas
               </h2>
             </div>
-
             <div class="relatorio-card-body chart-small">
               <canvas id="chartResumoTipos"></canvas>
             </div>
           </div>
         </section>
 
+        <!-- Histórico consolidado -->
         <section class="relatorio-section">
           <div class="relatorio-card">
             <div class="relatorio-card-header">
               <div class="filters-row">
-                <div class="filters-left">
-                  <h2 class="relatorio-card-title">
-                    <i data-lucide="list"></i>
-                    Histórico Consolidado
-                  </h2>
-
-                  <span class="badge-pill">
-                    <i data-lucide="hash"></i>
-                    <span id="badgeTotalRegistros">0</span> registros
-                  </span>
-                </div>
-
-                <div class="table-actions">
-                  <div class="search-box">
-                    <i data-lucide="search"></i>
-                    <input
-                      type="text"
-                      id="searchRelatorio"
-                      placeholder="Buscar por medicamento"
-                    />
+                <div class="filters-top">
+                  <div class="filters-left">
+                    <h2 class="relatorio-card-title">
+                      <i data-lucide="list"></i>
+                      Histórico Consolidado
+                    </h2>
+                    <span class="badge-pill">
+                      <i data-lucide="hash"></i>
+                      <span id="badgeTotalRegistros">0</span> registros
+                    </span>
                   </div>
 
+                  <div class="filters-left">
+                    <div class="search-box">
+                      <i data-lucide="search"></i>
+                      <input
+                        type="text"
+                        id="searchRelatorio"
+                        placeholder="Buscar por medicamento"
+                      />
+                    </div>
+                    <select id="filterTipo" class="filter-select">
+                      <option value="E" selected>Entradas</option>
+                      <option value="S">Saídas</option>
+                      <option value="T">Tudo</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="filters-bottom">
                   <div class="periodo-filtros">
                     <div class="periodo-campo">
                       <label for="filterDataInicio">De</label>
@@ -184,7 +194,6 @@
                         class="form-input"
                       />
                     </div>
-
                     <div class="periodo-campo">
                       <label for="filterDataFim">Até</label>
                       <input
@@ -193,7 +202,6 @@
                         class="form-input"
                       />
                     </div>
-
                     <button
                       id="btnLimparPeriodo"
                       class="btn btn-outline btn-sm"
@@ -202,12 +210,6 @@
                       Limpar
                     </button>
                   </div>
-
-                  <select id="filterTipo" class="form-input filter-select">
-                    <option value="E" selected>Entradas</option>
-                    <option value="S">Saídas</option>
-                    <option value="T">Tudo</option>
-                  </select>
                 </div>
               </div>
             </div>
@@ -224,7 +226,6 @@
                       <th>Data</th>
                     </tr>
                   </thead>
-
                   <tbody id="tabelaRelatorios">
                     <tr>
                       <td colspan="5" class="empty-row">

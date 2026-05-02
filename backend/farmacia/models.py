@@ -45,8 +45,10 @@ class Medicamento(models.Model):
     lote = models.CharField(max_length=50, verbose_name="Lote")
     validade = models.DateField(verbose_name="Data de validade")
 
-    quantidade = models.PositiveIntegerField(verbose_name="Quantidade em estoque", default=0)
-    estoque_min = models.PositiveIntegerField(verbose_name="Estoque mínimo", default=0)
+    quantidade = models.PositiveIntegerField(
+        verbose_name="Quantidade em estoque",
+        default=0
+    )
 
     valor_unit = models.DecimalField(
         verbose_name="Valor unitário",
@@ -55,7 +57,6 @@ class Medicamento(models.Model):
         default=0
     )
 
-    # ✅ NOVO CAMPO (AQUI ESTAVA O PROBLEMA)
     descricao = models.TextField(
         verbose_name="Descrição",
         blank=True,
@@ -85,12 +86,19 @@ class Medicamento(models.Model):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["nome", "lote", "miligrama"],
-                name="uq_medic_nome_lote_mg",
-                condition=Q(miligrama__isnull=False),
+                fields=[
+                    "nome",
+                    "miligrama",
+                    "categoria",
+                    "lote",
+                    "validade",
+                    "valor_unit",
+                    "fornecedor",
+                ],
+                name="uq_medic_entrada_unica",
             ),
             models.CheckConstraint(
-                condition=Q(quantidade__gte=0) & Q(estoque_min__gte=0) & Q(valor_unit__gte=0),
+                condition=Q(quantidade__gte=0) & Q(valor_unit__gte=0),
                 name="ck_medic_valores_nao_negativos",
             ),
         ]
@@ -120,7 +128,12 @@ class Movimentacao(models.Model):
     quantidade = models.PositiveIntegerField(verbose_name="Quantidade")
     data_movimentacao = models.DateTimeField(auto_now_add=True, verbose_name="Data/Hora")
 
-    observacao = models.CharField(max_length=255, blank=True, null=True, verbose_name="Observação")
+    observacao = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="Observação"
+    )
 
     class Meta:
         verbose_name = "Movimentação"

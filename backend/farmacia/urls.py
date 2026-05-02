@@ -5,6 +5,7 @@ from .views import (
     MedicamentoViewSet,
     FornecedorViewSet,
     MovimentacaoViewSet,
+    registrar_entrada,
     solicitar_recuperacao_senha,
     redefinir_senha,
 )
@@ -16,6 +17,7 @@ router.register(r"movimentacoes", MovimentacaoViewSet, basename="movimentacoes")
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("registrar-entrada/", registrar_entrada, name="registrar_entrada"),
     path("recuperar-senha/", solicitar_recuperacao_senha, name="recuperar_senha"),
     path("redefinir-senha/", redefinir_senha, name="redefinir_senha"),
 ]
