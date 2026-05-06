@@ -1,15 +1,8 @@
-// api.js - Comunicação com Backend Django REST
-// Usa a API como prioridade e localStorage como fallback, quando existir Storage.js
-
 const API_CONFIG = {
   BASE_URL: 'http://127.0.0.1:8000/api',
   TIMEOUT: 10000,
   USE_API: true,
 };
-
-// ========================================
-// AUXILIARES
-// ========================================
 
 function showError(message, error) {
   console.error(message, error);
@@ -69,10 +62,6 @@ async function apiRequest(endpoint, options = {}) {
     throw error;
   }
 }
-
-// ========================================
-// MEDICAMENTOS
-// ========================================
 
 async function apiGetMedicamentos() {
   if (!API_CONFIG.USE_API) {
@@ -168,10 +157,6 @@ async function apiDeleteMedicamento(id) {
     return hasFn('deleteProduto') ? deleteProduto(id) : false;
   }
 }
-
-// ========================================
-// FORNECEDORES
-// ========================================
 
 async function apiGetFornecedores() {
   if (!API_CONFIG.USE_API) {
@@ -271,10 +256,6 @@ async function apiDeleteFornecedor(id) {
   }
 }
 
-// ========================================
-// MOVIMENTAÇÕES
-// ========================================
-
 async function apiGetMovimentacoes() {
   if (!API_CONFIG.USE_API) {
     return hasFn('getMovimentacoes') ? getMovimentacoes() : [];
@@ -333,10 +314,6 @@ async function apiGetRelatorioGeral(dataInicio = '', dataFim = '') {
   }
 }
 
-// ========================================
-// RECUPERAÇÃO DE SENHA
-// ========================================
-
 async function apiSolicitarRecuperacaoSenha(email) {
   return await apiRequest('/recuperar-senha/', {
     method: 'POST',
@@ -354,10 +331,6 @@ async function apiRedefinirSenha(uid, token, novaSenha) {
     }),
   });
 }
-
-// ========================================
-// TESTE DE CONEXÃO
-// ========================================
 
 async function testarConexaoAPI() {
   try {
@@ -382,10 +355,6 @@ async function testarConexaoAPI() {
     return false;
   }
 }
-
-// ========================================
-// INICIALIZAÇÃO
-// ========================================
 
 if (typeof window !== 'undefined') {
   testarConexaoAPI();
