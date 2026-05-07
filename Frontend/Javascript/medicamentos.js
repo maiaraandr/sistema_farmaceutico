@@ -1,7 +1,6 @@
 const API_MEDICAMENTOS = 'http://127.0.0.1:8000/api/medicamentos/';
 
 let produtos = [];
-let produtoExcluindo = null;
 
 let paginaAtual = 1;
 const itensPorPagina = 10;
@@ -59,22 +58,6 @@ function inicializarEventListeners() {
     ?.addEventListener('click', exportarExcel);
 
   document.addEventListener('click', fecharExportAoClicarFora);
-
-  document
-    .getElementById('modalExcluirClose')
-    ?.addEventListener('click', fecharModalExcluir);
-
-  document
-    .getElementById('modalExcluirOverlay')
-    ?.addEventListener('click', fecharModalExcluir);
-
-  document
-    .getElementById('btnCancelarExcluir')
-    ?.addEventListener('click', fecharModalExcluir);
-
-  document
-    .getElementById('btnConfirmarExcluir')
-    ?.addEventListener('click', confirmarExclusaoDefinitiva);
 
   document.querySelectorAll('.kpi-card-mini[data-filter]').forEach((card) => {
     card.addEventListener('click', () => {
@@ -247,7 +230,7 @@ function renderizarTabela() {
   if (pagina.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="8" style="text-align:center;padding:40px;color:#64748b">
+        <td colspan="7" style="text-align:center;padding:40px;color:#64748b">
           <i data-lucide="inbox" style="width:40px;height:40px;margin-bottom:8px"></i>
           <p>Nenhum medicamento encontrado</p>
         </td>
@@ -300,18 +283,6 @@ function renderizarTabela() {
 
       <td>${renderizarBadgeStatus(status)}</td>
 
-      <td>
-        <div class="action-buttons">
-          <button
-            class="btn-icon btn-icon-danger"
-            onclick="confirmarExclusao(${Number(produto.id)})"
-            title="Excluir"
-            type="button"
-          >
-            <i data-lucide="trash-2"></i>
-          </button>
-        </div>
-      </td>
     `;
 
     tbody.appendChild(tr);
@@ -395,69 +366,6 @@ function renderizarBadgeStatus(status) {
   };
 
   return `<span class="badge ${classes[status.type] || 'badge-secondary'}">${status.text}</span>`;
-}
-
-function confirmarExclusao(id) {
-  const produto = produtos.find((p) => Number(p.id) === Number(id));
-
-  if (!produto) {
-    alert('Medicamento não encontrado.');
-    return;
-  }
-
-  produtoExcluindo = produto;
-
-  const nomeEl = document.getElementById('nomeProdutoExcluir');
-
-  if (nomeEl) {
-    nomeEl.textContent = produto.nome || 'Medicamento';
-  }
-
-  document.getElementById('modalExcluir')?.classList.add('active');
-  criarIcones();
-}
-
-async function confirmarExclusaoDefinitiva() {
-  if (!produtoExcluindo) return;
-
-  const id = Number(produtoExcluindo.id);
-
-  try {
-    const resp = await fetch(`${API_MEDICAMENTOS}${id}/`, {
-      method: 'DELETE',
-    });
-
-    if (!resp.ok) {
-      const erro = await safeJson(resp);
-      console.error(erro);
-      alert('Não foi possível excluir o medicamento.');
-      return;
-    }
-
-    await carregarProdutos();
-
-    const totalFiltrados = obterProdutosFiltrados().length;
-
-    if (
-      (paginaAtual - 1) * itensPorPagina >= totalFiltrados &&
-      paginaAtual > 1
-    ) {
-      paginaAtual--;
-    }
-
-    renderizarTabela();
-    fecharModalExcluir();
-
-    alert('Medicamento excluído com sucesso.');
-  } catch (error) {
-    console.error('Erro ao excluir medicamento:', error);
-    alert('Erro de conexão com a API.');
-  }
-}
-
-function fecharModalExcluir() {
-  document.getElementById('modalExcluir')?.classList.remove('active');
-  produtoExcluindo = null;
 }
 
 function exportarCSV() {
