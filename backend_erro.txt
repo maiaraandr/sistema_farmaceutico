@@ -1,8 +1,6 @@
 Watching for file changes with StatReloader
-[07/May/2026 14:37:19] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 14:37:37] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 14:37:51] "OPTIONS /api/medicamentos/5/ HTTP/1.1" 200 0
-Internal Server Error: /api/medicamentos/5/
+[08/May/2026 15:12:42] "OPTIONS /api/recuperar-senha/ HTTP/1.1" 200 0
+Internal Server Error: /api/recuperar-senha/
 Traceback (most recent call last):
   File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
     response = get_response(request)
@@ -10,7 +8,7 @@ Traceback (most recent call last):
     response = wrapped_callback(request, *callback_args, **callback_kwargs)
   File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
     return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\generic\base.py", line 106, in view
     return self.dispatch(request, *args, **kwargs)
            ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
@@ -22,535 +20,55 @@ Traceback (most recent call last):
     raise exc
   File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
     response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\backend\farmacia\views.py", line 262, in solicitar_recuperacao_senha
+    user = User.objects.get(email__iexact=email)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\query.py", line 642, in get
+    raise self.model.MultipleObjectsReturned(
+    ...<5 lines>...
     )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Saída - tarja preta 200 mg | Lote: L005 - 40>})
-[07/May/2026 14:37:51] "DELETE /api/medicamentos/5/ HTTP/1.1" 500 116199
-Internal Server Error: /api/medicamentos/5/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Saída - tarja preta 200 mg | Lote: L005 - 40>})
-[07/May/2026 14:37:54] "DELETE /api/medicamentos/5/ HTTP/1.1" 500 116199
-Internal Server Error: /api/medicamentos/5/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Saída - tarja preta 200 mg | Lote: L005 - 40>})
-[07/May/2026 14:37:58] "DELETE /api/medicamentos/5/ HTTP/1.1" 500 116199
-Internal Server Error: /api/medicamentos/5/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Saída - tarja preta 200 mg | Lote: L005 - 40>})
-[07/May/2026 14:38:03] "DELETE /api/medicamentos/5/ HTTP/1.1" 500 116199
-Internal Server Error: /api/medicamentos/5/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Saída - tarja preta 200 mg | Lote: L005 - 40>})
-[07/May/2026 14:38:05] "DELETE /api/medicamentos/5/ HTTP/1.1" 500 116199
-Internal Server Error: /api/medicamentos/5/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Saída - tarja preta 200 mg | Lote: L005 - 40>})
-[07/May/2026 14:38:05] "DELETE /api/medicamentos/5/ HTTP/1.1" 500 116199
-Internal Server Error: /api/medicamentos/5/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Saída - tarja preta 200 mg | Lote: L005 - 40>})
-[07/May/2026 14:38:11] "DELETE /api/medicamentos/5/ HTTP/1.1" 500 116199
-Internal Server Error: /api/medicamentos/5/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Saída - tarja preta 200 mg | Lote: L005 - 40>})
-[07/May/2026 14:38:12] "DELETE /api/medicamentos/5/ HTTP/1.1" 500 116199
-Internal Server Error: /api/medicamentos/5/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Saída - tarja preta 200 mg | Lote: L005 - 40>})
-[07/May/2026 14:38:12] "DELETE /api/medicamentos/5/ HTTP/1.1" 500 116199
-Internal Server Error: /api/medicamentos/5/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Saída - tarja preta 200 mg | Lote: L005 - 40>})
-[07/May/2026 14:38:12] "DELETE /api/medicamentos/5/ HTTP/1.1" 500 116199
-Internal Server Error: /api/medicamentos/5/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Saída - tarja preta 200 mg | Lote: L005 - 40>})
-[07/May/2026 14:38:14] "DELETE /api/medicamentos/5/ HTTP/1.1" 500 116199
-Internal Server Error: /api/medicamentos/5/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Saída - tarja preta 200 mg | Lote: L005 - 40>})
-[07/May/2026 14:38:17] "DELETE /api/medicamentos/5/ HTTP/1.1" 500 116199
-[07/May/2026 14:38:19] "OPTIONS /api/medicamentos/3/ HTTP/1.1" 200 0
-Internal Server Error: /api/medicamentos/3/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Entrada - Paracetamol 750 mg | Lote: L001 - 100>})
-[07/May/2026 14:38:19] "DELETE /api/medicamentos/3/ HTTP/1.1" 500 116215
-Internal Server Error: /api/medicamentos/3/
-Traceback (most recent call last):
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
-    response = get_response(request)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
-    return view_func(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
-    response = self.handle_exception(exc)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
-    self.raise_uncaught_exception(exc)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
-    raise exc
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
-    response = handler(request, *args, **kwargs)
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 91, in destroy
-    self.perform_destroy(instance)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\mixins.py", line 95, in perform_destroy
-    instance.delete()
-    ~~~~~~~~~~~~~~~^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\base.py", line 1297, in delete
-    collector.collect([self], keep_parents=keep_parents)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\deletion.py", line 354, in collect
-    raise ProtectedError(
-    ...<7 lines>...
-    )
-django.db.models.deletion.ProtectedError: ("Cannot delete some instances of model 'Medicamento' because they are referenced through protected foreign keys: 'Movimentacao.medicamento'.", {<Movimentacao: Entrada - Paracetamol 750 mg | Lote: L001 - 100>})
-[07/May/2026 14:38:20] "DELETE /api/medicamentos/3/ HTTP/1.1" 500 116215
-[07/May/2026 14:38:26] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 14:38:26] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 14:38:26] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 14:38:41] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 14:38:41] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 14:38:46] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 14:38:55] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 14:41:27] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 14:58:38] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:18] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:18] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:19] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:39] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:39] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:39] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:40] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:40] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:40] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:40] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:40] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:41,051] - Broken pipe from ('127.0.0.1', 62323)
-[07/May/2026 15:14:41] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:41] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:41,474] - Broken pipe from ('127.0.0.1', 62352)
-[07/May/2026 15:14:41] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:41] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:41] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:41] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:42] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:42] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:42] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:42] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:42] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:42] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:42] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:42] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:43] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:43] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:43] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:43] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:43] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:43] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:44] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:44] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:44] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:44] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:44] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:44] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:44] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:45,087] - Broken pipe from ('127.0.0.1', 62357)
-[07/May/2026 15:14:45] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:45] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:45] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:45] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:45] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:45] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:46] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:14:47] "GET /api/fornecedores/ HTTP/1.1" 200 1622
-[07/May/2026 15:14:47] "GET /api/medicamentos/ HTTP/1.1" 200 3709
-[07/May/2026 15:14:47] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
-[07/May/2026 15:15:18] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+django.contrib.auth.models.User.MultipleObjectsReturned: get() returned more than one User -- it returned 2!
+[08/May/2026 15:12:42] "POST /api/recuperar-senha/ HTTP/1.1" 500 111367
+[08/May/2026 15:12:55] "GET /api/fornecedores/ HTTP/1.1" 200 1622
+[08/May/2026 15:12:55] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+[08/May/2026 15:12:56] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
+[08/May/2026 15:12:59] "GET /api/fornecedores/ HTTP/1.1" 200 1622
+[08/May/2026 15:12:59] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+[08/May/2026 15:12:59] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
+[08/May/2026 15:14:36] "GET /api/fornecedores/ HTTP/1.1" 200 1622
+[08/May/2026 15:14:36] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+[08/May/2026 15:14:37] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
+[08/May/2026 15:14:45] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+[08/May/2026 15:14:48] "GET /api/fornecedores/ HTTP/1.1" 200 1622
+[08/May/2026 15:14:52] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+[08/May/2026 15:14:53] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
+[08/May/2026 15:14:57] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+[08/May/2026 15:14:57] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
+[08/May/2026 15:17:48] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+[08/May/2026 15:17:48] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
+[08/May/2026 15:22:54] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+[08/May/2026 15:22:54] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
+[08/May/2026 15:24:56] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+[08/May/2026 15:24:56] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
+[08/May/2026 15:25:03] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+[08/May/2026 15:25:04] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
+[08/May/2026 15:25:07] "GET /api/fornecedores/ HTTP/1.1" 200 1622
+[08/May/2026 15:25:07] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+[08/May/2026 15:25:07] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
+[08/May/2026 15:25:08] "GET /api/fornecedores/ HTTP/1.1" 200 1622
+[08/May/2026 15:25:08] "GET /api/medicamentos/ HTTP/1.1" 200 3709
+[08/May/2026 15:25:08] "GET /api/movimentacoes/ HTTP/1.1" 200 3156
+Performing system checks...
+
+System check identified no issues (0 silenced).
+May 08, 2026 - 15:12:23
+Django version 6.0.1, using settings 'backend.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/

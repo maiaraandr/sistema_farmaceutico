@@ -49,6 +49,7 @@
       </header>
 
       <main class="entrada-content">
+        <!-- Formulário de registro -->
         <section class="entrada-section">
           <div class="entrada-card">
             <div class="entrada-card-header">
@@ -61,9 +62,9 @@
             <div class="entrada-card-body">
               <form id="formEntrada" class="form-grid-entrada">
                 <div class="form-group col-4">
-                  <label for="nomeMedicamento" class="required">
-                    Nome do Medicamento
-                  </label>
+                  <label for="nomeMedicamento" class="required"
+                    >Nome do Medicamento</label
+                  >
                   <input
                     type="text"
                     id="nomeMedicamento"
@@ -139,9 +140,9 @@
                 </div>
 
                 <div class="form-group col-3">
-                  <label for="valorUnitario" class="required">
-                    Valor Unitário
-                  </label>
+                  <label for="valorUnitario" class="required"
+                    >Valor Unitário</label
+                  >
                   <input
                     type="number"
                     id="valorUnitario"
@@ -171,9 +172,9 @@
                 </div>
 
                 <div class="form-group col-12">
-                  <label for="dataEntrada" class="required">
-                    Data de Entrada
-                  </label>
+                  <label for="dataEntrada" class="required"
+                    >Data de Entrada</label
+                  >
                   <input
                     type="date"
                     id="dataEntrada"
@@ -191,7 +192,6 @@
                     <i data-lucide="rotate-ccw"></i>
                     Limpar
                   </button>
-
                   <button type="submit" class="btn btn-primary">
                     <i data-lucide="check"></i>
                     Registrar
@@ -202,30 +202,26 @@
           </div>
         </section>
 
+        <!-- KPIs -->
         <section class="entrada-section">
           <div class="entrada-kpi-row">
             <div class="entrada-kpi-card">
               <div class="label">
-                <i data-lucide="calendar"></i>
-                Data de hoje
+                <i data-lucide="calendar"></i> Data de hoje
               </div>
               <div class="value" id="kpiHoje">--/--/----</div>
               <div class="sub">Data atual</div>
             </div>
-
             <div class="entrada-kpi-card">
               <div class="label">
-                <i data-lucide="list-plus"></i>
-                Entradas registradas
+                <i data-lucide="list-plus"></i> Entradas registradas
               </div>
               <div class="value" id="kpiTotalEntradas">0</div>
               <div class="sub">No histórico</div>
             </div>
-
             <div class="entrada-kpi-card">
               <div class="label">
-                <i data-lucide="package"></i>
-                Itens recebidos
+                <i data-lucide="package"></i> Itens recebidos
               </div>
               <div class="value" id="kpiTotalItens">0</div>
               <div class="sub">Quantidade total</div>
@@ -233,6 +229,7 @@
           </div>
         </section>
 
+        <!-- Histórico -->
         <section class="entrada-section">
           <div class="entrada-card">
             <div class="entrada-card-header entrada-card-header-table">
@@ -240,7 +237,6 @@
                 <i data-lucide="list"></i>
                 Histórico de Entradas
               </h2>
-
               <div class="table-actions">
                 <div class="search-box">
                   <i data-lucide="search"></i>
@@ -267,24 +263,167 @@
                       <th>Fornecedor</th>
                       <th>Data de Entrada</th>
                       <th>Status</th>
+                      <th style="width: 170px">Ações</th>
                     </tr>
                   </thead>
-
                   <tbody id="tabelaEntrada">
                     <tr>
-                      <td colspan="9" class="empty-row">
+                      <td colspan="10" class="empty-row">
                         Nenhuma entrada registrada ainda.
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-
               <div class="pagination" id="paginationEntrada"></div>
             </div>
           </div>
         </section>
       </main>
+    </div>
+
+    <!-- Modal de edição -->
+    <div class="modal" id="modalEdicaoEntrada">
+      <div class="modal-overlay" id="modalEdicaoOverlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">
+            <i data-lucide="pencil"></i>
+            Editar Entrada
+          </h2>
+          <button class="modal-close" id="modalEdicaoClose" type="button">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-grid-entrada" style="gap: 16px 14px">
+            <div class="form-group col-6">
+              <label class="required">Nome do Medicamento</label>
+              <input type="text" id="editNome" class="form-input" />
+            </div>
+            <div class="form-group col-3">
+              <label>Dosagem</label>
+              <input type="text" id="editDosagem" class="form-input" />
+            </div>
+            <div class="form-group col-3">
+              <label class="required">Lote</label>
+              <input type="text" id="editLote" class="form-input" />
+            </div>
+            <div class="form-group col-6">
+              <label class="required">Categoria</label>
+              <select id="editCategoria" class="form-input">
+                <option value="analgésico">Analgésico</option>
+                <option value="anestésico">Anestésico</option>
+                <option value="antiácido">Antiácido</option>
+                <option value="antialérgico">Antialérgico</option>
+                <option value="antibiótico">Antibiótico</option>
+                <option value="anticoagulante">Anticoagulante</option>
+                <option value="anticonvulsivante">Anticonvulsivante</option>
+                <option value="antidepressivo">Antidepressivo</option>
+                <option value="antidiabético">Antidiabético</option>
+                <option value="antiemético">Antiemético</option>
+                <option value="antifúngico">Antifúngico</option>
+                <option value="anti-hipertensivo">Anti-hipertensivo</option>
+                <option value="anti-inflamatório">Anti-inflamatório</option>
+                <option value="antiparasitário">Antiparasitário</option>
+                <option value="antipsicótico">Antipsicótico</option>
+                <option value="antitérmico">Antitérmico</option>
+                <option value="broncodilatador">Broncodilatador</option>
+                <option value="cardiológico">Cardiológico</option>
+                <option value="corticoide">Corticoide</option>
+                <option value="diurético">Diurético</option>
+                <option value="hormônio">Hormônio</option>
+                <option value="sedativo">Sedativo</option>
+                <option value="soro/solução">Soro/Solução</option>
+                <option value="vacina">Vacina</option>
+                <option value="vitamina">Vitamina/Suplemento</option>
+                <option value="outros">Outros</option>
+              </select>
+            </div>
+            <div class="form-group col-3">
+              <label class="required">Quantidade</label>
+              <input
+                type="number"
+                id="editQuantidade"
+                class="form-input"
+                min="1"
+              />
+            </div>
+            <div class="form-group col-3">
+              <label class="required">Valor Unitário</label>
+              <input
+                type="number"
+                id="editValorUnitario"
+                class="form-input"
+                step="0.01"
+                min="0"
+              />
+            </div>
+            <div class="form-group col-3">
+              <label class="required">Validade</label>
+              <input type="date" id="editValidade" class="form-input" />
+            </div>
+            <div class="form-group col-3">
+              <label class="required">Fornecedor</label>
+              <select id="editFornecedor" class="form-input"></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="btnCancelarEdicao"
+          >
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-primary" id="btnSalvarEdicao">
+            <i data-lucide="check"></i>
+            Salvar alterações
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de exclusão -->
+    <div class="modal" id="modalExcluirEntrada">
+      <div class="modal-overlay" id="modalExcluirOverlay"></div>
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h2 class="modal-title">
+            <i data-lucide="alert-triangle" class="icon-danger"></i>
+            Confirmar Exclusão
+          </h2>
+          <button class="modal-close" id="modalExcluirClose" type="button">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="modal-body modal-text">
+          <p>
+            Tem certeza que deseja excluir a entrada de
+            <strong id="nomeEntradaExcluir"></strong>?
+          </p>
+          <p class="text-danger">
+            O estoque será ajustado automaticamente. Esta ação não pode ser
+            desfeita.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="btnCancelarExcluir"
+          >
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-danger" id="btnConfirmarExcluir">
+            <i data-lucide="trash-2"></i>
+            Excluir
+          </button>
+        </div>
+      </div>
     </div>
 
     <script src="../Javascript/Storage.js"></script>

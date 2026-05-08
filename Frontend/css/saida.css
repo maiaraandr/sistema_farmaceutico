@@ -283,7 +283,6 @@ textarea {
 }
 
 .form-group label.required::after {
-  content: " *";
   color: var(--saida-danger);
 }
 
@@ -450,9 +449,9 @@ textarea {
 }
 
 .badge-out {
-  background: rgba(239, 68, 68, 0.12);
-  color: #dc2626;
-  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(1, 163, 250, 0.12);
+  color: #0061fc;
+  border-color: rgba(3, 95, 243, 0.25);
 }
 
 .dropdown-export {

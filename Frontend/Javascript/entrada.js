@@ -6,15 +6,16 @@ let medicamentosCache = [];
 let fornecedoresCache = [];
 let historicoEntradas = [];
 let paginaAtual = 1;
-
 const itensPorPagina = 10;
+let movimentacaoEmEdicao = null;
+let entradaExcluindo = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   verificarAutenticacao();
-  inicializarListeners();
-  ajustarCampoData();
   preencherUsuario();
   inicializarLogout();
+  ajustarCampoData();
+  inicializarListeners();
 
   await carregarFornecedores();
   await carregarMedicamentos();
@@ -25,9 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function criarIcones() {
-  if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-  }
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function inicializarListeners() {
@@ -39,22 +38,45 @@ function inicializarListeners() {
     .getElementById('searchEntrada')
     ?.addEventListener('input', aplicarFiltros);
 
-  document.getElementById('btnLimparEntrada')?.addEventListener('click', () => {
-    setTimeout(() => {
-      ajustarCampoData();
-    }, 0);
-  });
+  document
+    .getElementById('btnLimparEntrada')
+    ?.addEventListener('click', function () {
+      setTimeout(ajustarCampoData, 0);
+    });
+
+  document
+    .getElementById('modalEdicaoClose')
+    ?.addEventListener('click', fecharModalEdicao);
+  document
+    .getElementById('modalEdicaoOverlay')
+    ?.addEventListener('click', fecharModalEdicao);
+  document
+    .getElementById('btnCancelarEdicao')
+    ?.addEventListener('click', fecharModalEdicao);
+  document
+    .getElementById('btnSalvarEdicao')
+    ?.addEventListener('click', salvarEdicaoEntrada);
+
+  document
+    .getElementById('modalExcluirClose')
+    ?.addEventListener('click', fecharModalExcluir);
+  document
+    .getElementById('modalExcluirOverlay')
+    ?.addEventListener('click', fecharModalExcluir);
+  document
+    .getElementById('btnCancelarExcluir')
+    ?.addEventListener('click', fecharModalExcluir);
+  document
+    .getElementById('btnConfirmarExcluir')
+    ?.addEventListener('click', confirmarExclusao);
 }
 
 function inicializarLogout() {
-  const logoutBtn = document.getElementById('logoutBtn');
-
-  logoutBtn?.addEventListener('click', () => {
+  document.getElementById('logoutBtn')?.addEventListener('click', function () {
     if (typeof logout === 'function') {
       logout();
       return;
     }
-
     localStorage.removeItem('farm_current_user');
     localStorage.removeItem('farm_session_token');
     window.location.href = 'index.html';
@@ -62,162 +84,139 @@ function inicializarLogout() {
 }
 
 function preencherUsuario() {
-  const el = document.getElementById('userName');
-  const currentUser =
+  var el = document.getElementById('userName');
+  var currentUser =
     typeof getCurrentUser === 'function' ? getCurrentUser() : null;
-
-  if (el) {
-    el.textContent = currentUser?.nome || 'Usuário';
-  }
+  if (el)
+    el.textContent =
+      currentUser && currentUser.nome ? currentUser.nome : 'Usuario';
 }
 
 function ajustarCampoData() {
-  const dataEntradaInput = document.getElementById('dataEntrada');
-
-  if (dataEntradaInput) {
-    const hoje = new Date().toISOString().split('T')[0];
-    dataEntradaInput.max = hoje;
-
-    if (!dataEntradaInput.value) {
-      dataEntradaInput.value = hoje;
-    }
-  }
+  var input = document.getElementById('dataEntrada');
+  if (!input) return;
+  var hoje = new Date().toISOString().split('T')[0];
+  input.max = hoje;
+  if (!input.value) input.value = hoje;
 }
 
 function atualizarKPIHoje() {
-  const el = document.getElementById('kpiHoje');
-
-  if (el) {
-    el.textContent = new Date().toLocaleDateString('pt-BR');
-  }
+  var el = document.getElementById('kpiHoje');
+  if (el) el.textContent = new Date().toLocaleDateString('pt-BR');
 }
+
+// ── CARREGAR DADOS ──
 
 async function carregarFornecedores() {
-  const select = document.getElementById('fornecedor');
-
   try {
-    const resp = await fetch(API_FORNECEDORES);
-
-    if (!resp.ok) {
-      throw new Error(`HTTP ${resp.status}`);
-    }
-
-    const data = await resp.json();
+    var resp = await fetch(API_FORNECEDORES);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    var data = await resp.json();
     fornecedoresCache = Array.isArray(data) ? data : [];
-
-    preencherSelectFornecedores();
+    preencherSelectFornecedores('fornecedor');
   } catch (err) {
-    console.error('Erro ao carregar fornecedores:', err);
-
-    if (select) {
-      select.innerHTML =
-        '<option value="">Erro ao carregar fornecedores</option>';
-    }
+    console.error('Erro fornecedores:', err);
+    var sel = document.getElementById('fornecedor');
+    if (sel)
+      sel.innerHTML = '<option value="">Erro ao carregar fornecedores</option>';
   }
 }
 
-function preencherSelectFornecedores() {
-  const select = document.getElementById('fornecedor');
-
+function preencherSelectFornecedores(selectId, selecionadoNome) {
+  var select = document.getElementById(selectId);
   if (!select) return;
-
   select.innerHTML = '<option value="">Selecione...</option>';
-
   fornecedoresCache
-    .filter((f) => f.ativo !== false)
-    .sort((a, b) =>
-      String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR')
-    )
-    .forEach((fornecedor) => {
-      const option = document.createElement('option');
-      option.value = fornecedor.id;
-      option.textContent = fornecedor.nome || 'Fornecedor';
-      select.appendChild(option);
+    .filter(function (f) {
+      return f.ativo !== false;
+    })
+    .sort(function (a, b) {
+      return String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR');
+    })
+    .forEach(function (f) {
+      var opt = document.createElement('option');
+      opt.value = f.id;
+      opt.textContent = f.nome || 'Fornecedor';
+      if (
+        selecionadoNome &&
+        String(f.nome).trim() === String(selecionadoNome).trim()
+      ) {
+        opt.selected = true;
+      }
+      select.appendChild(opt);
     });
 }
 
 async function carregarMedicamentos() {
   try {
-    const resp = await fetch(API_MEDICAMENTOS);
-
-    if (!resp.ok) {
-      throw new Error(`HTTP ${resp.status}`);
-    }
-
-    const data = await resp.json();
+    var resp = await fetch(API_MEDICAMENTOS);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    var data = await resp.json();
     medicamentosCache = Array.isArray(data) ? data : [];
   } catch (err) {
-    console.error('Erro ao carregar medicamentos:', err);
+    console.error('Erro medicamentos:', err);
     medicamentosCache = [];
   }
 }
 
 async function carregarHistoricoEntradas() {
   try {
-    const resp = await fetch(API_MOVIMENTACOES);
-
-    if (!resp.ok) {
-      throw new Error(`HTTP ${resp.status}`);
-    }
-
-    const data = await resp.json();
-    const lista = Array.isArray(data) ? data : [];
-
-    historicoEntradas = lista.filter((m) => m.tipo === 'E');
-
+    var resp = await fetch(API_MOVIMENTACOES);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    var data = await resp.json();
+    historicoEntradas = Array.isArray(data)
+      ? data.filter(function (m) {
+          return m.tipo === 'E';
+        })
+      : [];
     renderizarTabelaEntradas();
     atualizarKPIsEntradas();
   } catch (err) {
-    console.error('Erro ao carregar histórico de entradas:', err);
-    alert('Não foi possível carregar o histórico de entradas.');
+    console.error('Erro historico:', err);
+    alert('Nao foi possivel carregar o historico de entradas.');
   }
 }
+
+// ── REGISTRAR ENTRADA ──
 
 async function registrarEntrada(event) {
   event.preventDefault();
 
-  const nome = getValue('nomeMedicamento');
-  const miligrama = getValue('miligrama');
-  const categoria = getValue('categoria');
-  const lote = getValue('lote');
-  const quantidade = Number(getValue('quantidade'));
-  const valorUnitario = Number(getValue('valorUnitario'));
-  const validade = getValue('validade');
-  const fornecedorId = Number(getValue('fornecedor'));
-  const fornecedorNome = getTextoSelecionado('fornecedor');
-  const dataEntrada = getValue('dataEntrada');
-  const descricao = getValue('descricao');
+  var nome = getValue('nomeMedicamento');
+  var miligrama = getValue('miligrama');
+  var categoria = getValue('categoria');
+  var lote = getValue('lote');
+  var quantidade = Number(getValue('quantidade'));
+  var valorUnitario = Number(getValue('valorUnitario'));
+  var validade = getValue('validade');
+  var fornecedorId = Number(getValue('fornecedor'));
+  var fornecedorNome = getTextoSelecionado('fornecedor');
+  var dataEntrada = getValue('dataEntrada');
 
   if (!nome) {
     alert('Informe o nome do medicamento.');
     return;
   }
-
   if (!categoria) {
     alert('Selecione a categoria.');
     return;
   }
-
   if (!lote) {
     alert('Informe o lote.');
     return;
   }
-
   if (!quantidade || quantidade <= 0) {
-    alert('Informe uma quantidade válida.');
+    alert('Informe uma quantidade valida.');
     return;
   }
-
-  if (valorUnitario < 0 || Number.isNaN(valorUnitario)) {
-    alert('Informe um valor unitário válido.');
+  if (valorUnitario < 0 || isNaN(valorUnitario)) {
+    alert('Informe um valor unitario valido.');
     return;
   }
-
   if (!validade) {
     alert('Informe a validade.');
     return;
   }
-
   if (!fornecedorId) {
     alert('Selecione o fornecedor.');
     return;
@@ -225,191 +224,375 @@ async function registrarEntrada(event) {
 
   try {
     await carregarMedicamentos();
-
-    const medicamentoExistente = encontrarMedicamentoExistente(
-      nome,
-      lote,
-      miligrama
-    );
-
-    let medicamentoSalvo;
-
-    if (medicamentoExistente) {
-      medicamentoSalvo = await atualizarMedicamentoExistente(
-        medicamentoExistente,
-        {
-          nome,
-          miligrama,
-          categoria,
-          lote,
-          validade,
-          quantidade,
-          valorUnitario,
-          fornecedorId,
-          descricao,
-        }
-      );
+    var existente = encontrarMedicamentoExistente(nome, lote, miligrama);
+    var salvo;
+    if (existente) {
+      salvo = await atualizarMedicamentoExistente(existente, {
+        nome: nome,
+        miligrama: miligrama,
+        categoria: categoria,
+        lote: lote,
+        validade: validade,
+        quantidade: quantidade,
+        valorUnitario: valorUnitario,
+        fornecedorId: fornecedorId,
+      });
     } else {
-      medicamentoSalvo = await criarMedicamento({
-        nome,
-        miligrama,
-        categoria,
-        lote,
-        validade,
-        quantidade,
-        valorUnitario,
-        fornecedorId,
-        descricao,
+      salvo = await criarMedicamento({
+        nome: nome,
+        miligrama: miligrama,
+        categoria: categoria,
+        lote: lote,
+        validade: validade,
+        quantidade: quantidade,
+        valorUnitario: valorUnitario,
+        fornecedorId: fornecedorId,
       });
     }
 
     await registrarMovimentacaoEntrada({
-      medicamentoId: medicamentoSalvo.id,
-      quantidade,
-      fornecedorNome,
-      categoria,
-      lote,
-      validade,
-      valorUnitario,
-      dataEntrada,
+      medicamentoId: salvo.id,
+      quantidade: quantidade,
+      fornecedorNome: fornecedorNome,
+      categoria: categoria,
+      lote: lote,
+      validade: validade,
+      valorUnitario: valorUnitario,
+      dataEntrada: dataEntrada,
     });
 
     alert('Entrada registrada com sucesso.');
-
-    document.getElementById('formEntrada')?.reset();
+    document.getElementById('formEntrada').reset();
     ajustarCampoData();
-
     await carregarMedicamentos();
     await carregarHistoricoEntradas();
   } catch (err) {
-    console.error('Erro ao registrar entrada:', err);
-    alert('Não foi possível registrar a entrada.');
+    console.error('Erro registrar entrada:', err);
+    alert('Nao foi possivel registrar a entrada.');
   }
 }
 
 function encontrarMedicamentoExistente(nome, lote, miligrama) {
-  const nomeNormalizado = normalizarTexto(nome);
-  const loteNormalizado = normalizarTexto(lote);
-  const mgNormalizado = normalizarTexto(miligrama);
-
-  return medicamentosCache.find((m) => {
+  var n = norm(nome),
+    l = norm(lote),
+    m = norm(miligrama);
+  return medicamentosCache.find(function (med) {
     return (
-      normalizarTexto(m.nome) === nomeNormalizado &&
-      normalizarTexto(m.lote) === loteNormalizado &&
-      normalizarTexto(m.miligrama) === mgNormalizado
+      norm(med.nome) === n && norm(med.lote) === l && norm(med.miligrama) === m
     );
   });
 }
 
-async function criarMedicamento(dados) {
-  const payload = {
-    nome: dados.nome,
-    miligrama: dados.miligrama || null,
-    categoria: dados.categoria,
-    lote: dados.lote,
-    validade: dados.validade,
-    quantidade: dados.quantidade,
-    valor_unit: dados.valorUnitario,
-    fornecedor: dados.fornecedorId,
-  };
-
-  const resp = await fetch(API_MEDICAMENTOS, {
+async function criarMedicamento(d) {
+  var resp = await fetch(API_MEDICAMENTOS, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      nome: d.nome,
+      miligrama: d.miligrama || null,
+      categoria: d.categoria,
+      lote: d.lote,
+      validade: d.validade,
+      quantidade: d.quantidade,
+      valor_unit: d.valorUnitario,
+      fornecedor: d.fornecedorId,
+    }),
   });
-
-  if (!resp.ok) {
-    const erro = await safeJson(resp);
-    console.error('Erro ao criar medicamento:', erro);
-    throw new Error('Erro ao criar medicamento.');
-  }
-
-  return await resp.json();
+  if (!resp.ok) throw new Error('Erro ao criar medicamento.');
+  return resp.json();
 }
 
-async function atualizarMedicamentoExistente(medicamento, dados) {
-  const quantidadeAtual = Number(medicamento.quantidade ?? 0);
-  const novaQuantidade = quantidadeAtual + Number(dados.quantidade ?? 0);
-
-  const payload = {
-    nome: dados.nome,
-    miligrama: dados.miligrama || null,
-    categoria: dados.categoria,
-    lote: dados.lote,
-    validade: dados.validade,
-    quantidade: novaQuantidade,
-    valor_unit: dados.valorUnitario,
-    descricao: dados.descricao || medicamento.descricao || '',
-    fornecedor: dados.fornecedorId,
-  };
-
-  const resp = await fetch(`${API_MEDICAMENTOS}${medicamento.id}/`, {
+async function atualizarMedicamentoExistente(med, d) {
+  var novaQtd = Number(med.quantidade || 0) + Number(d.quantidade || 0);
+  var resp = await fetch(API_MEDICAMENTOS + med.id + '/', {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      nome: d.nome,
+      miligrama: d.miligrama || null,
+      categoria: d.categoria,
+      lote: d.lote,
+      validade: d.validade,
+      quantidade: novaQtd,
+      valor_unit: d.valorUnitario,
+      descricao: med.descricao || '',
+      fornecedor: d.fornecedorId,
+    }),
   });
-
-  if (!resp.ok) {
-    const erro = await safeJson(resp);
-    console.error('Erro ao atualizar medicamento:', erro);
-    throw new Error('Erro ao atualizar medicamento.');
-  }
-
-  return await resp.json();
+  if (!resp.ok) throw new Error('Erro ao atualizar medicamento.');
+  return resp.json();
 }
 
-async function registrarMovimentacaoEntrada(dados) {
-  const observacao = [
-    `Fornecedor: ${dados.fornecedorNome}`,
-    `Categoria: ${dados.categoria}`,
-    `Lote: ${dados.lote}`,
-    `Validade informada: ${dados.validade}`,
-    `Valor unitário: ${dados.valorUnitario}`,
-    `Data da entrada: ${dados.dataEntrada}`,
+async function registrarMovimentacaoEntrada(d) {
+  var obs = [
+    'Fornecedor: ' + d.fornecedorNome,
+    'Categoria: ' + d.categoria,
+    'Lote: ' + d.lote,
+    'Validade informada: ' + d.validade,
+    'Valor unitario: ' + d.valorUnitario,
+    'Data da entrada: ' + d.dataEntrada,
   ].join(' | ');
 
-  const payload = {
-    medicamento: dados.medicamentoId,
-    tipo: 'E',
-    quantidade: dados.quantidade,
-    observacao,
-  };
-
-  const resp = await fetch(API_MOVIMENTACOES, {
+  var resp = await fetch(API_MOVIMENTACOES, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      medicamento: d.medicamentoId,
+      tipo: 'E',
+      quantidade: d.quantidade,
+      observacao: obs,
+    }),
   });
-
-  if (!resp.ok) {
-    const erro = await safeJson(resp);
-    console.error('Erro ao registrar movimentação:', erro);
-    throw new Error('Erro ao registrar movimentação.');
-  }
-
-  return await resp.json();
+  if (!resp.ok) throw new Error('Erro ao registrar movimentacao.');
+  return resp.json();
 }
 
-function obterEntradasFiltradas() {
-  const termo = (document.getElementById('searchEntrada')?.value || '')
-    .toLowerCase()
-    .trim();
+// ── EDITAR ──
 
-  return historicoEntradas.filter((m) => {
-    if (!termo) return true;
+window.abrirModalEdicao = function (movimentacaoId) {
+  var id = Number(movimentacaoId);
+  var mov = null;
+  for (var i = 0; i < historicoEntradas.length; i++) {
+    if (Number(historicoEntradas[i].id) === id) {
+      mov = historicoEntradas[i];
+      break;
+    }
+  }
+  if (!mov) {
+    alert('Entrada nao encontrada.');
+    return;
+  }
 
-    const nome = String(m.medicamento_nome || '').toLowerCase();
-    const obs = String(m.observacao || '').toLowerCase();
+  movimentacaoEmEdicao = mov;
 
-    return nome.includes(termo) || obs.includes(termo);
-  });
+  var fornecedorNome = extrair(mov.observacao, 'Fornecedor:');
+  var categoria = extrair(mov.observacao, 'Categoria:');
+  var lote = extrair(mov.observacao, 'Lote:');
+  var validadeObs = extrair(mov.observacao, 'Validade informada:');
+  var valorUnitario = extrair(mov.observacao, 'Valor unitario:');
+
+  if (!valorUnitario)
+    valorUnitario = extrair(mov.observacao, 'Valor unit\u00e1rio:');
+
+  var med = null;
+  for (var j = 0; j < medicamentosCache.length; j++) {
+    if (Number(medicamentosCache[j].id) === Number(mov.medicamento)) {
+      med = medicamentosCache[j];
+      break;
+    }
+  }
+
+  setVal('editNome', med ? med.nome : mov.medicamento_nome || '');
+  setVal('editDosagem', med ? med.miligrama || '' : '');
+  setVal('editLote', lote || (med ? med.lote || '' : ''));
+  setVal('editQuantidade', String(mov.quantidade || ''));
+  setVal(
+    'editValorUnitario',
+    valorUnitario || (med ? String(med.valor_unit || '') : '')
+  );
+  setVal(
+    'editValidade',
+    toInputDate(validadeObs || (med ? med.validade || '' : ''))
+  );
+
+  var selCat = document.getElementById('editCategoria');
+  if (selCat) selCat.value = categoria || (med ? med.categoria || '' : '');
+
+  preencherSelectFornecedores('editFornecedor', fornecedorNome);
+
+  document.getElementById('modalEdicaoEntrada').classList.add('active');
+  criarIcones();
+
+  document.body.style.overflow = 'hidden';
+};
+
+function fecharModalEdicao() {
+  document.getElementById('modalEdicaoEntrada').classList.remove('active');
+  document.body.style.overflow = 'auto';
+  movimentacaoEmEdicao = null;
+}
+
+async function salvarEdicaoEntrada() {
+  if (!movimentacaoEmEdicao) return;
+
+  var nome = getValue('editNome');
+  var miligrama = getValue('editDosagem');
+  var categoria = getValue('editCategoria');
+  var lote = getValue('editLote');
+  var quantidade = Number(getValue('editQuantidade'));
+  var valorUnitario = Number(getValue('editValorUnitario'));
+  var validade = getValue('editValidade');
+  var selForn = document.getElementById('editFornecedor');
+  var fornecedorId = Number(selForn ? selForn.value : 0);
+  var fornecedorNome =
+    selForn && selForn.selectedIndex >= 0
+      ? selForn.options[selForn.selectedIndex].text
+      : '';
+
+  if (!nome || !lote || !quantidade || !validade || !fornecedorId) {
+    alert('Preencha todos os campos obrigatorios.');
+    return;
+  }
+
+  var med = null;
+  for (var i = 0; i < medicamentosCache.length; i++) {
+    if (
+      Number(medicamentosCache[i].id) ===
+      Number(movimentacaoEmEdicao.medicamento)
+    ) {
+      med = medicamentosCache[i];
+      break;
+    }
+  }
+
+  if (!med) {
+    alert('Medicamento nao encontrado no cache.');
+    return;
+  }
+
+  var qtdAnterior = Number(movimentacaoEmEdicao.quantidade || 0);
+  var estoqueAtual = Number(med.quantidade || 0);
+  var novoEstoque = estoqueAtual - qtdAnterior + quantidade;
+  var dataEntradaOriginal = extrair(
+    movimentacaoEmEdicao.observacao,
+    'Data da entrada:'
+  );
+  var fornecedorIdMed =
+    typeof med.fornecedor === 'object' ? med.fornecedor.id : med.fornecedor;
+
+  try {
+    var respMed = await fetch(API_MEDICAMENTOS + med.id + '/', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: nome,
+        miligrama: miligrama || null,
+        categoria: categoria,
+        lote: lote,
+        validade: validade,
+        quantidade: novoEstoque,
+        valor_unit: valorUnitario,
+        descricao: med.descricao || '',
+        fornecedor: fornecedorId,
+      }),
+    });
+
+    if (!respMed.ok) {
+      var errMed = await respMed.json().catch(function () {
+        return {};
+      });
+      console.error('Erro PUT medicamento:', errMed);
+      alert('Erro ao atualizar medicamento: ' + JSON.stringify(errMed));
+      return;
+    }
+
+    var novaObs = [
+      'Fornecedor: ' + fornecedorNome,
+      'Categoria: ' + categoria,
+      'Lote: ' + lote,
+      'Validade informada: ' + validade,
+      'Valor unitario: ' + valorUnitario,
+      'Data da entrada: ' + dataEntradaOriginal,
+    ].join(' | ');
+
+    var respMov = await fetch(
+      API_MOVIMENTACOES + movimentacaoEmEdicao.id + '/',
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          medicamento: Number(movimentacaoEmEdicao.medicamento),
+          tipo: 'E',
+          quantidade: quantidade,
+          observacao: novaObs,
+        }),
+      }
+    );
+
+    if (!respMov.ok) {
+      var errMov = await respMov.json().catch(function () {
+        return {};
+      });
+      console.error('Erro PUT movimentacao:', errMov);
+      alert('Erro ao atualizar movimentacao: ' + JSON.stringify(errMov));
+      return;
+    }
+
+    fecharModalEdicao();
+    await carregarMedicamentos();
+    await carregarHistoricoEntradas();
+    alert('Entrada atualizada com sucesso.');
+  } catch (err) {
+    console.error('Erro salvar edicao:', err);
+    alert('Erro de conexao: ' + err.message);
+  }
+}
+
+window.abrirModalExcluir = function (movimentacaoId) {
+  var id = Number(movimentacaoId);
+  var mov = null;
+  for (var i = 0; i < historicoEntradas.length; i++) {
+    if (Number(historicoEntradas[i].id) === id) {
+      mov = historicoEntradas[i];
+      break;
+    }
+  }
+  if (!mov) {
+    alert('Entrada nao encontrada.');
+    return;
+  }
+
+  entradaExcluindo = mov;
+
+  var nomeEl = document.getElementById('nomeEntradaExcluir');
+  if (nomeEl) nomeEl.textContent = mov.medicamento_nome || 'Medicamento';
+
+  document.getElementById('modalExcluirEntrada').classList.add('active');
+  criarIcones();
+};
+
+function fecharModalExcluir() {
+  document.getElementById('modalExcluirEntrada').classList.remove('active');
+  entradaExcluindo = null;
+}
+async function confirmarExclusao() {
+  if (!entradaExcluindo) return;
+
+  try {
+    const respMov = await fetch(API_MOVIMENTACOES + entradaExcluindo.id + '/', {
+      method: 'DELETE',
+    });
+
+    if (!respMov.ok) {
+      alert('Erro ao excluir movimentação.');
+      return;
+    }
+
+    const med = medicamentosCache.find(
+      (m) => Number(m.id) === Number(entradaExcluindo.medicamento)
+    );
+
+    if (med) {
+      const respMed = await fetch(API_MEDICAMENTOS + med.id + '/', {
+        method: 'DELETE',
+      });
+
+      if (!respMed.ok) {
+        alert('Erro ao excluir medicamento.');
+        return;
+      }
+    }
+
+    fecharModalExcluir();
+
+    await carregarMedicamentos();
+    await carregarHistoricoEntradas();
+
+    alert('Medicamento excluído permanentemente.');
+  } catch (err) {
+    console.error(err);
+    alert('Erro ao excluir.');
+  }
 }
 
 function aplicarFiltros() {
@@ -418,101 +601,105 @@ function aplicarFiltros() {
 }
 
 function atualizarKPIsEntradas() {
-  const totalRegistros = historicoEntradas.length;
-
-  const totalItens = historicoEntradas.reduce((acc, m) => {
-    return acc + Number(m.quantidade || 0);
-  }, 0);
-
-  setText('kpiTotalEntradas', totalRegistros);
-  setText('kpiTotalItens', totalItens);
+  setText('kpiTotalEntradas', historicoEntradas.length);
+  var total = 0;
+  historicoEntradas.forEach(function (m) {
+    total += Number(m.quantidade || 0);
+  });
+  setText('kpiTotalItens', total);
 }
 
 function renderizarTabelaEntradas() {
-  const tbody = document.getElementById('tabelaEntrada');
+  var tbody = document.getElementById('tabelaEntrada');
   if (!tbody) return;
 
-  const filtradas = obterEntradasFiltradas();
-  const totalPaginas = Math.ceil(filtradas.length / itensPorPagina) || 1;
+  var termo = (
+    document.getElementById('searchEntrada')
+      ? document.getElementById('searchEntrada').value
+      : ''
+  )
+    .toLowerCase()
+    .trim();
 
-  if (paginaAtual > totalPaginas) {
-    paginaAtual = totalPaginas;
-  }
+  var filtradas = historicoEntradas.filter(function (m) {
+    if (!termo) return true;
+    return (
+      String(m.medicamento_nome || '')
+        .toLowerCase()
+        .indexOf(termo) >= 0 ||
+      String(m.observacao || '')
+        .toLowerCase()
+        .indexOf(termo) >= 0
+    );
+  });
 
-  const inicio = (paginaAtual - 1) * itensPorPagina;
-  const pagina = filtradas.slice(inicio, inicio + itensPorPagina);
+  var totalPaginas = Math.ceil(filtradas.length / itensPorPagina) || 1;
+  if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+
+  var inicio = (paginaAtual - 1) * itensPorPagina;
+  var pagina = filtradas.slice(inicio, inicio + itensPorPagina);
 
   tbody.innerHTML = '';
 
   if (pagina.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="9" class="empty-row">
-          Nenhuma entrada registrada ainda.
-        </td>
-      </tr>
-    `;
-
+    tbody.innerHTML =
+      '<tr><td colspan="10" class="empty-row">Nenhuma entrada registrada ainda.</td></tr>';
     renderizarPaginacao(totalPaginas);
     return;
   }
 
-  pagina.forEach((m) => {
-    const tr = document.createElement('tr');
+  pagina.forEach(function (m) {
+    var fornecedor = extrair(m.observacao, 'Fornecedor:');
+    var categoria = extrair(m.observacao, 'Categoria:');
+    var validade = extrair(m.observacao, 'Validade informada:');
+    var valorUnitario = extrair(m.observacao, 'Valor unitario:');
+    if (!valorUnitario)
+      valorUnitario = extrair(m.observacao, 'Valor unit\u00e1rio:');
+    var dataEntrada = extrair(m.observacao, 'Data da entrada:');
 
-    const fornecedor = extrairTrechoObservacao(m.observacao, 'Fornecedor:');
-    const categoria = extrairTrechoObservacao(m.observacao, 'Categoria:');
-    const validade = extrairTrechoObservacao(
-      m.observacao,
-      'Validade informada:'
-    );
-    const valorUnitario = extrairTrechoObservacao(
-      m.observacao,
-      'Valor unitário:'
-    );
-    const dataEntrada = extrairTrechoObservacao(
-      m.observacao,
-      'Data da entrada:'
-    );
-
-    tr.innerHTML = `
-      <td>
-        <code>${String(m.medicamento || '').padStart(4, '0')}</code>
-      </td>
-
-      <td>
-        ${escapeHTML(m.medicamento_nome || '—')}
-      </td>
-
-      <td>
-        <span class="badge badge-info">${escapeHTML(categoria || '—')}</span>
-      </td>
-
-      <td>
-        ${Number(m.quantidade || 0)}
-      </td>
-
-      <td>
-        ${formatarMoeda(valorUnitario)}
-      </td>
-
-      <td>
-        ${validade ? formatarDataBR(validade) : '—'}
-      </td>
-
-      <td>
-        ${escapeHTML(fornecedor || '—')}
-      </td>
-
-      <td>
-        ${dataEntrada ? formatarDataBR(dataEntrada) : formatarDataHora(m.data_movimentacao)}
-      </td>
-
-      <td>
-        <span class="badge badge-success">Registrada</span>
-      </td>
-    `;
-
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><code>' +
+      String(m.medicamento || '').padStart(4, '0') +
+      '</code></td>' +
+      '<td>' +
+      esc(m.medicamento_nome || '\u2014') +
+      '</td>' +
+      '<td><span class="badge badge-info">' +
+      esc(categoria || '\u2014') +
+      '</span></td>' +
+      '<td>' +
+      Number(m.quantidade || 0) +
+      '</td>' +
+      '<td>' +
+      fmtMoeda(valorUnitario) +
+      '</td>' +
+      '<td>' +
+      (validade ? fmtDataBR(validade) : '\u2014') +
+      '</td>' +
+      '<td>' +
+      esc(fornecedor || '\u2014') +
+      '</td>' +
+      '<td>' +
+      (dataEntrada
+        ? fmtDataBR(dataEntrada)
+        : fmtDataHora(m.data_movimentacao)) +
+      '</td>' +
+      '<td><span class="badge badge-success">Registrada</span></td>' +
+      '<td>' +
+      '<div class="table-actions">' +
+      '<button class="btn btn-outline btn-sm" type="button" onclick="abrirModalEdicao(' +
+      m.id +
+      ')">' +
+      '<i data-lucide="pencil"></i> Editar' +
+      '</button>' +
+      '<button class="btn btn-danger btn-sm" type="button" onclick="abrirModalExcluir(' +
+      m.id +
+      ')">' +
+      '<i data-lucide="trash-2"></i> Excluir' +
+      '</button>' +
+      '</div>' +
+      '</td>';
     tbody.appendChild(tr);
   });
 
@@ -521,156 +708,123 @@ function renderizarTabelaEntradas() {
 }
 
 function renderizarPaginacao(totalPaginas) {
-  const el = document.getElementById('paginationEntrada');
+  var el = document.getElementById('paginationEntrada');
   if (!el) return;
-
   if (totalPaginas <= 1) {
     el.innerHTML = '';
     return;
   }
 
-  let html = `
-    <button
-      class="pagination-btn"
-      ${paginaAtual === 1 ? 'disabled' : ''}
-      onclick="mudarPaginaEntrada(${paginaAtual - 1})"
-      type="button"
-    >
-      ‹
-    </button>
-  `;
-
-  for (let i = 1; i <= totalPaginas; i++) {
-    html += `
-      <button
-        class="pagination-btn ${i === paginaAtual ? 'active' : ''}"
-        onclick="mudarPaginaEntrada(${i})"
-        type="button"
-      >
-        ${i}
-      </button>
-    `;
+  var html =
+    '<button class="pagination-btn" ' +
+    (paginaAtual === 1 ? 'disabled' : '') +
+    ' onclick="mudarPaginaEntrada(' +
+    (paginaAtual - 1) +
+    ')" type="button">\u2039</button>';
+  for (var i = 1; i <= totalPaginas; i++) {
+    html +=
+      '<button class="pagination-btn ' +
+      (i === paginaAtual ? 'active' : '') +
+      '" onclick="mudarPaginaEntrada(' +
+      i +
+      ')" type="button">' +
+      i +
+      '</button>';
   }
-
-  html += `
-    <button
-      class="pagination-btn"
-      ${paginaAtual === totalPaginas ? 'disabled' : ''}
-      onclick="mudarPaginaEntrada(${paginaAtual + 1})"
-      type="button"
-    >
-      ›
-    </button>
-  `;
-
+  html +=
+    '<button class="pagination-btn" ' +
+    (paginaAtual === totalPaginas ? 'disabled' : '') +
+    ' onclick="mudarPaginaEntrada(' +
+    (paginaAtual + 1) +
+    ')" type="button">\u203a</button>';
   el.innerHTML = html;
 }
 
-window.mudarPaginaEntrada = function (pagina) {
-  paginaAtual = pagina;
+window.mudarPaginaEntrada = function (p) {
+  paginaAtual = p;
   renderizarTabelaEntradas();
 };
 
-async function safeJson(resp) {
-  try {
-    return await resp.json();
-  } catch {
-    return null;
+function extrair(obs, prefixo) {
+  if (!obs) return '';
+  var partes = String(obs).split('|');
+  for (var i = 0; i < partes.length; i++) {
+    var p = partes[i].trim();
+    if (p.indexOf(prefixo) === 0) return p.slice(prefixo.length).trim();
   }
+  return '';
+}
+
+function toInputDate(valor) {
+  if (!valor) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(valor)) return valor;
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(valor)) {
+    var parts = valor.split('/');
+    return parts[2] + '-' + parts[1] + '-' + parts[0];
+  }
+  return valor;
 }
 
 function getValue(id) {
-  const el = document.getElementById(id);
+  var el = document.getElementById(id);
   return el ? String(el.value).trim() : '';
 }
 
+function setVal(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
 function getTextoSelecionado(id) {
-  const select = document.getElementById(id);
-
-  if (!select || select.selectedIndex < 0) {
-    return '';
-  }
-
-  return select.options[select.selectedIndex]?.text || '';
+  var sel = document.getElementById(id);
+  if (!sel || sel.selectedIndex < 0) return '';
+  return sel.options[sel.selectedIndex]
+    ? sel.options[sel.selectedIndex].text
+    : '';
 }
 
 function setText(id, valor) {
-  const el = document.getElementById(id);
-
-  if (el) {
-    el.textContent = valor;
-  }
+  var el = document.getElementById(id);
+  if (el) el.textContent = valor;
 }
 
-function normalizarTexto(valor) {
-  return String(valor || '')
+function norm(v) {
+  return String(v || '')
     .trim()
     .toLowerCase();
 }
 
-function formatarDataBR(dateStr) {
-  if (!dateStr) return '—';
-
-  if (/^\d{2}\/\d{2}\/\d{4}$/.test(String(dateStr))) {
-    return String(dateStr);
+function fmtDataBR(s) {
+  if (!s) return '\u2014';
+  var str = String(s);
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return str;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    var p = str.split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
   }
-
-  if (/^\d{4}-\d{2}-\d{2}$/.test(String(dateStr))) {
-    const [ano, mes, dia] = dateStr.split('-');
-    return `${dia}/${mes}/${ano}`;
-  }
-
-  const d = new Date(dateStr);
-
-  if (isNaN(d.getTime())) {
-    return String(dateStr);
-  }
-
-  return d.toLocaleDateString('pt-BR');
+  var dt = new Date(s);
+  return isNaN(dt.getTime()) ? str : dt.toLocaleDateString('pt-BR');
 }
 
-function formatarDataHora(iso) {
-  if (!iso) return '—';
-
-  const d = new Date(iso);
-
-  if (isNaN(d.getTime())) {
-    return String(iso);
-  }
-
-  return `${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })}`;
+function fmtDataHora(iso) {
+  if (!iso) return '\u2014';
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) return String(iso);
+  return (
+    d.toLocaleDateString('pt-BR') +
+    ' ' +
+    d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  );
 }
 
-function formatarMoeda(valor) {
-  const numero = Number(valor);
-
-  if (Number.isNaN(numero)) {
-    return 'R$ 0,00';
-  }
-
-  return numero.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
+function fmtMoeda(v) {
+  var n = Number(v);
+  if (isNaN(n)) return 'R$ 0,00';
+  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-function extrairTrechoObservacao(obs, prefixo) {
-  if (!obs) return '';
-
-  const partes = String(obs)
-    .split('|')
-    .map((p) => p.trim());
-
-  const trecho = partes.find((p) => p.startsWith(prefixo));
-
-  return trecho ? trecho.replace(prefixo, '').trim() : '';
-}
-
-function escapeHTML(str) {
-  return String(str ?? '')
+function esc(s) {
+  return String(s === null || s === undefined ? '' : s)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -679,10 +833,6 @@ function escapeHTML(str) {
 }
 
 function verificarAutenticacao() {
-  const currentUser =
-    typeof getCurrentUser === 'function' ? getCurrentUser() : null;
-
-  if (!currentUser) {
-    window.location.href = '../html/index.html';
-  }
+  var u = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+  if (!u) window.location.href = '../html/index.html';
 }
