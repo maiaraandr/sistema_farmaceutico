@@ -281,7 +281,6 @@ textarea {
 }
 
 .form-group label.required::after {
-  content: " *";
   color: var(--danger);
 }
 

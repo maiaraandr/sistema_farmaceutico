@@ -49,6 +49,7 @@
       </header>
 
       <main class="saida-content">
+        <!-- Formulário -->
         <section class="saida-section">
           <div class="saida-card">
             <div class="saida-card-header">
@@ -128,7 +129,6 @@
                     <i data-lucide="rotate-ccw"></i>
                     Limpar
                   </button>
-
                   <button type="submit" class="btn btn-primary">
                     <i data-lucide="check"></i>
                     Registrar Saída
@@ -139,30 +139,24 @@
           </div>
         </section>
 
+        <!-- KPIs -->
         <section class="saida-section">
           <div class="saida-kpi-row">
             <div class="saida-kpi-card">
               <div class="label">
-                <i data-lucide="package-minus"></i>
-                Total de Saídas
+                <i data-lucide="package-minus"></i> Total de Saídas
               </div>
               <div class="value" id="kpiSaidas">0</div>
               <div class="sub">No histórico</div>
             </div>
-
             <div class="saida-kpi-card">
-              <div class="label">
-                <i data-lucide="calendar"></i>
-                Hoje
-              </div>
+              <div class="label"><i data-lucide="calendar"></i> Hoje</div>
               <div class="value" id="kpiHoje">—</div>
               <div class="sub">Data atual</div>
             </div>
-
             <div class="saida-kpi-card">
               <div class="label">
-                <i data-lucide="activity"></i>
-                Último Registro
+                <i data-lucide="activity"></i> Último Registro
               </div>
               <div class="value" id="kpiUltimo">—</div>
               <div class="sub">Saída mais recente</div>
@@ -170,6 +164,7 @@
           </div>
         </section>
 
+        <!-- Histórico -->
         <section class="saida-section">
           <div class="saida-card">
             <div class="saida-card-header saida-card-header-table">
@@ -178,7 +173,6 @@
                   <i data-lucide="list"></i>
                   Histórico de Saídas
                 </h2>
-
                 <span class="badge-pill badge-out" id="badgeSaidas">
                   <i data-lucide="hash" style="width: 14px; height: 14px"></i>
                   <span id="totalLinhasSaida">0</span> registros
@@ -204,7 +198,6 @@
                     <i data-lucide="download"></i>
                     Exportar
                   </button>
-
                   <div class="dropdown-menu" id="dropdownExportarSaida">
                     <button
                       type="button"
@@ -214,7 +207,6 @@
                       <i data-lucide="file-text"></i>
                       Exportar CSV
                     </button>
-
                     <button
                       type="button"
                       class="dropdown-item"
@@ -233,22 +225,23 @@
                 <table class="data-table">
                   <thead>
                     <tr>
+                      <th>Código</th>
                       <th>Medicamento</th>
                       <th>Quantidade</th>
-                      <th>Destino</th>
+                      <th>Destino / Motivo</th>
                       <th>Data da Saída</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody id="tabelaSaida">
                     <tr>
-                      <td colspan="4" class="empty-row">
+                      <td colspan="6" class="empty-row">
                         Nenhuma saída registrada ainda.
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-
               <div class="pagination" id="paginationSaida"></div>
             </div>
           </div>

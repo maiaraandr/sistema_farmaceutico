@@ -166,20 +166,21 @@ textarea {
 }
 
 .saida-card-header {
-  padding: 20px;
+  padding: 18px 22px;
   border-bottom: 1px solid #edf2ff;
 }
 
+/* ── Cabeçalho da tabela: título à esquerda, ações à direita na mesma linha ── */
 .saida-card-header-table {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 14px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .saida-card-body {
-  padding: 20px;
+  padding: 22px;
 }
 
 .saida-card-title {
@@ -188,14 +189,18 @@ textarea {
   align-items: center;
   gap: 10px;
   color: var(--saida-text);
-  font-size: 18px;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .saida-card-title i,
 .saida-card-title svg {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
 }
+
+/* ── KPIs ── */
 
 .saida-kpi-row {
   display: grid;
@@ -248,38 +253,32 @@ textarea {
   color: var(--saida-text-soft);
 }
 
+/* ── Formulário ── */
+
 .form-grid-saida {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 14px;
+  gap: 16px 14px;
+  align-items: end;
 }
 
-.col-12 {
-  grid-column: span 12;
-}
-
-.col-6 {
-  grid-column: span 6;
-}
-
-.col-4 {
-  grid-column: span 4;
-}
-
-.col-3 {
-  grid-column: span 3;
-}
+.col-12 { grid-column: span 12; }
+.col-6  { grid-column: span 6; }
+.col-4  { grid-column: span 4; }
+.col-3  { grid-column: span 3; }
+.col-2  { grid-column: span 2; }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .form-group label {
-  font-size: 13px;
-  font-weight: 800;
-  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.02em;
 }
 
 .form-group label.required::after {
@@ -288,24 +287,34 @@ textarea {
 
 .form-input {
   width: 100%;
-  padding: 12px 14px;
+  height: 40px;
+  padding: 0 13px;
   border: 1px solid var(--saida-border-strong);
-  border-radius: 14px;
+  border-radius: 10px;
   background: #fff;
   color: var(--saida-text);
+  font-size: 14px;
   outline: none;
-  transition: 0.2s ease;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .form-input:focus {
   border-color: var(--saida-primary);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
-.helper {
-  font-size: 12px;
-  color: var(--saida-text-soft);
-  margin-top: 2px;
+.form-input::placeholder {
+  color: #aab4c8;
+}
+
+select.form-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  cursor: pointer;
 }
 
 .form-actions {
@@ -318,37 +327,59 @@ textarea {
   margin-top: 16px;
 }
 
+/* ── Botões ── */
+
 .btn {
-  border: none;
-  border-radius: 14px;
-  padding: 12px 16px;
-  font-weight: 800;
-  cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  transition: 0.2s ease;
+  justify-content: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .btn i,
 .btn svg {
-  width: 17px;
-  height: 17px;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
 }
 
 .btn-sm {
-  padding: 10px 14px;
+  height: 36px;
+  padding: 0 16px;
   font-size: 13px;
 }
 
 .btn-primary {
-  background: linear-gradient(90deg, #3f74f0 0%, #2d67ea 100%);
+  background: var(--saida-primary);
   color: #fff;
-  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
 }
 
 .btn-primary:hover {
+  background: var(--saida-primary-dark);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid var(--saida-border-strong);
+}
+
+.btn-secondary:hover {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #b8ccf5;
 }
 
 .btn-outline {
@@ -361,19 +392,10 @@ textarea {
   background: #f7faff;
 }
 
-.btn-secondary {
-  background: #eef3ff;
-  color: #26457d;
-}
-
-.btn-secondary:hover {
-  background: #e5edff;
-}
-
 .btn-danger {
   background: var(--saida-danger);
   color: #fff;
-  box-shadow: 0 10px 22px rgba(239, 68, 68, 0.18);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.28);
 }
 
 .btn-danger:hover {
@@ -381,33 +403,25 @@ textarea {
   transform: translateY(-1px);
 }
 
-.filters-row {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-}
+/* ── Filtros e ações ── */
 
 .filters-left {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .table-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .search-box {
   position: relative;
-  min-width: 280px;
-  width: 100%;
-  max-width: 340px;
+  width: 260px;
 }
 
 .search-box i,
@@ -417,45 +431,80 @@ textarea {
   top: 50%;
   transform: translateY(-50%);
   color: #9ca3af;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
 }
 
 .search-box input {
   width: 100%;
-  padding: 10px 14px 10px 42px;
-  border: 2px solid #e5e7eb;
+  height: 36px;
+  padding: 0 14px 0 40px;
+  border: 1px solid var(--saida-border-strong);
   border-radius: 10px;
-  font-size: 14px;
-  transition: all 0.2s ease;
+  font-size: 13px;
+  transition: border-color 0.15s, box-shadow 0.15s;
   outline: none;
+  color: var(--saida-text);
 }
 
 .search-box input:focus {
   border-color: var(--saida-primary);
-  box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
+
+/* ── Badge pill (contador de registros) ── */
 
 .badge-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
+  padding: 4px 10px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
-  border: 1px solid #e5e7eb;
-  background: #f9fafb;
+  white-space: nowrap;
 }
 
 .badge-out {
   background: rgba(1, 163, 250, 0.12);
   color: #0061fc;
-  border-color: rgba(3, 95, 243, 0.25);
+  border: 1px solid rgba(3, 95, 243, 0.25);
 }
+
+/* ── Badges de status ── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badge-info {
+  background: #e8efff;
+  color: #315ec9;
+}
+
+.badge-success {
+  background: var(--saida-success-soft);
+  color: #065f46;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-danger {
+  background: var(--saida-danger-soft);
+  color: var(--saida-danger);
+}
+
+/* ── Dropdown exportar ── */
 
 .dropdown-export {
   position: relative;
+  flex-shrink: 0;
 }
 
 .dropdown-menu {
@@ -494,18 +543,20 @@ textarea {
   background: #f3f4f6;
 }
 
+/* ── Tabela ── */
+
 .table-container {
   width: 100%;
   overflow-x: auto;
   border: 1px solid #eaf0ff;
-  border-radius: 18px;
+  border-radius: 14px;
   background: #fff;
 }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  min-width: 780px;
 }
 
 .data-table thead {
@@ -515,10 +566,11 @@ textarea {
 .data-table th {
   text-align: left;
   padding: 12px 16px;
-  font-size: 12px;
+  font-size: 11px;
   color: #64748b;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   border-bottom: 1px solid #eaf0ff;
   white-space: nowrap;
 }
@@ -531,6 +583,10 @@ textarea {
   color: var(--saida-text);
 }
 
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
 .data-table tbody tr:hover {
   background: #fafcff;
 }
@@ -538,31 +594,47 @@ textarea {
 .empty-row {
   text-align: center;
   color: #6b7280;
-  padding: 24px !important;
+  padding: 32px !important;
+  font-size: 14px;
 }
+
+/* ── Código do medicamento ── */
+
+code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 12px;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* ── Paginação ── */
 
 .pagination {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
   padding-top: 16px;
   justify-content: center;
 }
 
 .pagination-btn {
-  min-width: 38px;
-  height: 38px;
+  min-width: 36px;
+  height: 36px;
   border: 1px solid var(--saida-border-strong);
-  border-radius: 12px;
+  border-radius: 10px;
   background: #fff;
   color: var(--saida-text);
   cursor: pointer;
-  font-weight: 800;
-  transition: 0.2s ease;
+  font-size: 13px;
+  font-weight: 700;
+  transition: 0.15s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 12px;
+  padding: 0 10px;
 }
 
 .pagination-btn:hover:not(:disabled):not(.active) {
@@ -578,30 +650,47 @@ textarea {
 }
 
 .pagination-btn:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* ── Estoque disponível ── */
+
+#estoqueAtual {
+  font-weight: 700;
+  color: var(--saida-primary);
+  background: #f8fbff;
+}
+
+/* ── Responsivo ── */
 
 @media (max-width: 900px) {
   .col-6,
   .col-4,
-  .col-3 {
+  .col-3,
+  .col-2 {
     grid-column: span 12;
   }
 
-  .saida-card-header-table,
-  .filters-row {
-    flex-direction: column;
-    align-items: stretch;
+  .saida-card-header-table {
+    flex-wrap: wrap;
+  }
+
+  .table-actions {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .search-box {
+    width: 100%;
   }
 
   .form-actions {
-    justify-content: flex-start;
+    justify-content: stretch;
   }
 
-  .filters-left,
-  .table-actions {
-    width: 100%;
+  .form-actions .btn {
+    flex: 1;
   }
 }
 
@@ -616,7 +705,7 @@ textarea {
   }
 
   .saida-title {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .saida-topbar-right {
@@ -627,15 +716,4 @@ textarea {
   .saida-kpi-row {
     grid-template-columns: 1fr;
   }
-
-  .search-box {
-    max-width: 100%;
-    min-width: 0;
-  }
-}
-
-#estoqueAtual {
-  font-weight: 700;
-  color: var(--saida-primary);
-  background: #f8fbff;
 }

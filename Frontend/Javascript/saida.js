@@ -156,12 +156,10 @@ async function carregarMedicamentos() {
       ${medicamentos
         .map(
           (m) =>
-            `<option value="${m.id}">${String(m.id).padStart(4, '0')} - ${escapeHTML(m.nome || '')} ${escapeHTML(
-              m.miligrama || ''
-            )}</option>`
+            `<option value="${m.id}">${String(m.id).padStart(4, '0')} - ${escapeHTML(m.nome || '')} ${escapeHTML(m.miligrama || '')}</option>`
         )
         .join('')}
-  `;
+    `;
   } catch (error) {
     console.error('Erro ao carregar medicamentos:', error);
     alert('Não foi possível carregar os medicamentos.');
@@ -186,9 +184,6 @@ async function carregarSaidas() {
   }
 }
 
-// ==============================
-// REGISTRAR SAIDA
-// ==============================
 async function registrarSaida(e) {
   e.preventDefault();
 
@@ -201,17 +196,14 @@ async function registrarSaida(e) {
     alert('Selecione medicamento');
     return;
   }
-
   if (!quantidade || Number(quantidade) <= 0) {
     alert('Informe quantidade válida');
     return;
   }
-
   if (!destino) {
     alert('Informe o destino ou motivo');
     return;
   }
-
   if (!data) {
     alert('Informe a data da saída');
     return;
@@ -244,9 +236,7 @@ async function registrarSaida(e) {
   try {
     const resp = await fetch(API_MOVIMENTACOES, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
@@ -272,9 +262,8 @@ async function registrarSaida(e) {
   }
 }
 
-// ==============================
-// TABELA
-// ==============================
+// ── TABELA ──
+
 function renderTabela() {
   const tbody = document.getElementById('tabelaSaida');
   if (!tbody) return;
@@ -302,9 +291,7 @@ function renderTabela() {
   if (!pagina.length) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="4" class="empty-row">
-          Nenhuma saída registrada ainda.
-        </td>
+        <td colspan="6" class="empty-row">Nenhuma saída registrada ainda.</td>
       </tr>
     `;
     renderizarPaginacao(totalPaginas);
@@ -312,18 +299,20 @@ function renderTabela() {
     return;
   }
 
-  tbody.innerHTML = pagina
-    .map(
-      (s) => `
-        <tr>
-          <td>${escapeHTML(s.medicamento_nome || '—')}</td>
-          <td>${Number(s.quantidade || 0)}</td>
-          <td>${escapeHTML(extrair(s.observacao, 'Destino:') || '—')}</td>
-          <td>${escapeHTML(extrair(s.observacao, 'Data:') || '—')}</td>
-        </tr>
-      `
-    )
-    .join('');
+  pagina.forEach((s) => {
+    const destino = extrair(s.observacao, 'Destino:');
+    const dataSaida = extrair(s.observacao, 'Data:');
+
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      `<td><code>${String(s.medicamento || '').padStart(4, '0')}</code></td>` +
+      `<td>${escapeHTML(s.medicamento_nome || '—')}</td>` +
+      `<td>${Number(s.quantidade || 0)}</td>` +
+      `<td>${escapeHTML(destino || '—')}</td>` +
+      `<td>${dataSaida ? fmtDataBR(dataSaida) : fmtDataHora(s.data_movimentacao)}</td>` +
+      `<td><span class="badge badge-success">Registrada</span></td>`;
+    tbody.appendChild(tr);
+  });
 
   renderizarPaginacao(totalPaginas);
   atualizarBadgeTotal(filtradas.length);
@@ -342,39 +331,13 @@ function renderizarPaginacao(totalPaginas) {
     return;
   }
 
-  let html = `
-    <button
-      class="pagination-btn"
-      ${paginaAtual === 1 ? 'disabled' : ''}
-      onclick="mudarPaginaSaida(${paginaAtual - 1})"
-      type="button"
-    >
-      ‹
-    </button>
-  `;
+  let html = `<button class="pagination-btn" ${paginaAtual === 1 ? 'disabled' : ''} onclick="mudarPaginaSaida(${paginaAtual - 1})" type="button">‹</button>`;
 
   for (let i = 1; i <= totalPaginas; i++) {
-    html += `
-      <button
-        class="pagination-btn ${i === paginaAtual ? 'active' : ''}"
-        onclick="mudarPaginaSaida(${i})"
-        type="button"
-      >
-        ${i}
-      </button>
-    `;
+    html += `<button class="pagination-btn ${i === paginaAtual ? 'active' : ''}" onclick="mudarPaginaSaida(${i})" type="button">${i}</button>`;
   }
 
-  html += `
-    <button
-      class="pagination-btn"
-      ${paginaAtual === totalPaginas ? 'disabled' : ''}
-      onclick="mudarPaginaSaida(${paginaAtual + 1})"
-      type="button"
-    >
-      ›
-    </button>
-  `;
+  html += `<button class="pagination-btn" ${paginaAtual === totalPaginas ? 'disabled' : ''} onclick="mudarPaginaSaida(${paginaAtual + 1})" type="button">›</button>`;
 
   el.innerHTML = html;
 }
@@ -386,49 +349,43 @@ window.mudarPaginaSaida = function (pagina) {
 
 function atualizarBadgeTotal(total) {
   const el = document.getElementById('totalLinhasSaida');
-  if (el) {
-    el.textContent = total;
-  }
+  if (el) el.textContent = total;
 }
 
-// ==============================
-// KPIs
-// ==============================
+// ── KPIs ──
+
 function atualizarKPIs() {
   const kpiSaidas = document.getElementById('kpiSaidas');
   const kpiHoje = document.getElementById('kpiHoje');
   const kpiUltimo = document.getElementById('kpiUltimo');
 
-  if (kpiSaidas) {
-    kpiSaidas.textContent = saidas.length;
-  }
-
-  if (kpiHoje) {
-    kpiHoje.textContent = new Date().toLocaleDateString('pt-BR');
-  }
+  if (kpiSaidas) kpiSaidas.textContent = saidas.length;
+  if (kpiHoje) kpiHoje.textContent = new Date().toLocaleDateString('pt-BR');
 
   const ultimo = saidas[0]?.medicamento_nome || '—';
-  if (kpiUltimo) {
-    kpiUltimo.textContent = ultimo;
-  }
+  if (kpiUltimo) kpiUltimo.textContent = ultimo;
 
   atualizarBadgeTotal(saidas.length);
 }
 
-// ==============================
-// EXPORTAÇÃO
-// ==============================
+// ── EXPORTAÇÃO ──
+
 function exportarCSVSaida() {
   const lista = window.saidasFiltradas || [];
-
   if (!lista.length) {
     alert('Não há dados para exportar.');
     return;
   }
 
-  const header = ['Medicamento', 'Quantidade', 'Destino', 'Data'];
-
+  const header = [
+    'Código',
+    'Medicamento',
+    'Quantidade',
+    'Destino',
+    'Data da Saída',
+  ];
   const rows = lista.map((s) => [
+    String(s.medicamento || '').padStart(4, '0'),
     s.medicamento_nome || '',
     s.quantidade || 0,
     extrair(s.observacao, 'Destino:'),
@@ -439,10 +396,7 @@ function exportarCSVSaida() {
     .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
     .join('\n');
 
-  const blob = new Blob(['\uFEFF' + csv], {
-    type: 'text/csv;charset=utf-8;',
-  });
-
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -457,22 +411,21 @@ function exportarCSVSaida() {
 
 function exportarExcelSaida() {
   const lista = window.saidasFiltradas || [];
-
   if (!lista.length) {
     alert('Não há dados para exportar.');
     return;
   }
-
   if (typeof XLSX === 'undefined') {
     alert('Biblioteca XLSX não carregada.');
     return;
   }
 
   const dados = lista.map((s) => ({
+    Código: String(s.medicamento || '').padStart(4, '0'),
     Medicamento: s.medicamento_nome || '',
     Quantidade: Number(s.quantidade || 0),
     Destino: extrair(s.observacao, 'Destino:'),
-    Data: extrair(s.observacao, 'Data:'),
+    'Data da Saída': extrair(s.observacao, 'Data:'),
   }));
 
   const ws = XLSX.utils.json_to_sheet(dados);
@@ -483,15 +436,37 @@ function exportarExcelSaida() {
   document.getElementById('dropdownExportarSaida')?.classList.remove('active');
 }
 
-// ==============================
-// HELPERS
-// ==============================
+// ── HELPERS ──
+
 function extrair(texto, label) {
   if (!texto) return '';
   const p = String(texto)
     .split('|')
-    .find((x) => x.includes(label));
+    .find((x) => x.trim().startsWith(label));
   return p ? p.replace(label, '').trim() : '';
+}
+
+function fmtDataBR(s) {
+  if (!s) return '—';
+  const str = String(s);
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(str)) return str;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    const p = str.split('-');
+    return `${p[2]}/${p[1]}/${p[0]}`;
+  }
+  const dt = new Date(s);
+  return isNaN(dt.getTime()) ? str : dt.toLocaleDateString('pt-BR');
+}
+
+function fmtDataHora(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return String(iso);
+  return (
+    d.toLocaleDateString('pt-BR') +
+    ' ' +
+    d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  );
 }
 
 function escapeHTML(str) {
@@ -514,8 +489,5 @@ async function safeJson(resp) {
 function verificarAutenticacao() {
   const currentUser =
     typeof getCurrentUser === 'function' ? getCurrentUser() : null;
-
-  if (!currentUser) {
-    window.location.href = '../html/index.html';
-  }
+  if (!currentUser) window.location.href = '../html/index.html';
 }
