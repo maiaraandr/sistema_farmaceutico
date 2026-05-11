@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Redefinir Senha - Sistema Farmacêutico</title>
+    <title>Redefinir Senha - GestMed</title>
     <link rel="stylesheet" href="../CSS/base.css" />
     <link rel="stylesheet" href="../CSS/auth.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -76,7 +76,7 @@
             </button>
 
             <div class="auth-link">
-              <a href="index.html"> Voltar ao Login </a>
+              <a href="index.html">Voltar ao Login</a>
             </div>
           </form>
         </div>
@@ -89,14 +89,12 @@
       const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
       function getParam(nome) {
-        const url = new URL(window.location.href);
-        return url.searchParams.get(nome);
+        return new URL(window.location.href).searchParams.get(nome);
       }
 
       function togglePassword(inputId, button) {
         const input = document.getElementById(inputId);
         const icon = button.querySelector('i');
-
         if (input.type === 'password') {
           input.type = 'text';
           icon.setAttribute('data-lucide', 'eye-off');
@@ -104,7 +102,6 @@
           input.type = 'password';
           icon.setAttribute('data-lucide', 'eye');
         }
-
         lucide.createIcons();
       }
 
@@ -113,7 +110,6 @@
         const confirmarSenha = document
           .getElementById('confirmarSenha')
           .value.trim();
-
         const errorDiv = document.getElementById('resetError');
         const successDiv = document.getElementById('resetSuccess');
 
@@ -137,7 +133,6 @@
       document
         .getElementById('novaSenha')
         .addEventListener('input', validarSenhasEmTempoReal);
-
       document
         .getElementById('confirmarSenha')
         .addEventListener('input', validarSenhasEmTempoReal);
@@ -153,7 +148,6 @@
           const confirmar_senha = document
             .getElementById('confirmarSenha')
             .value.trim();
-
           const btn = document.getElementById('resetBtn');
           const errorDiv = document.getElementById('resetError');
           const successDiv = document.getElementById('resetSuccess');
@@ -185,14 +179,8 @@
           try {
             const response = await fetch(`${API_BASE_URL}/redefinir-senha/`, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                uid,
-                token,
-                nova_senha,
-              }),
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ uid, token, nova_senha }),
             });
 
             const data = await response.json();
@@ -200,18 +188,13 @@
             if (!response.ok) {
               errorDiv.textContent = data.erro || 'Erro ao redefinir senha.';
               errorDiv.classList.remove('hidden');
-              btn.disabled = false;
-              btn.textContent = 'Salvar Nova Senha';
               return;
             }
 
             successDiv.textContent =
               data.mensagem || 'Senha redefinida com sucesso.';
             successDiv.classList.remove('hidden');
-
             document.getElementById('resetForm').reset();
-            btn.disabled = false;
-            btn.textContent = 'Salvar Nova Senha';
 
             setTimeout(() => {
               window.location.href = 'index.html';
@@ -219,6 +202,7 @@
           } catch (error) {
             errorDiv.textContent = 'Não foi possível conectar ao servidor.';
             errorDiv.classList.remove('hidden');
+          } finally {
             btn.disabled = false;
             btn.textContent = 'Salvar Nova Senha';
           }

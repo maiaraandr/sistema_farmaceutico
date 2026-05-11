@@ -153,13 +153,10 @@ def registrar_entrada(request):
 
     if not nome:
         return Response({"erro": "Nome do medicamento é obrigatório."}, status=400)
-
     if not categoria:
         return Response({"erro": "Categoria é obrigatória."}, status=400)
-
     if not lote:
         return Response({"erro": "Lote é obrigatório."}, status=400)
-
     if not validade:
         return Response({"erro": "Validade é obrigatória."}, status=400)
 
@@ -247,6 +244,79 @@ def registrar_entrada(request):
     )
 
 
+# ── Recuperação de senha ───────────────────────────────────────────────────────
+
+def _html_email_recuperacao(nome_usuario, reset_link):
+    """Monta o corpo HTML do e-mail de recuperação."""
+    return f"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f0f4ff;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f4ff;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0"
+             style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 8px 30px rgba(37,99,235,.12);">
+
+        <tr>
+          <td style="background:linear-gradient(90deg,#4f7df2,#3e72f0);padding:36px 40px;text-align:center;">
+            <p style="margin:0 0 6px;font-size:12px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.1em;">GestMed</p>
+            <h1 style="margin:0;font-size:26px;font-weight:800;color:#fff;">Recuperação de Senha</h1>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:40px;">
+            <p style="margin:0 0 16px;font-size:15px;color:#334155;">
+              Olá, <strong>{nome_usuario}</strong>!
+            </p>
+            <p style="margin:0 0 16px;font-size:15px;color:#475569;line-height:1.6;">
+              Recebemos uma solicitação para redefinir a senha da sua conta no <strong>GestMed</strong>.
+            </p>
+            <p style="margin:0 0 28px;font-size:15px;color:#475569;line-height:1.6;">
+              Clique no botão abaixo para criar uma nova senha.
+              Este link é válido por <strong>1 hora</strong>.
+            </p>
+
+            <table cellpadding="0" cellspacing="0" width="100%">
+              <tr><td align="center">
+                <a href="{reset_link}"
+                   style="display:inline-block;background:linear-gradient(90deg,#4f7df2,#3e72f0);color:#fff;text-decoration:none;font-size:15px;font-weight:700;padding:14px 36px;border-radius:12px;box-shadow:0 4px 14px rgba(37,99,235,.3);">
+                  Redefinir minha senha
+                </a>
+              </td></tr>
+            </table>
+
+            <p style="margin:28px 0 0;font-size:13px;color:#94a3b8;text-align:center;line-height:1.6;">
+              Se o botão não funcionar, copie e cole o link abaixo no navegador:
+            </p>
+            <p style="margin:8px 0 0;font-size:12px;color:#64748b;text-align:center;word-break:break-all;">
+              <a href="{reset_link}" style="color:#3e72f0;">{reset_link}</a>
+            </p>
+
+            <hr style="border:none;border-top:1px solid #e2e8f0;margin:32px 0;"/>
+
+            <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.6;">
+              Se você não solicitou a recuperação de senha, ignore este e-mail.
+              Sua senha permanecerá a mesma.
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background:#f8faff;padding:20px 40px;text-align:center;border-top:1px solid #e2e8f0;">
+            <p style="margin:0;font-size:12px;color:#94a3b8;">
+              © GestMed — Sistema de Gestão Farmacêutica
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def solicitar_recuperacao_senha(request):
@@ -258,46 +328,48 @@ def solicitar_recuperacao_senha(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    try:
-        user = User.objects.get(email__iexact=email)
-    except User.DoesNotExist:
-        return Response(
-            {
-                "sucesso": True,
-                "mensagem": "Se o email existir, o link de recuperação será enviado.",
-            },
-            status=status.HTTP_200_OK,
-        )
-
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
-    token = default_token_generator.make_token(user)
-
-    site_url = getattr(settings, "SITE_URL", "http://127.0.0.1:5500")
-    reset_link = f"{site_url}/resetar-senha.html?uid={uid}&token={token}"
-
-    assunto = "Recuperação de senha - GestMed"
-    mensagem = (
-        f"Olá, {getattr(user, 'username', 'usuário')}.\n\n"
-        "Recebemos uma solicitação para redefinir sua senha.\n\n"
-        f"Acesse o link abaixo para criar uma nova senha:\n{reset_link}\n\n"
-        "Se você não solicitou esta alteração, ignore este email."
-    )
-
-    send_mail(
-        assunto,
-        mensagem,
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
-        fail_silently=False,
-    )
-
-    return Response(
+    resposta_padrao = Response(
         {
             "sucesso": True,
             "mensagem": "Se o email existir, o link de recuperação será enviado.",
         },
         status=status.HTTP_200_OK,
     )
+
+    user = User.objects.filter(email__iexact=email).first()
+
+    if not user:
+        return resposta_padrao
+
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+
+    site_url = getattr(settings, "SITE_URL", "http://127.0.0.1:5500")
+    reset_link = f"{site_url}/html/resetar-senha.html?uid={uid}&token={token}"
+
+    nome_usuario = user.get_full_name() or user.username
+
+    assunto = "GestMed — Recuperação de senha"
+
+    corpo_texto = (
+        f"Olá, {nome_usuario}.\n\n"
+        "Recebemos uma solicitação para redefinir sua senha.\n\n"
+        f"Acesse o link abaixo para criar uma nova senha (válido por 1 hora):\n{reset_link}\n\n"
+        "Se você não solicitou esta alteração, ignore este e-mail."
+    )
+
+    corpo_html = _html_email_recuperacao(nome_usuario, reset_link)
+
+    send_mail(
+        subject=assunto,
+        message=corpo_texto,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+        html_message=corpo_html,
+        fail_silently=False,
+    )
+
+    return resposta_padrao
 
 
 @api_view(["POST"])

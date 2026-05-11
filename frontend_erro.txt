@@ -1,0 +1,14 @@
+::ffff:127.0.0.1 - - [10/May/2026 20:12:13] "GET /Frontend/html/index.html HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [10/May/2026 20:12:13] "GET /Frontend/CSS/base.css HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [10/May/2026 20:12:13] "GET /Frontend/CSS/auth.css HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [10/May/2026 20:12:13] "GET /Frontend/Javascript/Storage.js HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [10/May/2026 20:12:13] "GET /Frontend/Javascript/autenticacao.js HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [10/May/2026 20:12:15] "GET /Frontend/html/recuperar_senha.html HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [10/May/2026 20:12:15] "GET /Frontend/CSS/base.css HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [10/May/2026 20:12:15] "GET /Frontend/CSS/auth.css HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [10/May/2026 20:12:25] "GET /Frontend/html/recuperar_senha.html HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [10/May/2026 20:12:25] "GET /Frontend/CSS/base.css HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [10/May/2026 20:12:25] "GET /Frontend/CSS/auth.css HTTP/1.1" 304 -
+Serving HTTP on :: port 5500 (http://[::]:5500/) ...
+
+Keyboard interrupt received, exiting.

@@ -1,7 +1,112 @@
 Watching for file changes with StatReloader
-[10/May/2026 10:32:02] "GET /api/medicamentos/ HTTP/1.1" 200 3704
-[10/May/2026 10:32:02] "GET /api/movimentacoes/ HTTP/1.1" 200 2736
-[10/May/2026 10:32:10] "GET /api/medicamentos/ HTTP/1.1" 200 3704
-[10/May/2026 10:32:10] "GET /api/movimentacoes/ HTTP/1.1" 200 2736
-[10/May/2026 10:34:39] "GET /api/medicamentos/ HTTP/1.1" 200 3704
-[10/May/2026 10:34:39] "GET /api/movimentacoes/ HTTP/1.1" 200 2736
+[10/May/2026 20:12:22] "OPTIONS /api/recuperar-senha/ HTTP/1.1" 200 0
+Internal Server Error: /api/recuperar-senha/
+Traceback (most recent call last):
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\generic\base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\backend\farmacia\views.py", line 345, in solicitar_recuperacao_senha
+    user = User.objects.get(email__iexact=email)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\query.py", line 642, in get
+    raise self.model.MultipleObjectsReturned(
+    ...<5 lines>...
+    )
+django.contrib.auth.models.User.MultipleObjectsReturned: get() returned more than one User -- it returned 2!
+[10/May/2026 20:12:22] "POST /api/recuperar-senha/ HTTP/1.1" 500 113646
+Internal Server Error: /api/recuperar-senha/
+Traceback (most recent call last):
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\generic\base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\backend\farmacia\views.py", line 345, in solicitar_recuperacao_senha
+    user = User.objects.get(email__iexact=email)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\query.py", line 642, in get
+    raise self.model.MultipleObjectsReturned(
+    ...<5 lines>...
+    )
+django.contrib.auth.models.User.MultipleObjectsReturned: get() returned more than one User -- it returned 2!
+[10/May/2026 20:12:24] "POST /api/recuperar-senha/ HTTP/1.1" 500 113646
+[10/May/2026 20:12:26] "OPTIONS /api/recuperar-senha/ HTTP/1.1" 200 0
+Internal Server Error: /api/recuperar-senha/
+Traceback (most recent call last):
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\views\generic\base.py", line 106, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\rest_framework\decorators.py", line 50, in handler
+    return func(*args, **kwargs)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\backend\farmacia\views.py", line 345, in solicitar_recuperacao_senha
+    user = User.objects.get(email__iexact=email)
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\venv\Lib\site-packages\django\db\models\query.py", line 642, in get
+    raise self.model.MultipleObjectsReturned(
+    ...<5 lines>...
+    )
+django.contrib.auth.models.User.MultipleObjectsReturned: get() returned more than one User -- it returned 2!
+[10/May/2026 20:12:26] "POST /api/recuperar-senha/ HTTP/1.1" 500 113646
+Performing system checks...
+
+System check identified no issues (0 silenced).
+May 10, 2026 - 20:12:08
+Django version 6.0.1, using settings 'backend.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/

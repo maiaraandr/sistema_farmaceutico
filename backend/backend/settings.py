@@ -4,16 +4,13 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# carregar .env
-load_dotenv(BASE_DIR / ".env")
+_env_path = Path(r'C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\backend\.env')
+load_dotenv(_env_path, override=True)
 
-# Segurança
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = True
-
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
-# Apps instalados
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -26,10 +23,9 @@ INSTALLED_APPS = [
     "farmacia",
 ]
 
-
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -58,7 +54,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -70,20 +65,11 @@ DATABASES = {
     }
 }
 
-
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 LANGUAGE_CODE = "pt-br"
@@ -91,24 +77,13 @@ TIME_ZONE = "America/Belem"
 USE_I18N = True
 USE_TZ = True
 
-
 STATIC_URL = "static/"
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
+# CORS
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
-
+CORS_ALLOW_METHODS = ["DELETE", "GET", "OPTIONS", "PATCH", "POST", "PUT"]
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
@@ -121,7 +96,6 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
 ]
 
-
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
@@ -132,21 +106,19 @@ REST_FRAMEWORK = {
     ],
 }
 
-
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5500",
     "http://localhost:5500",
 ]
 
-SITE_URL = "http://127.0.0.1:5500/Frontend/html"
-
-
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+# ── E-mail (Gmail) ────────────────────────────────────────────
+EMAIL_BACKEND       = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST          = "smtp.gmail.com"
+EMAIL_PORT          = 587
+EMAIL_USE_TLS       = True
+EMAIL_HOST_USER     = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL  = "GestMed <maysilva29andrade@gmail.com>"
 
-DEFAULT_FROM_EMAIL = "GestMed <maysilva29andrade@gmail.com>"
+# URL base do frontend — usada para montar o link no e-mail
+SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:5500/Frontend")
