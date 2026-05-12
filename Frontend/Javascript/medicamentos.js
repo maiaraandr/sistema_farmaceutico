@@ -1,4 +1,4 @@
-const API_MEDICAMENTOS = 'http://127.0.0.1:8000/api/medicamentos/';
+const API_MEDICAMENTOS = 'https://gestmed.onrender.com/api/medicamentos/';
 
 let produtos = [];
 
