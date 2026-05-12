@@ -1,4 +1,6 @@
 (() => {
+  const API_BASE_URL = 'https://gestmed.onrender.com/api';
+
   const elTipo = document.getElementById('tipoImport');
   const elFile = document.getElementById('fileInput');
   const elDz = document.getElementById('dropzone');
@@ -37,7 +39,6 @@
         logout();
         return;
       }
-
       localStorage.removeItem('farm_current_user');
       localStorage.removeItem('farm_session_token');
       window.location.href = 'index.html';
@@ -53,13 +54,9 @@
     elTipo?.addEventListener('change', () => {
       setPill(pillTipo, `Tipo: ${labelTipo(elTipo.value)}`);
       resultadoValidacao = null;
-
       if (btnAplicar) btnAplicar.disabled = true;
       if (btnValidar) btnValidar.disabled = linhasLidas.length === 0;
-
-      if (linhasLidas.length) {
-        validarEPreview();
-      }
+      if (linhasLidas.length) validarEPreview();
     });
 
     elFile?.addEventListener('change', async () => {
@@ -101,12 +98,9 @@
         console.warn(err);
         linhasLidas = [];
         atualizarKPIsBasicos();
-
         if (btnValidar) btnValidar.disabled = true;
         if (btnAplicar) btnAplicar.disabled = true;
-
         resultadoValidacao = null;
-
         logError(
           `Falha ao ler arquivo: ${err?.message || 'erro desconhecido'}`
         );
@@ -125,19 +119,15 @@
         e.preventDefault();
         elDz.classList.add('drag-over');
       });
-
       elDz.addEventListener('dragleave', () => {
         elDz.classList.remove('drag-over');
       });
-
       elDz.addEventListener('drop', (e) => {
         e.preventDefault();
         elDz.classList.remove('drag-over');
-
         if (e.dataTransfer?.files?.length) {
           const arquivo = e.dataTransfer.files[0];
           const nome = (arquivo.name || '').toLowerCase();
-
           if (
             !nome.endsWith('.csv') &&
             !nome.endsWith('.xlsx') &&
@@ -146,7 +136,6 @@
             alert('Formato não suportado. Use apenas CSV ou Excel.');
             return;
           }
-
           elFile.files = e.dataTransfer.files;
           elFile.dispatchEvent(new Event('change'));
         }
@@ -159,12 +148,10 @@
   function verificarAutenticacao() {
     const currentUser =
       typeof getCurrentUser === 'function' ? getCurrentUser() : null;
-
     if (!currentUser) {
       window.location.href = '../html/index.html';
       return;
     }
-
     const el = document.getElementById('userName');
     if (el) el.textContent = currentUser.nome || 'Usuário';
   }
@@ -178,29 +165,20 @@
     }
 
     if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
-      if (typeof XLSX === 'undefined') {
+      if (typeof XLSX === 'undefined')
         throw new Error('XLSX (SheetJS) não carregado no HTML.');
-      }
-
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: 'array' });
-
       const todasLinhas = [];
-
       wb.SheetNames.forEach((sheetName) => {
         const ws = wb.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
-
         if (Array.isArray(json) && json.length) {
-          json.forEach((linha) => {
-            todasLinhas.push({
-              __aba: sheetName,
-              ...linha,
-            });
-          });
+          json.forEach((linha) =>
+            todasLinhas.push({ __aba: sheetName, ...linha })
+          );
         }
       });
-
       return todasLinhas;
     }
 
@@ -212,25 +190,18 @@
       .replace(/\r/g, '')
       .split('\n')
       .filter((l) => l.trim().length);
-
     if (!lines.length) return [];
-
     const sep = detectCSVSeparator(lines[0]);
     const headers = splitCSVLine(lines[0], sep).map((h) => h.trim());
-
     const out = [];
-
     for (let i = 1; i < lines.length; i++) {
       const cols = splitCSVLine(lines[i], sep);
       const row = {};
-
       headers.forEach((h, idx) => {
         row[h] = (cols[idx] ?? '').trim();
       });
-
       out.push(row);
     }
-
     return out;
   }
 
@@ -245,10 +216,8 @@
     const res = [];
     let cur = '';
     let inQ = false;
-
     for (let i = 0; i < s.length; i++) {
       const ch = s[i];
-
       if (ch === '"') {
         if (inQ && s[i + 1] === '"') {
           cur += '"';
@@ -258,16 +227,13 @@
         }
         continue;
       }
-
       if (!inQ && ch === sep) {
         res.push(cur);
         cur = '';
         continue;
       }
-
       cur += ch;
     }
-
     res.push(cur);
     return res;
   }
@@ -288,15 +254,12 @@
 
     linhasLidas.forEach((raw, idx) => {
       const norm = normalizarLinha(raw, tipo);
-
       if (somenteAtivos) {
         const ativo = inferirAtivo(norm, raw);
         if (ativo === false) return;
       }
-
       const val = validarLinha(norm, tipo);
       normalizedRows.push(norm);
-
       if (val.ok) {
         okRows.push(norm);
       } else {
@@ -306,7 +269,6 @@
     });
 
     resultadoValidacao = { okRows, errRows, normalizedRows, errors };
-
     atualizarKPIsBasicos();
 
     if (kpiProntas) kpiProntas.textContent = String(okRows.length);
@@ -315,17 +277,15 @@
     if (errors.length) {
       setPill(pillStatus, 'Há erros de validação', 'warn');
       logWarn(`Validação: ${errors.length} linha(s) com erro.`);
-
-      errors.slice(0, 8).forEach((e) => {
-        logError(`Linha ${e.linha}: ${e.erros.join(' | ')}`);
-      });
+      errors
+        .slice(0, 8)
+        .forEach((e) => logError(`Linha ${e.linha}: ${e.erros.join(' | ')}`));
     } else {
       setPill(pillStatus, 'Validação OK', 'ok');
       logOk(`Validação OK. Prontas para aplicar: ${okRows.length}`);
     }
 
     renderPreviewNormalizada(tipo, okRows, errors);
-
     if (btnAplicar) btnAplicar.disabled = okRows.length === 0;
 
     if (pillPreview) {
@@ -340,17 +300,165 @@
     if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 
+  // ── APLICAR IMPORTAÇÃO VIA API ─────────────────────────────────────────────
+
+  async function aplicarImportacao() {
+    if (!resultadoValidacao?.okRows?.length) {
+      alert('Valide o arquivo antes de aplicar.');
+      return;
+    }
+
+    const tipo = elTipo?.value || 'medicamentos';
+    const atualizar = !!elChkAtualizar?.checked;
+    const okRows = resultadoValidacao.okRows;
+
+    if (btnAplicar) {
+      btnAplicar.disabled = true;
+      btnAplicar.textContent = 'Importando...';
+    }
+
+    try {
+      const applied = await salvarNaAPI(tipo, okRows, atualizar);
+      setPill(pillStatus, 'Importação aplicada', 'ok');
+      logOk(`Importação aplicada: ${applied} registro(s).`);
+    } catch (err) {
+      console.warn(err);
+      setPill(pillStatus, 'Falha ao aplicar', 'bad');
+      logError(`Falha ao aplicar: ${err?.message || 'erro desconhecido'}`);
+      alert('Falha ao aplicar importação. Veja o log.');
+    } finally {
+      if (btnAplicar) {
+        btnAplicar.disabled = false;
+        btnAplicar.innerHTML = '<i data-lucide="check"></i> Aplicar importação';
+      }
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+  }
+
+  async function salvarNaAPI(tipo, rows, atualizar) {
+    let count = 0;
+
+    if (tipo === 'fornecedores') {
+      // Busca fornecedores existentes
+      const resp = await fetch(`${API_BASE_URL}/fornecedores/`);
+      const existentes = resp.ok ? await resp.json() : [];
+
+      for (const row of rows) {
+        const existente = existentes.find(
+          (f) =>
+            String(f.nome || '')
+              .trim()
+              .toLowerCase() ===
+            String(row.nome || '')
+              .trim()
+              .toLowerCase()
+        );
+
+        const payload = {
+          nome: row.nome || '',
+          cnpj: row.cnpj || null,
+          telefone: row.telefone || null,
+          email: row.email || null,
+          ativo: row.ativo !== false,
+        };
+
+        if (existente && atualizar) {
+          await fetch(`${API_BASE_URL}/fornecedores/${existente.id}/`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+        } else if (!existente) {
+          await fetch(`${API_BASE_URL}/fornecedores/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+        }
+        count++;
+      }
+    }
+
+    if (tipo === 'medicamentos') {
+      // Busca fornecedores para vincular
+      const respF = await fetch(`${API_BASE_URL}/fornecedores/`);
+      const fornecedores = respF.ok ? await respF.json() : [];
+
+      // Busca medicamentos existentes
+      const respM = await fetch(`${API_BASE_URL}/medicamentos/`);
+      const existentes = respM.ok ? await respM.json() : [];
+
+      for (const row of rows) {
+        // Tenta encontrar fornecedor pelo nome
+        const fornecedor = fornecedores.find(
+          (f) =>
+            String(f.nome || '')
+              .trim()
+              .toLowerCase() ===
+            String(row.fornecedor || '')
+              .trim()
+              .toLowerCase()
+        );
+
+        const existente = existentes.find(
+          (m) =>
+            String(m.nome || '')
+              .trim()
+              .toLowerCase() ===
+            String(row.nome || '')
+              .trim()
+              .toLowerCase()
+        );
+
+        const payload = {
+          nome: row.nome || '',
+          miligrama: row.miligrama || null,
+          categoria: row.categoria || 'outros',
+          lote: row.lote || '',
+          validade: row.vencimento || null,
+          quantidade: Number(row.stock_atual) || 0,
+          valor_unit: Number(row.preco) || 0,
+          descricao: row.descricao || '',
+          fornecedor: fornecedor ? fornecedor.id : null,
+        };
+
+        if (existente && atualizar) {
+          await fetch(`${API_BASE_URL}/medicamentos/${existente.id}/`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+        } else if (!existente) {
+          await fetch(`${API_BASE_URL}/medicamentos/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+        }
+        count++;
+      }
+    }
+
+    if (tipo === 'entradas' || tipo === 'saidas') {
+      logWarn(
+        'Importação de entradas/saídas via arquivo não suportada diretamente. Use as telas de Entrada e Saída.'
+      );
+      return 0;
+    }
+
+    return count;
+  }
+
+  // ── PREVIEW ────────────────────────────────────────────────────────────────
+
   function normalizarLinha(raw, tipo) {
     const obj = {};
     const map = getMapColunas(tipo);
-
     const rawKeys = Object.keys(raw || {});
     const idx = {};
-
     rawKeys.forEach((k) => {
       idx[normalizeKey(k)] = k;
     });
-
     Object.entries(map).forEach(([dest, aliases]) => {
       const found = aliases.find((a) => idx[normalizeKey(a)]);
       if (found) obj[dest] = raw[idx[normalizeKey(found)]];
@@ -362,20 +470,11 @@
         (v) =>
           v && v !== '-' && v.toLowerCase() !== 'ok' && v.toLowerCase() !== 'nt'
       );
-
     const textoPrincipal =
       obj.nome ||
       obj.medicamento ||
       raw.nome ||
       raw.Nome ||
-      raw.produto ||
-      raw.Produto ||
-      raw.item ||
-      raw.Item ||
-      raw.descricao ||
-      raw.Descricao ||
-      raw.descrição ||
-      raw.Descrição ||
       valoresTexto[0] ||
       '';
 
@@ -396,19 +495,15 @@
         : 0;
       obj.preco = isFiniteNumber(toFloat(obj.preco)) ? toFloat(obj.preco) : 0;
       obj.ativo = inferirAtivo(obj, raw);
-
       if (!obj.unidade) obj.unidade = 'un';
       if (!obj.categoria) obj.categoria = 'outros';
-
-      if (!obj.descricao) {
+      if (!obj.descricao)
         obj.descricao =
           raw.descricao ||
           raw.Descricao ||
           raw.descrição ||
           raw.Descrição ||
           '';
-      }
-
       if (!obj.vencimento) obj.vencimento = '';
       if (!obj.lote) obj.lote = '';
     }
@@ -445,13 +540,9 @@
     const valores = Object.values(row || {})
       .map((v) => String(v ?? '').trim())
       .filter((v) => v !== '');
-
-    if (!valores.length) {
-      return { ok: false, erros: ['Linha vazia'] };
-    }
+    if (!valores.length) return { ok: false, erros: ['Linha vazia'] };
 
     const textoLinha = valores.join(' ').toLowerCase();
-
     if (
       textoLinha.includes('soma total') ||
       textoLinha.includes('total geral') ||
@@ -461,9 +552,7 @@
     }
 
     if (tipo === 'medicamentos') {
-      if (!row.nome) {
-        row.nome = `Item importado ${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      }
+      if (!row.nome) row.nome = `Item importado ${Date.now()}`;
       if (!row.categoria) row.categoria = 'outros';
       if (!row.unidade) row.unidade = 'un';
       if (!row.descricao) row.descricao = '';
@@ -476,9 +565,7 @@
     }
 
     if (tipo === 'fornecedores') {
-      if (!row.nome) {
-        row.nome = `Fornecedor importado ${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      }
+      if (!row.nome) row.nome = `Fornecedor importado ${Date.now()}`;
       if (typeof row.ativo === 'undefined') row.ativo = true;
       if (!row.cnpj) row.cnpj = '';
       if (!row.telefone) row.telefone = '';
@@ -486,9 +573,7 @@
     }
 
     if (tipo === 'entradas') {
-      if (!row.medicamento) {
-        row.medicamento = `Entrada importada ${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      }
+      if (!row.medicamento) row.medicamento = `Entrada importada ${Date.now()}`;
       if (!isFiniteNumber(row.quantidade)) row.quantidade = 0;
       if (!row.fornecedor) row.fornecedor = '';
       if (!row.data) row.data = new Date().toISOString().slice(0, 10);
@@ -496,9 +581,7 @@
     }
 
     if (tipo === 'saidas') {
-      if (!row.medicamento) {
-        row.medicamento = `Saída importada ${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      }
+      if (!row.medicamento) row.medicamento = `Saída importada ${Date.now()}`;
       if (!isFiniteNumber(row.quantidade)) row.quantidade = 0;
       if (!row.destino) row.destino = '';
       if (!row.data) row.data = new Date().toISOString().slice(0, 10);
@@ -511,7 +594,6 @@
   function renderPreviewBruta(rows) {
     const sample = rows.slice(0, 30);
     const cols = Object.keys(sample[0] || {});
-
     renderTable(
       cols,
       sample.map((r) => cols.map((c) => r[c]))
@@ -521,14 +603,12 @@
   function renderPreviewNormalizada(tipo, okRows, errors) {
     const sample = okRows.slice(0, 30);
     const cols = previewCols(tipo);
-
     if (!sample.length) {
       renderPreviewVazio(
         errors.length ? 'Há erros — corrija o arquivo.' : 'Nada para importar.'
       );
       return;
     }
-
     renderTable(
       cols,
       sample.map((r) => cols.map((c) => r[c] ?? ''))
@@ -537,36 +617,22 @@
 
   function renderPreviewVazio(msg) {
     elPreviewHead.innerHTML = '';
-    elPreviewBody.innerHTML = `
-      <tr>
-        <td class="muted" style="padding:16px;color:var(--gray-500)">${escapeHTML(
-          msg
-        )}</td>
-      </tr>`;
+    elPreviewBody.innerHTML = `<tr><td class="muted" style="padding:16px;color:var(--gray-500)">${escapeHTML(msg)}</td></tr>`;
   }
 
   function renderTable(cols, rows) {
-    elPreviewHead.innerHTML = `
-      <tr>
-        ${cols.map((c) => `<th>${escapeHTML(c)}</th>`).join('')}
-      </tr>`;
-
+    elPreviewHead.innerHTML = `<tr>${cols.map((c) => `<th>${escapeHTML(c)}</th>`).join('')}</tr>`;
     elPreviewBody.innerHTML = rows
       .map(
-        (r) => `
-      <tr>
-        ${r.map((v) => `<td>${escapeHTML(v)}</td>`).join('')}
-      </tr>`
+        (r) => `<tr>${r.map((v) => `<td>${escapeHTML(v)}</td>`).join('')}</tr>`
       )
       .join('');
   }
 
   function previewCols(tipo) {
-    if (tipo === 'fornecedores') {
+    if (tipo === 'fornecedores')
       return ['nome', 'cnpj', 'telefone', 'email', 'ativo'];
-    }
-
-    if (tipo === 'medicamentos') {
+    if (tipo === 'medicamentos')
       return [
         'nome',
         'descricao',
@@ -579,236 +645,11 @@
         'vencimento',
         'ativo',
       ];
-    }
-
-    if (tipo === 'entradas') {
+    if (tipo === 'entradas')
       return ['medicamento', 'quantidade', 'fornecedor', 'data', 'observacao'];
-    }
-
-    if (tipo === 'saidas') {
+    if (tipo === 'saidas')
       return ['medicamento', 'quantidade', 'destino', 'data', 'responsavel'];
-    }
-
     return Object.keys(linhasLidas[0] || {});
-  }
-
-  function aplicarImportacao() {
-    if (!resultadoValidacao?.okRows?.length) {
-      alert('Valide o arquivo antes de aplicar.');
-      return;
-    }
-
-    const tipo = elTipo?.value || 'medicamentos';
-    const atualizar = !!elChkAtualizar?.checked;
-    const okRows = resultadoValidacao.okRows;
-
-    try {
-      const applied = salvarNoStorage(tipo, okRows, atualizar);
-
-      setPill(pillStatus, 'Importação aplicada', 'ok');
-      logOk(`Importação aplicada: ${applied} registro(s).`);
-
-      if (btnAplicar) btnAplicar.disabled = true;
-    } catch (err) {
-      console.warn(err);
-      setPill(pillStatus, 'Falha ao aplicar', 'bad');
-      logError(`Falha ao aplicar: ${err?.message || 'erro desconhecido'}`);
-      alert('Falha ao aplicar importação. Veja o log.');
-    }
-
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-  }
-
-  function salvarNoStorage(tipo, rows, atualizar) {
-    if (tipo === 'medicamentos') {
-      return upsertLista(tipo, rows, atualizar, ['sku', 'nome']);
-    }
-
-    if (tipo === 'fornecedores') {
-      return upsertLista(tipo, rows, atualizar, ['cnpj', 'nome']);
-    }
-
-    if (tipo === 'entradas' || tipo === 'saidas') {
-      return appendLista(tipo, rows);
-    }
-
-    return 0;
-  }
-
-  function upsertLista(tipo, rows, atualizar, keysPreferidas) {
-    const { getFn, addFn, updateFn, keyLS } = storageAdapter(tipo);
-    const lista = getFn();
-
-    let count = 0;
-
-    rows.forEach((r) => {
-      const match = acharExistente(lista, r, keysPreferidas);
-
-      if (match && atualizar) {
-        if (updateFn) {
-          updateFn(match.id, r);
-        } else {
-          const idx = lista.findIndex((x) => Number(x.id) === Number(match.id));
-          if (idx >= 0) {
-            lista[idx] = {
-              ...lista[idx],
-              ...r,
-              atualizadoEm: new Date().toISOString(),
-            };
-          }
-        }
-        count++;
-        return;
-      }
-
-      if (!match) {
-        if (addFn) {
-          addFn({
-            ...r,
-            id: r.id
-              ? Number(r.id)
-              : Date.now() + Math.floor(Math.random() * 1000),
-            criadoEm: new Date().toISOString(),
-          });
-        } else {
-          lista.push({
-            ...r,
-            id: r.id
-              ? Number(r.id)
-              : Date.now() + Math.floor(Math.random() * 1000),
-            criadoEm: new Date().toISOString(),
-          });
-        }
-        count++;
-      }
-    });
-
-    if (!addFn || !updateFn) {
-      localStorage.setItem(keyLS, JSON.stringify(lista));
-    }
-
-    return count;
-  }
-
-  function appendLista(tipo, rows) {
-    const { addFn, keyLS } = storageAdapter(tipo);
-    const lista = safeGet(keyLS);
-
-    rows.forEach((r) => {
-      const item = {
-        id: r.id ? Number(r.id) : Date.now() + Math.floor(Math.random() * 1000),
-        ...r,
-        tipo: tipo === 'entradas' ? 'entrada' : 'saida',
-        criadoEm: new Date().toISOString(),
-      };
-
-      if (!item.medicamento && item.nome) {
-        item.medicamento = item.nome;
-      }
-
-      if (addFn) {
-        addFn(item);
-      } else {
-        lista.push(item);
-      }
-    });
-
-    if (!addFn) {
-      localStorage.setItem(keyLS, JSON.stringify(lista));
-    }
-
-    return rows.length;
-  }
-
-  function acharExistente(lista, row, keysPreferidas) {
-    if (!Array.isArray(lista) || !lista.length) return null;
-
-    if (row.id != null && row.id !== '') {
-      const idNum = Number(row.id);
-      const found = lista.find((x) => Number(x.id) === idNum);
-      if (found) return found;
-    }
-
-    for (const k of keysPreferidas) {
-      const v = (row[k] || '').toString().trim().toLowerCase();
-      if (!v) continue;
-
-      const found = lista.find(
-        (x) => (x?.[k] || '').toString().trim().toLowerCase() === v
-      );
-
-      if (found) return found;
-    }
-
-    return null;
-  }
-
-  function storageAdapter(tipo) {
-    if (tipo === 'medicamentos') {
-      return {
-        getFn: () =>
-          typeof getProdutos === 'function'
-            ? getProdutos()
-            : safeGet('farm_produtos'),
-        addFn: typeof addProduto === 'function' ? addProduto : null,
-        updateFn: typeof updateProduto === 'function' ? updateProduto : null,
-        keyLS: 'farm_produtos',
-      };
-    }
-
-    if (tipo === 'fornecedores') {
-      return {
-        getFn: () =>
-          typeof getFornecedores === 'function'
-            ? getFornecedores()
-            : safeGet('farm_fornecedores'),
-        addFn: typeof addFornecedor === 'function' ? addFornecedor : null,
-        updateFn:
-          typeof updateFornecedor === 'function' ? updateFornecedor : null,
-        keyLS: 'farm_fornecedores',
-      };
-    }
-
-    if (tipo === 'entradas') {
-      return {
-        getFn: () =>
-          typeof getEntradas === 'function'
-            ? getEntradas()
-            : safeGet('farm_movimentacoes').filter((m) => m.tipo === 'entrada'),
-        addFn: typeof addEntrada === 'function' ? addEntrada : null,
-        updateFn: null,
-        keyLS: 'farm_movimentacoes',
-      };
-    }
-
-    if (tipo === 'saidas') {
-      return {
-        getFn: () =>
-          typeof getSaidas === 'function'
-            ? getSaidas()
-            : safeGet('farm_movimentacoes').filter((m) => m.tipo === 'saida'),
-        addFn: typeof addSaida === 'function' ? addSaida : null,
-        updateFn: null,
-        keyLS: 'farm_movimentacoes',
-      };
-    }
-
-    return {
-      getFn: () => [],
-      addFn: null,
-      updateFn: null,
-      keyLS: 'farm_unknown',
-    };
-  }
-
-  function safeGet(key) {
-    try {
-      const raw = localStorage.getItem(key);
-      const parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
   }
 
   function getMapColunas(tipo) {
@@ -897,6 +738,7 @@
         ],
         ativo: ['ativo', 'status'],
         miligrama: ['miligrama', 'mg', 'dosagem'],
+        fornecedor: ['fornecedor', 'fabricante', 'distribuidor'],
       };
     }
 
@@ -970,10 +812,8 @@
       raw?.Ativo ??
       raw?.Status ??
       '';
-
     const s = String(v).trim().toLowerCase();
     if (!s) return true;
-
     if (['0', 'false', 'inativo', 'nao', 'não'].includes(s)) return false;
     if (['1', 'true', 'ativo', 'sim'].includes(s)) return true;
     return true;
@@ -981,12 +821,10 @@
 
   function atualizarKPIsBasicos() {
     if (kpiLinhas) kpiLinhas.textContent = String(linhasLidas.length || 0);
-
-    const ok = resultadoValidacao?.okRows?.length ?? 0;
-    const err = resultadoValidacao?.errors?.length ?? 0;
-
-    if (kpiProntas) kpiProntas.textContent = String(ok);
-    if (kpiErros) kpiErros.textContent = String(err);
+    if (kpiProntas)
+      kpiProntas.textContent = String(resultadoValidacao?.okRows?.length ?? 0);
+    if (kpiErros)
+      kpiErros.textContent = String(resultadoValidacao?.errors?.length ?? 0);
   }
 
   function setPill(el, text, status) {
@@ -1042,15 +880,12 @@
   function logOk(msg) {
     appendLog('log-ok', msg);
   }
-
   function logWarn(msg) {
     appendLog('log-warn', msg);
   }
-
   function logError(msg) {
     appendLog('log-error', msg);
   }
-
   function logInfo(msg) {
     appendLog('log-info', msg);
   }
@@ -1066,26 +901,21 @@
 
   function toInt(v) {
     if (v == null || String(v).trim() === '') return NaN;
-
     const s = String(v)
       .trim()
       .replace(/[^\d-]/g, '');
-
     if (!s) return NaN;
-
     const n = parseInt(s, 10);
     return Number.isFinite(n) ? n : NaN;
   }
 
   function toFloat(v) {
     if (v == null) return NaN;
-
     const s = String(v).trim();
     const normalized =
       s.includes(',') && !s.includes('.')
         ? s.replace(',', '.')
         : s.replace(/\./g, '').replace(',', '.');
-
     const n = parseFloat(normalized);
     return Number.isFinite(n) ? n : NaN;
   }
