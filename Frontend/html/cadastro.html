@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cadastro - Sistema Farmacêutico</title>
+    <title>Cadastro - GestMed</title>
     <link rel="stylesheet" href="../CSS/base.css" />
     <link rel="stylesheet" href="../CSS/auth.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -17,7 +17,6 @@
             <div class="auth-icon">
               <i data-lucide="user-plus"></i>
             </div>
-
             <h1 class="register-title">Cadastro de Usuário</h1>
             <p class="register-subtitle">Crie seu acesso ao sistema</p>
           </div>
@@ -37,7 +36,6 @@
                 <input
                   type="text"
                   id="nome"
-                  name="nome"
                   placeholder="NOME COMPLETO"
                   required
                   autocomplete="name"
@@ -51,7 +49,6 @@
                 <input
                   type="email"
                   id="email"
-                  name="email"
                   placeholder="E-MAIL"
                   required
                   autocomplete="email"
@@ -65,7 +62,6 @@
                 <input
                   type="tel"
                   id="telefone"
-                  name="telefone"
                   placeholder="TELEFONE"
                   inputmode="tel"
                   autocomplete="tel"
@@ -79,7 +75,6 @@
                 <input
                   type="text"
                   id="usuario"
-                  name="usuario"
                   placeholder="USUÁRIO"
                   required
                   minlength="4"
@@ -95,13 +90,11 @@
                   <input
                     type="password"
                     id="senha"
-                    name="senha"
                     placeholder="SENHA"
                     required
                     minlength="6"
                     autocomplete="new-password"
                   />
-
                   <button
                     type="button"
                     class="password-toggle"
@@ -121,13 +114,11 @@
                   <input
                     type="password"
                     id="senhaConfirm"
-                    name="senhaConfirm"
                     placeholder="CONFIRMAR SENHA"
                     required
                     minlength="6"
                     autocomplete="new-password"
                   />
-
                   <button
                     type="button"
                     class="password-toggle"
@@ -158,24 +149,18 @@
 
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/autenticacao.js"></script>
-    <script src="../Javascript/cadastro.js"></script>
 
     <script>
       lucide.createIcons();
 
-      const elNome = document.getElementById('nome');
-      const elEmail = document.getElementById('email');
-      const elTelefone = document.getElementById('telefone');
-      const elUsuario = document.getElementById('usuario');
-      const elSenha = document.getElementById('senha');
-      const elSenhaConfirm = document.getElementById('senhaConfirm');
+      const API_BASE_URL = 'https://gestmed.onrender.com/api';
 
       const btn = document.getElementById('registerBtn');
       const errorDiv = document.getElementById('registerError');
       const successDiv = document.getElementById('registerSuccess');
       const form = document.getElementById('registerForm');
 
-      if (elNome) elNome.focus();
+      document.getElementById('nome').focus();
 
       function mostrarErro(msg) {
         successDiv.classList.add('hidden');
@@ -189,23 +174,12 @@
         successDiv.classList.remove('hidden');
       }
 
-      function normalizarUsuario(v) {
-        return (v || '').trim();
-      }
-
-      function normalizarEmail(v) {
-        return (v || '').trim().toLowerCase();
-      }
-
       function toggleSenha(btnId, inputId) {
         const botao = document.getElementById(btnId);
         const input = document.getElementById(inputId);
-
         if (!botao || !input) return;
-
         botao.addEventListener('click', function () {
           const icon = this.querySelector('i');
-
           if (input.type === 'password') {
             input.type = 'text';
             if (icon) icon.setAttribute('data-lucide', 'eye-off');
@@ -213,7 +187,6 @@
             input.type = 'password';
             if (icon) icon.setAttribute('data-lucide', 'eye');
           }
-
           lucide.createIcons();
         });
       }
@@ -224,105 +197,64 @@
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
+        const nome = document.getElementById('nome').value.trim();
+        const email = document
+          .getElementById('email')
+          .value.trim()
+          .toLowerCase();
+        const telefone = document.getElementById('telefone').value.trim();
+        const usuario = document.getElementById('usuario').value.trim();
+        const senha = document.getElementById('senha').value;
+        const senhaConfirm = document.getElementById('senhaConfirm').value;
+
         errorDiv.classList.add('hidden');
         successDiv.classList.add('hidden');
 
-        const nome = (elNome.value || '').trim();
-        const email = normalizarEmail(elEmail.value);
-        const telefone = (elTelefone.value || '').trim();
-        const usuario = normalizarUsuario(elUsuario.value);
-        const senha = elSenha.value || '';
-        const senhaConfirm = elSenhaConfirm.value || '';
-
-        if (!nome) {
-          mostrarErro('Informe o nome completo.');
-          return;
-        }
-
-        if (!email) {
-          mostrarErro('Informe um e-mail válido.');
-          return;
-        }
-
-        if (usuario.length < 4) {
-          mostrarErro('O usuário deve ter no mínimo 4 caracteres.');
-          return;
-        }
-
-        if (senha.length < 6) {
-          mostrarErro('A senha deve ter no mínimo 6 caracteres.');
-          return;
-        }
-
-        if (senha !== senhaConfirm) {
-          mostrarErro('As senhas não coincidem.');
-          return;
-        }
-
-        let users = [];
-
-        try {
-          users = getUsers();
-          if (!Array.isArray(users)) users = [];
-        } catch (err) {
-          users = [];
-        }
-
-        const usuarioExiste = users.some(
-          (u) => normalizarUsuario(u?.usuario) === usuario
-        );
-        if (usuarioExiste) {
-          mostrarErro('Este usuário já existe.');
-          return;
-        }
-
-        const emailExiste = users.some(
-          (u) => normalizarEmail(u?.email) === email
-        );
-        if (emailExiste) {
-          mostrarErro('Este e-mail já está cadastrado.');
-          return;
-        }
+        if (!nome) return mostrarErro('Informe o nome completo.');
+        if (!email) return mostrarErro('Informe um e-mail válido.');
+        if (usuario.length < 4)
+          return mostrarErro('O usuário deve ter no mínimo 4 caracteres.');
+        if (senha.length < 6)
+          return mostrarErro('A senha deve ter no mínimo 6 caracteres.');
+        if (senha !== senhaConfirm)
+          return mostrarErro('As senhas não coincidem.');
 
         btn.disabled = true;
         btn.textContent = 'Cadastrando...';
 
-        const novoUsuario = {
-          id: Date.now(),
-          usuario,
-          senha,
-          nome,
-          email,
-          telefone,
-          tipo: 'caixa',
-          criadoEm: new Date().toISOString(),
-        };
-
-        users.push(novoUsuario);
-        saveUsers(users);
-
-        mostrarSucesso('Conta criada com sucesso! Redirecionando...');
-        btn.textContent = 'Sucesso!';
-
         try {
-          const result = await login(usuario, senha, false);
+          const resp = await fetch(`${API_BASE_URL}/cadastro/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome, email, telefone, usuario, senha }),
+          });
 
-          if (result && result.success) {
-            window.location.href = 'inicio.html';
+          const data = await resp.json();
+
+          if (!resp.ok || !data.sucesso) {
+            mostrarErro(data.erro || 'Erro ao cadastrar. Tente novamente.');
+            btn.disabled = false;
+            btn.textContent = 'Cadastrar';
             return;
           }
 
-          btn.disabled = false;
-          btn.textContent = 'Cadastrar';
-          mostrarErro(
-            'Não foi possível fazer login automático. Faça login na tela inicial.'
+          // Salva sessão automaticamente após cadastro
+          localStorage.setItem(
+            'farm_current_user',
+            JSON.stringify(data.usuario)
           );
+          localStorage.setItem('farm_session_token', `token_${Date.now()}`);
+
+          mostrarSucesso('Conta criada com sucesso! Redirecionando...');
+          btn.textContent = 'Sucesso!';
+
+          setTimeout(() => {
+            window.location.href = 'inicio.html';
+          }, 1000);
         } catch (err) {
+          mostrarErro('Não foi possível conectar ao servidor.');
           btn.disabled = false;
           btn.textContent = 'Cadastrar';
-          mostrarErro(
-            'Erro ao fazer login automático. Faça login na tela inicial.'
-          );
         }
       });
     </script>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - Sistema Farmacêutico</title>
+    <title>Login - GestMed</title>
     <link rel="stylesheet" href="../CSS/base.css" />
     <link rel="stylesheet" href="../CSS/auth.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -47,7 +47,6 @@
                     required
                     autocomplete="current-password"
                   />
-
                   <button
                     type="button"
                     class="password-toggle"
@@ -84,6 +83,8 @@
     <script>
       lucide.createIcons();
 
+      const API_BASE_URL = 'https://gestmed.onrender.com/api';
+
       const usernameInput = document.getElementById('username');
       const passwordInput = document.getElementById('password');
       const togglePasswordBtn = document.getElementById('togglePassword');
@@ -92,32 +93,24 @@
       const loginBtn = document.getElementById('loginBtn');
       const loginError = document.getElementById('loginError');
 
-      if (usernameInput) {
-        usernameInput.focus();
-      }
+      if (usernameInput) usernameInput.focus();
 
       function mostrarErro(msg) {
         loginError.textContent = msg;
         loginError.classList.remove('hidden');
-
-        setTimeout(() => {
-          loginError.classList.add('hidden');
-        }, 2000);
+        setTimeout(() => loginError.classList.add('hidden'), 3000);
       }
 
       togglePasswordBtn.addEventListener('click', function () {
         const mostrandoSenha = passwordInput.type === 'text';
-
         passwordInput.type = mostrandoSenha ? 'password' : 'text';
-
         togglePasswordIcon.innerHTML = mostrandoSenha
           ? '<i data-lucide="eye"></i>'
           : '<i data-lucide="eye-off"></i>';
-
         lucide.createIcons();
       });
 
-      loginForm.addEventListener('submit', (e) => {
+      loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const username = usernameInput.value.trim();
@@ -128,23 +121,37 @@
         loginBtn.textContent = 'Entrando...';
 
         try {
-          const result = loginSistema(username, password);
+          const resp = await fetch(`${API_BASE_URL}/login/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuario: username, senha: password }),
+          });
 
-          if (result.sucesso) {
-            loginBtn.textContent = 'Sucesso!';
-            loginBtn.style.backgroundColor = '#22c55e';
-            loginBtn.style.color = '#fff';
+          const data = await resp.json();
 
-            setTimeout(() => {
-              window.location.href = 'inicio.html';
-            }, 500);
-          } else {
-            mostrarErro('Usuário ou senha inválidos');
+          if (!resp.ok || !data.sucesso) {
+            mostrarErro(data.erro || 'Usuário ou senha inválidos.');
             loginBtn.disabled = false;
             loginBtn.textContent = 'Login';
+            return;
           }
+
+          // Salva sessão no localStorage
+          localStorage.setItem(
+            'farm_current_user',
+            JSON.stringify(data.usuario)
+          );
+          localStorage.setItem('farm_session_token', `token_${Date.now()}`);
+
+          loginBtn.textContent = 'Sucesso!';
+          loginBtn.style.backgroundColor = '#22c55e';
+          loginBtn.style.color = '#fff';
+
+          setTimeout(() => {
+            window.location.href = 'inicio.html';
+          }, 500);
         } catch (error) {
-          mostrarErro('Erro ao fazer login');
+          mostrarErro('Não foi possível conectar ao servidor.');
           loginBtn.disabled = false;
           loginBtn.textContent = 'Login';
         }
