@@ -4,12 +4,11 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-_env_path = Path(r'C:\Users\Maiara\Documents\TCC I (Análise das Ferramentas de Business Intelligence para Tomada de Decisão)\sistema_farmaceutico\backend\.env')
-load_dotenv(_env_path, override=True)
+load_dotenv(BASE_DIR / ".env", override=True)
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-DEBUG = True
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-fallback-key")
+DEBUG = os.getenv("DEBUG", "True") == "True"
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -26,6 +25,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -77,7 +77,10 @@ TIME_ZONE = "America/Belem"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CORS
@@ -106,12 +109,12 @@ REST_FRAMEWORK = {
     ],
 }
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:5500",
-    "http://localhost:5500",
-]
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    "CSRF_TRUSTED_ORIGINS",
+    "http://127.0.0.1:5500,http://localhost:5500"
+).split(",")
 
-# ── E-mail (Gmail) ────────────────────────────────────────────
+
 EMAIL_BACKEND       = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST          = "smtp.gmail.com"
 EMAIL_PORT          = 587
@@ -120,5 +123,4 @@ EMAIL_HOST_USER     = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL  = "GestMed <maysilva29andrade@gmail.com>"
 
-# URL base do frontend — usada para montar o link no e-mail
 SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:5500/Frontend")
