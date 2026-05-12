@@ -1,5 +1,5 @@
-const API_MEDICAMENTOS = 'http://127.0.0.1:8000/api/medicamentos/';
-const API_MOVIMENTACOES = 'http://127.0.0.1:8000/api/movimentacoes/';
+const API_MEDICAMENTOS = 'https://gestmed.onrender.com/api/medicamentos/';
+const API_MOVIMENTACOES = 'https://gestmed.onrender.com/api/movimentacoes/';
 
 let medicamentos = [];
 let saidas = [];

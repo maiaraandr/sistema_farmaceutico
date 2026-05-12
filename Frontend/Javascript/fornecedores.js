@@ -1,4 +1,4 @@
-const API_FORNECEDORES = 'http://127.0.0.1:8000/api/fornecedores/';
+const API_FORNECEDORES = 'https://gestmed.onrender.com/api/fornecedores/';
 
 let fornecedoresCache = [];
 window.__fornecedorEditandoId = null;
