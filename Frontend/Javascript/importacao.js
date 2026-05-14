@@ -1130,20 +1130,16 @@
 
   function toFloat(v) {
     if (v == null) return NaN;
-    // Se já é número (vindo do Excel via cellDates: true ou SheetJS), usa direto
     if (typeof v === 'number') return Number.isFinite(v) ? v : NaN;
     const s = String(v).trim();
     if (!s) return NaN;
 
     let normalized;
     if (s.includes(',') && s.includes('.')) {
-      // Formato BR com milhar: "1.500,89" → remove pontos, troca vírgula por ponto
       normalized = s.replace(/\./g, '').replace(',', '.');
     } else if (s.includes(',') && !s.includes('.')) {
-      // Decimal com vírgula: "1,89" → troca por ponto
       normalized = s.replace(',', '.');
     } else {
-      // Ponto como decimal (padrão internacional): "1.89", "0.89" → usa direto
       normalized = s;
     }
 
