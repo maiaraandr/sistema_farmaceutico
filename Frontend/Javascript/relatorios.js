@@ -261,6 +261,15 @@ function setText(id, value) {
 }
 
 // =============================
+// EXTRATOR DE CAMPOS DA OBSERVAÇÃO
+// =============================
+function extrairCampo(texto, chave) {
+  const regex = new RegExp(chave + ':\\s*([^|]+)');
+  const match = String(texto || '').match(regex);
+  return match ? match[1].trim() : '—';
+}
+
+// =============================
 // TABELA
 // =============================
 function renderizarRelatorio(listaFiltrada) {
@@ -278,7 +287,7 @@ function renderizarRelatorio(listaFiltrada) {
   if (pagina.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="empty-row">
+        <td colspan="9" class="empty-row">
           Nenhuma movimentação encontrada.
         </td>
       </tr>
@@ -295,13 +304,23 @@ function renderizarRelatorio(listaFiltrada) {
         ? `<span class="badge-in"><i data-lucide="arrow-down-circle" style="width:14px;height:14px"></i> Entrada</span>`
         : `<span class="badge-out"><i data-lucide="arrow-up-circle" style="width:14px;height:14px"></i> Saída</span>`;
 
-    const parceiro = m.observacao || m.parceiro || '—';
+    const obs = m.observacao || '';
+
+    const fornecedor = extrairCampo(obs, 'Fornecedor');
+    const categoria = extrairCampo(obs, 'Categoria');
+    const lote = extrairCampo(obs, 'Lote');
+    const validade = extrairCampo(obs, 'Validade informada');
+    const valorUnit = extrairCampo(obs, 'Valor unitario');
 
     tr.innerHTML = `
       <td>${tipoCol}</td>
       <td>${escapeHTML(m.medicamento_nome || '—')}</td>
       <td>${Number(m.quantidade || 0)}</td>
-      <td>${escapeHTML(parceiro)}</td>
+      <td>${escapeHTML(fornecedor)}</td>
+      <td>${escapeHTML(categoria)}</td>
+      <td>${escapeHTML(lote)}</td>
+      <td>${escapeHTML(validade)}</td>
+      <td>${escapeHTML(valorUnit)}</td>
       <td>${formatarDataHora(m.data_movimentacao)}</td>
     `;
 
@@ -311,6 +330,9 @@ function renderizarRelatorio(listaFiltrada) {
   renderizarPaginacao(totalPaginas);
 }
 
+// =============================
+// PAGINAÇÃO — CORRIGIDA
+// =============================
 function renderizarPaginacao(totalPaginas) {
   const el = document.getElementById('paginationRelatorios');
   if (!el) return;
@@ -320,6 +342,7 @@ function renderizarPaginacao(totalPaginas) {
     return;
   }
 
+  // CORREÇÃO: aspas do atributo class fechadas corretamente antes do onclick
   let html = `<button class="pagination-btn" ${
     paginaAtual === 1 ? 'disabled' : ''
   } onclick="mudarPagina(${paginaAtual - 1})">‹</button>`;
@@ -327,7 +350,7 @@ function renderizarPaginacao(totalPaginas) {
   for (let i = 1; i <= totalPaginas; i++) {
     html += `<button class="pagination-btn ${
       i === paginaAtual ? 'active' : ''
-    } onclick="mudarPagina(${i})">${i}</button>`;
+    }" onclick="mudarPagina(${i})">${i}</button>`;
   }
 
   html += `<button class="pagination-btn" ${
@@ -339,7 +362,12 @@ function renderizarPaginacao(totalPaginas) {
 
 window.mudarPagina = function (p) {
   paginaAtual = p;
-  aplicarFiltros();
+  const filtradas = obterMovimentacoesFiltradas();
+  renderizarRelatorio(filtradas);
+
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
 };
 
 // =============================
