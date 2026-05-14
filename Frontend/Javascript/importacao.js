@@ -239,12 +239,9 @@
   }
 
   // ── CONVERSÃO DE DATA SERIAL DO EXCEL ──────────────────────────────────────
-  // O Excel armazena datas como número de dias desde 1900-01-01.
-  // Ex: 46642 → 2027-09-14
   function converterDataExcel(valor) {
     if (!valor && valor !== 0) return '';
 
-    // Se já é um objeto Date (cellDates: true faz isso)
     if (valor instanceof Date) {
       const ano = valor.getFullYear();
       const mes = String(valor.getMonth() + 1).padStart(2, '0');
@@ -255,27 +252,19 @@
     const v = String(valor).trim();
     if (!v) return '';
 
-    // Formato ISO completo: 2027-09-14T00:00:00.000Z
-    if (/^\d{4}-\d{2}-\d{2}T/.test(v)) {
-      return v.slice(0, 10);
-    }
-
-    // Já está no formato YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}T/.test(v)) return v.slice(0, 10);
     if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
 
-    // DD/MM/YYYY
     if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
       const [d, m, a] = v.split('/');
       return `${a}-${m}-${d}`;
     }
 
-    // DD-MM-YYYY
     if (/^\d{2}-\d{2}-\d{4}$/.test(v)) {
       const [d, m, a] = v.split('-');
       return `${a}-${m}-${d}`;
     }
 
-    // Número serial do Excel (sem cellDates)
     const num = parseInt(v, 10);
     if (!isNaN(num) && num > 40000 && num < 60000) {
       const base = new Date(Date.UTC(1899, 11, 30));
@@ -295,7 +284,7 @@
       return;
     }
 
-    const tipo = elTipo?.value || 'medicamentos';
+    const tipo = elTipo?.value || 'fornecedores';
     const somenteAtivos = !!elChkSomenteAtivos?.checked;
 
     const normalizedRows = [];
@@ -359,7 +348,7 @@
       return;
     }
 
-    const tipo = elTipo?.value || 'medicamentos';
+    const tipo = elTipo?.value || 'fornecedores';
     const atualizar = !!elChkAtualizar?.checked;
     const okRows = resultadoValidacao.okRows;
 
@@ -429,14 +418,34 @@
       }
     }
 
-    if (tipo === 'medicamentos') {
+    // ── ENTRADAS ──────────────────────────────────────────────────────────────
+    // Ao importar entradas, o medicamento é automaticamente criado/atualizado
+    // na tabela de medicamentos, garantindo que o catálogo fique completo.
+    if (tipo === 'entradas') {
+      // Carrega listas existentes uma única vez para evitar N+1 requests
       const respF = await fetch(`${API_BASE_URL}/fornecedores/`);
       const fornecedores = respF.ok ? await respF.json() : [];
 
       const respM = await fetch(`${API_BASE_URL}/medicamentos/`);
-      const existentes = respM.ok ? await respM.json() : [];
+      let medicamentosExistentes = respM.ok ? await respM.json() : [];
 
       for (const row of rows) {
+        const nomeMed = row.medicamento || row.nome || '';
+        const valorUnit =
+          Number(row.valor_unitario || row.valor_unit || row.valor) || 0;
+        const dosagem = row.dosagem || row.miligrama || '';
+
+        // ── 1. Garante que o medicamento exista no catálogo ──────────────────
+        const medExistente = medicamentosExistentes.find(
+          (m) =>
+            String(m.nome || '')
+              .trim()
+              .toLowerCase() ===
+            String(nomeMed || '')
+              .trim()
+              .toLowerCase()
+        );
+
         const fornecedor = fornecedores.find(
           (f) =>
             String(f.nome || '')
@@ -447,77 +456,76 @@
               .toLowerCase()
         );
 
-        const existente = existentes.find(
-          (m) =>
-            String(m.nome || '')
-              .trim()
-              .toLowerCase() ===
-            String(row.nome || '')
-              .trim()
-              .toLowerCase()
-        );
+        if (!medExistente) {
+          // Cria o medicamento no catálogo
+          const payloadMed = {
+            nome: nomeMed,
+            miligrama: dosagem || null,
+            categoria: row.categoria || 'outros',
+            lote: row.lote || '',
+            validade: row.vencimento || null,
+            quantidade: Number(row.quantidade) || 0,
+            valor_unit: valorUnit,
+            fornecedor: fornecedor ? fornecedor.id : null,
+          };
 
-        // Compatível com stock_atual ou quantidade no arquivo
-        const qtdMed = Number(row.stock_atual || row.quantidade) || 0;
-        const valorMed =
-          Number(row.valor_unit || row.valor_unitario || row.valor) || 0;
-        const dosagemMed = row.dosagem || row.miligrama || null;
+          logInfo(`Criando medicamento no catálogo: ${nomeMed}`);
 
-        const payload = {
-          nome: row.nome || '',
-          miligrama: dosagemMed,
-          categoria: row.categoria || 'outros',
-          lote: row.lote || '',
-          validade: row.vencimento || null,
-          quantidade: qtdMed,
-          valor_unit: valorMed,
-          fornecedor: fornecedor ? fornecedor.id : null,
-        };
+          const respNovo = await fetch(`${API_BASE_URL}/medicamentos/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payloadMed),
+          });
 
-        logInfo(
-          `Enviando medicamento: ${payload.nome} | qtd: ${qtdMed} | valor: ${valorMed}`
-        );
+          if (respNovo.ok) {
+            const novoMed = await respNovo.json();
+            medicamentosExistentes.push(novoMed); // evita duplicata na mesma importação
+            logOk(`Medicamento criado: ${nomeMed}`);
+          } else {
+            const erroMed = await respNovo.text();
+            logError(
+              `Erro ao criar medicamento "${nomeMed}": HTTP ${respNovo.status} — ${erroMed}`
+            );
+          }
+        } else if (atualizar) {
+          // Atualiza estoque e valor do medicamento existente
+          const payloadUpdate = {
+            nome: medExistente.nome,
+            miligrama: dosagem || medExistente.miligrama || null,
+            categoria: row.categoria || medExistente.categoria || 'outros',
+            lote: row.lote || medExistente.lote || '',
+            validade: row.vencimento || medExistente.validade || null,
+            quantidade:
+              (Number(medExistente.quantidade) || 0) +
+              (Number(row.quantidade) || 0),
+            valor_unit: valorUnit || medExistente.valor_unit || 0,
+            fornecedor: fornecedor
+              ? fornecedor.id
+              : medExistente.fornecedor || null,
+          };
 
-        let respMed;
-        if (existente && atualizar) {
-          respMed = await fetch(
-            `${API_BASE_URL}/medicamentos/${existente.id}/`,
+          logInfo(`Atualizando medicamento no catálogo: ${nomeMed}`);
+
+          const respUpd = await fetch(
+            `${API_BASE_URL}/medicamentos/${medExistente.id}/`,
             {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
+              body: JSON.stringify(payloadUpdate),
             }
           );
-        } else if (!existente) {
-          respMed = await fetch(`${API_BASE_URL}/medicamentos/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
+
+          if (respUpd.ok) {
+            logOk(`Medicamento atualizado: ${nomeMed}`);
+          } else {
+            const erroUpd = await respUpd.text();
+            logError(
+              `Erro ao atualizar medicamento "${nomeMed}": HTTP ${respUpd.status} — ${erroUpd}`
+            );
+          }
         }
 
-        if (respMed && !respMed.ok) {
-          const erroMed = await respMed.text();
-          logError(
-            `Erro ao salvar "${payload.nome}": HTTP ${respMed.status} — ${erroMed}`
-          );
-        } else if (respMed) {
-          logOk(`Medicamento salvo: ${payload.nome}`);
-        }
-        count++;
-      }
-    }
-
-    if (tipo === 'entradas') {
-      for (const row of rows) {
-        // Compatível com colunas "nome" ou "medicamento" no arquivo
-        const nomeMed = row.medicamento || row.nome || '';
-        // Compatível com valor_unit, valor_unitario ou valor no arquivo
-        const valorUnit =
-          Number(row.valor_unitario || row.valor_unit || row.valor) || 0;
-        // Compatível com miligrama ou dosagem no arquivo
-        const dosagem = row.dosagem || row.miligrama || '';
-
+        // ── 2. Registra a movimentação de entrada ────────────────────────────
         const payload = {
           tipo: 'E',
           medicamento_nome: nomeMed,
@@ -535,7 +543,7 @@
         };
 
         logInfo(
-          `Enviando entrada: ${nomeMed} | qtd: ${payload.quantidade} | valor: ${valorUnit}`
+          `Registrando entrada: ${nomeMed} | qtd: ${payload.quantidade} | valor: ${valorUnit}`
         );
 
         const resposta = await fetch(`${API_BASE_URL}/movimentacoes/`, {
@@ -547,11 +555,12 @@
         if (!resposta.ok) {
           const erro = await resposta.text();
           logError(
-            `Erro ao salvar "${nomeMed}": HTTP ${resposta.status} — ${erro}`
+            `Erro ao registrar entrada "${nomeMed}": HTTP ${resposta.status} — ${erro}`
           );
         } else {
-          logOk(`Entrada salva: ${nomeMed}`);
+          logOk(`Entrada registrada: ${nomeMed}`);
         }
+
         count++;
       }
     }
@@ -615,21 +624,6 @@
       if (typeof obj[k] === 'string') obj[k] = obj[k].trim();
     });
 
-    // ── MEDICAMENTOS ──
-    if (tipo === 'medicamentos') {
-      obj.stock_atual = isFiniteNumber(toInt(obj.stock_atual))
-        ? toInt(obj.stock_atual)
-        : 0;
-      obj.valor = isFiniteNumber(toFloat(obj.valor)) ? toFloat(obj.valor) : 0;
-      obj.ativo = inferirAtivo(obj, raw);
-      if (!obj.categoria) obj.categoria = 'outros';
-      if (!obj.dosagem) obj.dosagem = '';
-      if (!obj.lote) obj.lote = '';
-      if (!obj.fornecedor) obj.fornecedor = '';
-      // Converte data serial do Excel para formato legível
-      obj.vencimento = converterDataExcel(obj.vencimento || '');
-    }
-
     // ── FORNECEDORES ──
     if (tipo === 'fornecedores') {
       obj.ativo = inferirAtivo(obj, raw);
@@ -642,15 +636,12 @@
         ? toInt(obj.quantidade)
         : 0;
 
-      // Fallback: varre todas as colunas do raw buscando campo de valor caso o
-      // mapeamento principal não tenha casado (ex: coluna chamada "Valor Unitario")
       if (!obj.valor_unitario) {
         const rawKeys2 = Object.keys(raw || {});
         for (const k of rawKeys2) {
           const kn = normalizeKey(k);
           if (
             kn.includes('valor') ||
-            kn.includes('preco') ||
             kn.includes('preco') ||
             kn.includes('custo')
           ) {
@@ -666,12 +657,9 @@
         ? toFloat(obj.valor_unitario)
         : 0;
 
-      // Se arquivo tem coluna "nome" em vez de "medicamento", usa ela
       if (!obj.medicamento) obj.medicamento = obj.nome || textoPrincipal;
-      // Compatibilidade: miligrama → dosagem
       if (!obj.dosagem && raw.miligrama)
         obj.dosagem = String(raw.miligrama || '');
-      // Converte data serial do Excel para data_entrada e vencimento
       obj.data_entrada = converterDataExcel(obj.data_entrada || '');
       if (!obj.data_entrada)
         obj.data_entrada = new Date().toISOString().slice(0, 10);
@@ -688,7 +676,6 @@
         ? toInt(obj.quantidade)
         : 0;
       if (!obj.medicamento) obj.medicamento = textoPrincipal;
-      // Converte data serial do Excel para data de saída
       obj.data = converterDataExcel(obj.data || '');
       if (!obj.data) obj.data = new Date().toISOString().slice(0, 10);
       if (!obj.destino) obj.destino = '';
@@ -710,18 +697,6 @@
       textoLinha.includes('valor total')
     ) {
       return { ok: false, erros: ['Linha de resumo/total'] };
-    }
-
-    if (tipo === 'medicamentos') {
-      if (!row.nome) row.nome = `Item importado ${Date.now()}`;
-      if (!row.categoria) row.categoria = 'outros';
-      if (!row.dosagem) row.dosagem = '';
-      if (!row.lote) row.lote = '';
-      if (!row.vencimento) row.vencimento = '';
-      if (!row.fornecedor) row.fornecedor = '';
-      if (!isFiniteNumber(row.stock_atual)) row.stock_atual = 0;
-      if (!isFiniteNumber(row.valor)) row.valor = 0;
-      if (typeof row.ativo === 'undefined') row.ativo = true;
     }
 
     if (tipo === 'fornecedores') {
@@ -796,7 +771,6 @@
       .join('');
   }
 
-  // Traduz nomes internos para exibição amigável na prévia
   function labelColuna(chave) {
     const labels = {
       nome: 'Nome',
@@ -821,23 +795,9 @@
     return labels[chave] || chave;
   }
 
-  // Colunas exibidas na pré-visualização por tipo
   function previewCols(tipo) {
     if (tipo === 'fornecedores')
       return ['nome', 'cnpj', 'telefone', 'email', 'ativo'];
-
-    if (tipo === 'medicamentos')
-      return [
-        'nome',
-        'dosagem',
-        'categoria',
-        'lote',
-        'vencimento',
-        'stock_atual',
-        'valor',
-        'fornecedor',
-        'ativo',
-      ];
 
     if (tipo === 'entradas')
       return [
@@ -876,55 +836,6 @@
         cnpj: ['cnpj'],
         telefone: ['telefone', 'fone', 'celular', 'contato'],
         email: ['email', 'e-mail'],
-        ativo: ['ativo', 'status'],
-      };
-    }
-
-    if (tipo === 'medicamentos') {
-      return {
-        id: ['id', 'codigo', 'código', 'item'],
-        nome: [
-          'nome',
-          'medicamento',
-          'produto',
-          'item',
-          'descricao',
-          'descrição',
-          'material',
-        ],
-        dosagem: ['dosagem', 'miligrama', 'mg', 'concentracao', 'concentração'],
-        categoria: ['categoria', 'classe', 'grupo', 'tipo'],
-        lote: ['lote'],
-        vencimento: [
-          'vencimento',
-          'validade',
-          'data validade',
-          'data de validade',
-          'vencimento_data',
-        ],
-        stock_atual: [
-          'estoque',
-          'stock_atual',
-          'quantidade',
-          'qtd',
-          'est. atual',
-          'estoque atual',
-          'saldo',
-        ],
-        valor: [
-          'valor_unit',
-          'valor unit',
-          'valor unit.',
-          'valor',
-          'preco',
-          'preço',
-          'valor unitario',
-          'valor unitário',
-          'valor_unitario',
-          'custo',
-          'valor unt',
-        ],
-        fornecedor: ['fornecedor', 'fabricante', 'distribuidor'],
         ativo: ['ativo', 'status'],
       };
     }
@@ -1090,7 +1001,6 @@
 
   function labelTipo(v) {
     if (v === 'fornecedores') return 'Fornecedores';
-    if (v === 'medicamentos') return 'Medicamentos';
     if (v === 'entradas') return 'Entradas';
     if (v === 'saidas') return 'Saídas';
     return '—';
