@@ -168,7 +168,7 @@
       if (typeof XLSX === 'undefined')
         throw new Error('XLSX (SheetJS) não carregado no HTML.');
       const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, { type: 'array' });
+      const wb = XLSX.read(buf, { type: 'array', cellDates: true });
       const todasLinhas = [];
       wb.SheetNames.forEach((sheetName) => {
         const ws = wb.Sheets[sheetName];
@@ -236,6 +236,57 @@
     }
     res.push(cur);
     return res;
+  }
+
+  // ── CONVERSÃO DE DATA SERIAL DO EXCEL ──────────────────────────────────────
+  // O Excel armazena datas como número de dias desde 1900-01-01.
+  // Ex: 46642 → 2027-09-14
+  function converterDataExcel(valor) {
+    if (!valor && valor !== 0) return '';
+
+    // Se já é um objeto Date (cellDates: true faz isso)
+    if (valor instanceof Date) {
+      const ano = valor.getFullYear();
+      const mes = String(valor.getMonth() + 1).padStart(2, '0');
+      const dia = String(valor.getDate()).padStart(2, '0');
+      return `${ano}-${mes}-${dia}`;
+    }
+
+    const v = String(valor).trim();
+    if (!v) return '';
+
+    // Formato ISO completo: 2027-09-14T00:00:00.000Z
+    if (/^\d{4}-\d{2}-\d{2}T/.test(v)) {
+      return v.slice(0, 10);
+    }
+
+    // Já está no formato YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+
+    // DD/MM/YYYY
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
+      const [d, m, a] = v.split('/');
+      return `${a}-${m}-${d}`;
+    }
+
+    // DD-MM-YYYY
+    if (/^\d{2}-\d{2}-\d{4}$/.test(v)) {
+      const [d, m, a] = v.split('-');
+      return `${a}-${m}-${d}`;
+    }
+
+    // Número serial do Excel (sem cellDates)
+    const num = parseInt(v, 10);
+    if (!isNaN(num) && num > 40000 && num < 60000) {
+      const base = new Date(Date.UTC(1899, 11, 30));
+      base.setUTCDate(base.getUTCDate() + num);
+      const ano = base.getUTCFullYear();
+      const mes = String(base.getUTCMonth() + 1).padStart(2, '0');
+      const dia = String(base.getUTCDate()).padStart(2, '0');
+      return `${ano}-${mes}-${dia}`;
+    }
+
+    return v;
   }
 
   function validarEPreview() {
@@ -339,7 +390,6 @@
     let count = 0;
 
     if (tipo === 'fornecedores') {
-      // Busca fornecedores existentes
       const resp = await fetch(`${API_BASE_URL}/fornecedores/`);
       const existentes = resp.ok ? await resp.json() : [];
 
@@ -380,16 +430,13 @@
     }
 
     if (tipo === 'medicamentos') {
-      // Busca fornecedores para vincular
       const respF = await fetch(`${API_BASE_URL}/fornecedores/`);
       const fornecedores = respF.ok ? await respF.json() : [];
 
-      // Busca medicamentos existentes
       const respM = await fetch(`${API_BASE_URL}/medicamentos/`);
       const existentes = respM.ok ? await respM.json() : [];
 
       for (const row of rows) {
-        // Tenta encontrar fornecedor pelo nome
         const fornecedor = fornecedores.find(
           (f) =>
             String(f.nome || '')
@@ -410,46 +457,128 @@
               .toLowerCase()
         );
 
+        // Compatível com stock_atual ou quantidade no arquivo
+        const qtdMed = Number(row.stock_atual || row.quantidade) || 0;
+        const valorMed =
+          Number(row.valor_unit || row.valor_unitario || row.valor) || 0;
+        const dosagemMed = row.dosagem || row.miligrama || null;
+
         const payload = {
           nome: row.nome || '',
-          miligrama: row.miligrama || null,
+          miligrama: dosagemMed,
           categoria: row.categoria || 'outros',
           lote: row.lote || '',
           validade: row.vencimento || null,
-          quantidade: Number(row.stock_atual) || 0,
-          valor_unit: Number(row.preco) || 0,
-          descricao: row.descricao || '',
+          quantidade: qtdMed,
+          valor_unit: valorMed,
           fornecedor: fornecedor ? fornecedor.id : null,
         };
 
+        logInfo(
+          `Enviando medicamento: ${payload.nome} | qtd: ${qtdMed} | valor: ${valorMed}`
+        );
+
+        let respMed;
         if (existente && atualizar) {
-          await fetch(`${API_BASE_URL}/medicamentos/${existente.id}/`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
+          respMed = await fetch(
+            `${API_BASE_URL}/medicamentos/${existente.id}/`,
+            {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            }
+          );
         } else if (!existente) {
-          await fetch(`${API_BASE_URL}/medicamentos/`, {
+          respMed = await fetch(`${API_BASE_URL}/medicamentos/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
           });
         }
+
+        if (respMed && !respMed.ok) {
+          const erroMed = await respMed.text();
+          logError(
+            `Erro ao salvar "${payload.nome}": HTTP ${respMed.status} — ${erroMed}`
+          );
+        } else if (respMed) {
+          logOk(`Medicamento salvo: ${payload.nome}`);
+        }
         count++;
       }
     }
 
-    if (tipo === 'entradas' || tipo === 'saidas') {
-      logWarn(
-        'Importação de entradas/saídas via arquivo não suportada diretamente. Use as telas de Entrada e Saída.'
-      );
-      return 0;
+    if (tipo === 'entradas') {
+      for (const row of rows) {
+        // Compatível com colunas "nome" ou "medicamento" no arquivo
+        const nomeMed = row.medicamento || row.nome || '';
+        // Compatível com valor_unit, valor_unitario ou valor no arquivo
+        const valorUnit =
+          Number(row.valor_unitario || row.valor_unit || row.valor) || 0;
+        // Compatível com miligrama ou dosagem no arquivo
+        const dosagem = row.dosagem || row.miligrama || '';
+
+        const payload = {
+          tipo: 'E',
+          medicamento_nome: nomeMed,
+          dosagem: dosagem,
+          categoria: row.categoria || '',
+          lote: row.lote || '',
+          vencimento: row.vencimento || null,
+          quantidade: Number(row.quantidade) || 0,
+          valor_unitario: valorUnit,
+          fornecedor: row.fornecedor || '',
+          data_movimentacao:
+            row.data_entrada ||
+            row.data ||
+            new Date().toISOString().slice(0, 10),
+        };
+
+        logInfo(
+          `Enviando entrada: ${nomeMed} | qtd: ${payload.quantidade} | valor: ${valorUnit}`
+        );
+
+        const resposta = await fetch(`${API_BASE_URL}/movimentacoes/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!resposta.ok) {
+          const erro = await resposta.text();
+          logError(
+            `Erro ao salvar "${nomeMed}": HTTP ${resposta.status} — ${erro}`
+          );
+        } else {
+          logOk(`Entrada salva: ${nomeMed}`);
+        }
+        count++;
+      }
+    }
+
+    if (tipo === 'saidas') {
+      for (const row of rows) {
+        const payload = {
+          tipo: 'S',
+          medicamento_nome: row.medicamento || '',
+          quantidade: Number(row.quantidade) || 0,
+          destino: row.destino || '',
+          data_movimentacao: row.data || new Date().toISOString().slice(0, 10),
+        };
+
+        await fetch(`${API_BASE_URL}/movimentacoes/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        count++;
+      }
     }
 
     return count;
   }
 
-  // ── PREVIEW ────────────────────────────────────────────────────────────────
+  // ── NORMALIZAÇÃO ───────────────────────────────────────────────────────────
 
   function normalizarLinha(raw, tipo) {
     const obj = {};
@@ -486,51 +615,83 @@
       if (typeof obj[k] === 'string') obj[k] = obj[k].trim();
     });
 
+    // ── MEDICAMENTOS ──
     if (tipo === 'medicamentos') {
       obj.stock_atual = isFiniteNumber(toInt(obj.stock_atual))
         ? toInt(obj.stock_atual)
         : 0;
-      obj.stock_minimo = isFiniteNumber(toInt(obj.stock_minimo))
-        ? toInt(obj.stock_minimo)
-        : 0;
-      obj.preco = isFiniteNumber(toFloat(obj.preco)) ? toFloat(obj.preco) : 0;
+      obj.valor = isFiniteNumber(toFloat(obj.valor)) ? toFloat(obj.valor) : 0;
       obj.ativo = inferirAtivo(obj, raw);
-      if (!obj.unidade) obj.unidade = 'un';
       if (!obj.categoria) obj.categoria = 'outros';
-      if (!obj.descricao)
-        obj.descricao =
-          raw.descricao ||
-          raw.Descricao ||
-          raw.descrição ||
-          raw.Descrição ||
-          '';
-      if (!obj.vencimento) obj.vencimento = '';
+      if (!obj.dosagem) obj.dosagem = '';
       if (!obj.lote) obj.lote = '';
+      if (!obj.fornecedor) obj.fornecedor = '';
+      // Converte data serial do Excel para formato legível
+      obj.vencimento = converterDataExcel(obj.vencimento || '');
     }
 
+    // ── FORNECEDORES ──
     if (tipo === 'fornecedores') {
       obj.ativo = inferirAtivo(obj, raw);
       if (!obj.nome) obj.nome = textoPrincipal;
     }
 
+    // ── ENTRADAS ──
     if (tipo === 'entradas') {
       obj.quantidade = isFiniteNumber(toInt(obj.quantidade))
         ? toInt(obj.quantidade)
         : 0;
-      if (!obj.medicamento) obj.medicamento = textoPrincipal;
-      if (!obj.data) obj.data = new Date().toISOString().slice(0, 10);
+
+      // Fallback: varre todas as colunas do raw buscando campo de valor caso o
+      // mapeamento principal não tenha casado (ex: coluna chamada "Valor Unitario")
+      if (!obj.valor_unitario) {
+        const rawKeys2 = Object.keys(raw || {});
+        for (const k of rawKeys2) {
+          const kn = normalizeKey(k);
+          if (
+            kn.includes('valor') ||
+            kn.includes('preco') ||
+            kn.includes('preco') ||
+            kn.includes('custo')
+          ) {
+            const v = toFloat(raw[k]);
+            if (isFiniteNumber(v)) {
+              obj.valor_unitario = v;
+              break;
+            }
+          }
+        }
+      }
+      obj.valor_unitario = isFiniteNumber(toFloat(obj.valor_unitario))
+        ? toFloat(obj.valor_unitario)
+        : 0;
+
+      // Se arquivo tem coluna "nome" em vez de "medicamento", usa ela
+      if (!obj.medicamento) obj.medicamento = obj.nome || textoPrincipal;
+      // Compatibilidade: miligrama → dosagem
+      if (!obj.dosagem && raw.miligrama)
+        obj.dosagem = String(raw.miligrama || '');
+      // Converte data serial do Excel para data_entrada e vencimento
+      obj.data_entrada = converterDataExcel(obj.data_entrada || '');
+      if (!obj.data_entrada)
+        obj.data_entrada = new Date().toISOString().slice(0, 10);
+      obj.vencimento = converterDataExcel(obj.vencimento || '');
       if (!obj.fornecedor) obj.fornecedor = '';
-      if (!obj.observacao) obj.observacao = '';
+      if (!obj.dosagem) obj.dosagem = '';
+      if (!obj.categoria) obj.categoria = '';
+      if (!obj.lote) obj.lote = '';
     }
 
+    // ── SAÍDAS ──
     if (tipo === 'saidas') {
       obj.quantidade = isFiniteNumber(toInt(obj.quantidade))
         ? toInt(obj.quantidade)
         : 0;
       if (!obj.medicamento) obj.medicamento = textoPrincipal;
+      // Converte data serial do Excel para data de saída
+      obj.data = converterDataExcel(obj.data || '');
       if (!obj.data) obj.data = new Date().toISOString().slice(0, 10);
       if (!obj.destino) obj.destino = '';
-      if (!obj.responsavel) obj.responsavel = '';
     }
 
     return obj;
@@ -554,13 +715,12 @@
     if (tipo === 'medicamentos') {
       if (!row.nome) row.nome = `Item importado ${Date.now()}`;
       if (!row.categoria) row.categoria = 'outros';
-      if (!row.unidade) row.unidade = 'un';
-      if (!row.descricao) row.descricao = '';
+      if (!row.dosagem) row.dosagem = '';
       if (!row.lote) row.lote = '';
       if (!row.vencimento) row.vencimento = '';
+      if (!row.fornecedor) row.fornecedor = '';
       if (!isFiniteNumber(row.stock_atual)) row.stock_atual = 0;
-      if (!isFiniteNumber(row.stock_minimo)) row.stock_minimo = 0;
-      if (!isFiniteNumber(row.preco)) row.preco = 0;
+      if (!isFiniteNumber(row.valor)) row.valor = 0;
       if (typeof row.ativo === 'undefined') row.ativo = true;
     }
 
@@ -575,9 +735,14 @@
     if (tipo === 'entradas') {
       if (!row.medicamento) row.medicamento = `Entrada importada ${Date.now()}`;
       if (!isFiniteNumber(row.quantidade)) row.quantidade = 0;
+      if (!isFiniteNumber(row.valor_unitario)) row.valor_unitario = 0;
       if (!row.fornecedor) row.fornecedor = '';
-      if (!row.data) row.data = new Date().toISOString().slice(0, 10);
-      if (!row.observacao) row.observacao = '';
+      if (!row.data_entrada)
+        row.data_entrada = new Date().toISOString().slice(0, 10);
+      if (!row.dosagem) row.dosagem = '';
+      if (!row.categoria) row.categoria = '';
+      if (!row.lote) row.lote = '';
+      if (!row.vencimento) row.vencimento = '';
     }
 
     if (tipo === 'saidas') {
@@ -585,11 +750,12 @@
       if (!isFiniteNumber(row.quantidade)) row.quantidade = 0;
       if (!row.destino) row.destino = '';
       if (!row.data) row.data = new Date().toISOString().slice(0, 10);
-      if (!row.responsavel) row.responsavel = '';
     }
 
     return { ok: true, erros: [] };
   }
+
+  // ── PREVIEW ────────────────────────────────────────────────────────────────
 
   function renderPreviewBruta(rows) {
     const sample = rows.slice(0, 30);
@@ -621,36 +787,78 @@
   }
 
   function renderTable(cols, rows) {
-    elPreviewHead.innerHTML = `<tr>${cols.map((c) => `<th>${escapeHTML(c)}</th>`).join('')}</tr>`;
+    elPreviewHead.innerHTML = `<tr>${cols.map((c) => `<th>${escapeHTML(labelColuna(c))}</th>`).join('')}</tr>`;
     elPreviewBody.innerHTML = rows
       .map(
-        (r) => `<tr>${r.map((v) => `<td>${escapeHTML(v)}</td>`).join('')}</tr>`
+        (r) =>
+          `<tr>${r.map((v) => `<td>${escapeHTML(String(v ?? ''))}</td>`).join('')}</tr>`
       )
       .join('');
   }
 
+  // Traduz nomes internos para exibição amigável na prévia
+  function labelColuna(chave) {
+    const labels = {
+      nome: 'Nome',
+      medicamento: 'Medicamento',
+      dosagem: 'Dosagem',
+      categoria: 'Categoria',
+      lote: 'Lote',
+      vencimento: 'Vencimento',
+      stock_atual: 'Estoque',
+      valor: 'Valor Unit.',
+      fornecedor: 'Fornecedor',
+      ativo: 'Ativo',
+      quantidade: 'Quantidade',
+      valor_unitario: 'Valor Unit.',
+      data_entrada: 'Data de Entrada',
+      data: 'Data',
+      destino: 'Destino',
+      cnpj: 'CNPJ',
+      telefone: 'Telefone',
+      email: 'E-mail',
+    };
+    return labels[chave] || chave;
+  }
+
+  // Colunas exibidas na pré-visualização por tipo
   function previewCols(tipo) {
     if (tipo === 'fornecedores')
       return ['nome', 'cnpj', 'telefone', 'email', 'ativo'];
+
     if (tipo === 'medicamentos')
       return [
         'nome',
-        'descricao',
-        'miligrama',
-        'unidade',
+        'dosagem',
         'categoria',
-        'stock_atual',
-        'stock_minimo',
-        'preco',
+        'lote',
         'vencimento',
+        'stock_atual',
+        'valor',
+        'fornecedor',
         'ativo',
       ];
+
     if (tipo === 'entradas')
-      return ['medicamento', 'quantidade', 'fornecedor', 'data', 'observacao'];
+      return [
+        'medicamento',
+        'dosagem',
+        'categoria',
+        'lote',
+        'vencimento',
+        'quantidade',
+        'valor_unitario',
+        'fornecedor',
+        'data_entrada',
+      ];
+
     if (tipo === 'saidas')
-      return ['medicamento', 'quantidade', 'destino', 'data', 'responsavel'];
+      return ['medicamento', 'quantidade', 'destino', 'data'];
+
     return Object.keys(linhasLidas[0] || {});
   }
+
+  // ── MAPEAMENTO DE COLUNAS DO ARQUIVO ──────────────────────────────────────
 
   function getMapColunas(tipo) {
     if (tipo === 'fornecedores') {
@@ -675,7 +883,6 @@
     if (tipo === 'medicamentos') {
       return {
         id: ['id', 'codigo', 'código', 'item'],
-        sku: ['sku', 'codigo sku', 'código sku'],
         nome: [
           'nome',
           'medicamento',
@@ -683,9 +890,9 @@
           'item',
           'descricao',
           'descrição',
-          'descrição produto',
           'material',
         ],
+        dosagem: ['dosagem', 'miligrama', 'mg', 'concentracao', 'concentração'],
         categoria: ['categoria', 'classe', 'grupo', 'tipo'],
         lote: ['lote'],
         vencimento: [
@@ -693,6 +900,7 @@
           'validade',
           'data validade',
           'data de validade',
+          'vencimento_data',
         ],
         stock_atual: [
           'estoque',
@@ -703,48 +911,26 @@
           'estoque atual',
           'saldo',
         ],
-        stock_minimo: [
-          'estoque minimo',
-          'estoque mínimo',
-          'stock_minimo',
-          'mínimo',
-          'minimo',
-          'necessidade',
-        ],
-        preco: [
+        valor: [
+          'valor_unit',
+          'valor unit',
+          'valor unit.',
+          'valor',
           'preco',
           'preço',
-          'valor',
-          'valor unit',
           'valor unitario',
           'valor unitário',
+          'valor_unitario',
           'custo',
           'valor unt',
         ],
-        unidade: [
-          'unidade',
-          'un',
-          'und',
-          'medida',
-          'apresentação',
-          'apresentacao',
-        ],
-        descricao: [
-          'descricao',
-          'descrição',
-          'observacao',
-          'observação',
-          'descrição produto',
-        ],
-        ativo: ['ativo', 'status'],
-        miligrama: ['miligrama', 'mg', 'dosagem'],
         fornecedor: ['fornecedor', 'fabricante', 'distribuidor'],
+        ativo: ['ativo', 'status'],
       };
     }
 
     if (tipo === 'entradas') {
       return {
-        id: ['id', 'codigo', 'código', 'item'],
         medicamento: [
           'medicamento',
           'nome',
@@ -752,8 +938,16 @@
           'item',
           'descricao',
           'descrição',
-          'descrição produto',
           'material',
+        ],
+        dosagem: ['dosagem', 'miligrama', 'mg', 'concentracao', 'concentração'],
+        categoria: ['categoria', 'classe', 'grupo', 'tipo'],
+        lote: ['lote'],
+        vencimento: [
+          'vencimento',
+          'validade',
+          'data validade',
+          'data de validade',
         ],
         quantidade: [
           'quantidade',
@@ -762,15 +956,40 @@
           'nec',
           'saldo',
           'estoque',
+          'stock_atual',
         ],
-        fornecedor: ['fornecedor', 'origem'],
-        data: ['data', 'data entrada', 'data de entrada'],
-        observacao: ['observacao', 'observação', 'motivo', 'obs'],
+        valor_unitario: [
+          'valor_unit',
+          'valor unit',
+          'valor unit.',
+          'valor_unitario',
+          'valor unitario',
+          'valor unitário',
+          'vl unitario',
+          'vl unitário',
+          'vl_unit',
+          'preco unitario',
+          'preço unitário',
+          'preco unit',
+          'preço unit',
+          'preco',
+          'preço',
+          'valor',
+          'custo',
+        ],
+        fornecedor: ['fornecedor', 'origem', 'fabricante'],
+        data_entrada: [
+          'data_entrada',
+          'data entrada',
+          'data de entrada',
+          'data entrada movimentacao',
+          'data',
+        ],
       };
     }
 
+    // saidas
     return {
-      id: ['id', 'codigo', 'código', 'item'],
       medicamento: [
         'medicamento',
         'nome',
@@ -778,7 +997,6 @@
         'item',
         'descricao',
         'descrição',
-        'descrição produto',
         'material',
       ],
       quantidade: [
@@ -791,9 +1009,10 @@
       ],
       destino: ['destino', 'motivo', 'setor', 'saida', 'saída'],
       data: ['data', 'data saida', 'data saída', 'data de saída'],
-      responsavel: ['responsavel', 'responsável', 'usuario', 'usuário'],
     };
   }
+
+  // ── HELPERS ────────────────────────────────────────────────────────────────
 
   function normalizeKey(s) {
     return String(s || '')
@@ -911,11 +1130,23 @@
 
   function toFloat(v) {
     if (v == null) return NaN;
+    // Se já é número (vindo do Excel via cellDates: true ou SheetJS), usa direto
+    if (typeof v === 'number') return Number.isFinite(v) ? v : NaN;
     const s = String(v).trim();
-    const normalized =
-      s.includes(',') && !s.includes('.')
-        ? s.replace(',', '.')
-        : s.replace(/\./g, '').replace(',', '.');
+    if (!s) return NaN;
+
+    let normalized;
+    if (s.includes(',') && s.includes('.')) {
+      // Formato BR com milhar: "1.500,89" → remove pontos, troca vírgula por ponto
+      normalized = s.replace(/\./g, '').replace(',', '.');
+    } else if (s.includes(',') && !s.includes('.')) {
+      // Decimal com vírgula: "1,89" → troca por ponto
+      normalized = s.replace(',', '.');
+    } else {
+      // Ponto como decimal (padrão internacional): "1.89", "0.89" → usa direto
+      normalized = s;
+    }
+
     const n = parseFloat(normalized);
     return Number.isFinite(n) ? n : NaN;
   }
