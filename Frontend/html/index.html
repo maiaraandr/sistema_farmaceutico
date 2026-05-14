@@ -3,11 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>Login - GestMed</title>
-    <link rel="stylesheet" href="CSS/base.css" />
-    <link rel="stylesheet" href="CSS/auth.css" />
+
+    <link rel="stylesheet" href="../CSS/base.css" />
+    <link rel="stylesheet" href="../CSS/auth.css" />
+
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
+
   <body class="login-page">
     <div class="auth-page">
       <div class="auth-container">
@@ -16,8 +20,10 @@
             <div class="auth-icon">
               <i data-lucide="pill"></i>
             </div>
+
             <h1 class="login-title">GestMed</h1>
-            <p class="login-subtitle">Sistema de Gestão De Medicamentos</p>
+
+            <p class="login-subtitle">Sistema de Gestão de Medicamentos</p>
           </div>
 
           <div id="loginError" class="message error hidden"></div>
@@ -26,12 +32,13 @@
             <div class="form-field">
               <div class="input-wrapper">
                 <i data-lucide="user" class="input-icon"></i>
+
                 <input
                   type="text"
                   id="username"
                   placeholder="USERNAME"
-                  required
                   autocomplete="username"
+                  required
                 />
               </div>
             </div>
@@ -39,14 +46,16 @@
             <div class="form-field">
               <div class="input-wrapper">
                 <i data-lucide="lock" class="input-icon"></i>
+
                 <div class="password-wrapper">
                   <input
                     type="password"
                     id="password"
                     placeholder="PASSWORD"
-                    required
                     autocomplete="current-password"
+                    required
                   />
+
                   <button
                     type="button"
                     class="password-toggle"
@@ -66,49 +75,58 @@
             </button>
 
             <div class="auth-link" style="margin-top: 10px">
-              <a href="recuperar_senha.html">Esqueceu a senha?</a>
+              <a href="recuperar_senha.html"> Esqueceu a senha? </a>
             </div>
 
             <div class="auth-link">
-              <a href="cadastro.html">Novo usuário?</a>
+              <a href="cadastro.html"> Novo usuário? </a>
             </div>
           </form>
         </div>
       </div>
     </div>
 
-    <!-- Scripts ajustados para a nova estrutura -->
-    <script src="Javascript/Storage.js"></script>
-    <script src="Javascript/autenticacao.js"></script>
+    <script src="../Javascript/Storage.js"></script>
+    <script src="../Javascript/autenticacao.js"></script>
 
     <script>
       lucide.createIcons();
 
-      // Seu backend rodando no Render
       const API_BASE_URL = 'https://gestmed.onrender.com/api';
 
       const usernameInput = document.getElementById('username');
       const passwordInput = document.getElementById('password');
+
       const togglePasswordBtn = document.getElementById('togglePassword');
       const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+
       const loginForm = document.getElementById('loginForm');
       const loginBtn = document.getElementById('loginBtn');
       const loginError = document.getElementById('loginError');
 
-      if (usernameInput) usernameInput.focus();
-
-      function mostrarErro(msg) {
-        loginError.textContent = msg;
-        loginError.classList.remove('hidden');
-        setTimeout(() => loginError.classList.add('hidden'), 3000);
+      if (usernameInput) {
+        usernameInput.focus();
       }
 
-      togglePasswordBtn.addEventListener('click', function () {
+      function mostrarErro(mensagem) {
+        loginError.textContent = mensagem;
+
+        loginError.classList.remove('hidden');
+
+        setTimeout(() => {
+          loginError.classList.add('hidden');
+        }, 3000);
+      }
+
+      togglePasswordBtn.addEventListener('click', () => {
         const mostrandoSenha = passwordInput.type === 'text';
+
         passwordInput.type = mostrandoSenha ? 'password' : 'text';
+
         togglePasswordIcon.innerHTML = mostrandoSenha
           ? '<i data-lucide="eye"></i>'
           : '<i data-lucide="eye-off"></i>';
+
         lucide.createIcons();
       });
 
@@ -119,22 +137,30 @@
         const password = passwordInput.value;
 
         loginError.classList.add('hidden');
+
         loginBtn.disabled = true;
         loginBtn.textContent = 'Entrando...';
 
         try {
-          const resp = await fetch(`${API_BASE_URL}/login/`, {
+          const response = await fetch(`${API_BASE_URL}/login/`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usuario: username, senha: password }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              usuario: username,
+              senha: password,
+            }),
           });
 
-          const data = await resp.json();
+          const data = await response.json();
 
-          if (!resp.ok || !data.sucesso) {
+          if (!response.ok || !data.sucesso) {
             mostrarErro(data.erro || 'Usuário ou senha inválidos.');
+
             loginBtn.disabled = false;
             loginBtn.textContent = 'Login';
+
             return;
           }
 
@@ -142,6 +168,7 @@
             'farm_current_user',
             JSON.stringify(data.usuario)
           );
+
           localStorage.setItem('farm_session_token', `token_${Date.now()}`);
 
           loginBtn.textContent = 'Sucesso!';
@@ -153,6 +180,7 @@
           }, 500);
         } catch (error) {
           mostrarErro('Não foi possível conectar ao servidor.');
+
           loginBtn.disabled = false;
           loginBtn.textContent = 'Login';
         }
