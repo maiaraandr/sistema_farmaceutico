@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - GestMed</title>
-    <link rel="stylesheet" href="../CSS/base.css" />
-    <link rel="stylesheet" href="../CSS/auth.css" />
+    <link rel="stylesheet" href="CSS/base.css" />
+    <link rel="stylesheet" href="CSS/auth.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body class="login-page">
@@ -77,12 +77,14 @@
       </div>
     </div>
 
-    <script src="../Javascript/Storage.js"></script>
-    <script src="../Javascript/autenticacao.js"></script>
+    <!-- Scripts ajustados para a nova estrutura -->
+    <script src="Javascript/Storage.js"></script>
+    <script src="Javascript/autenticacao.js"></script>
 
     <script>
       lucide.createIcons();
 
+      // Seu backend rodando no Render
       const API_BASE_URL = 'https://gestmed.onrender.com/api';
 
       const usernameInput = document.getElementById('username');
@@ -136,7 +138,6 @@
             return;
           }
 
-          // Salva sessão no localStorage
           localStorage.setItem(
             'farm_current_user',
             JSON.stringify(data.usuario)
