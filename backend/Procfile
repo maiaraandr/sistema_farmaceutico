@@ -1,1 +1,1 @@
-web: python manage.py migrate && python manage.py shell -c "from django.contrib.auth.models import User; User.objects.filter(username='Maiara').exists() or User.objects.create_superuser('Maiara', 'mayandrade29andrade@gmail.com', '28042117')" && gunicorn backend.wsgi --bind 0.0.0.0:$PORT --log-file -
+web: gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT
