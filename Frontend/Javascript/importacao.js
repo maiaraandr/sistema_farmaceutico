@@ -526,9 +526,28 @@
         }
 
         // ── 2. Registra a movimentação de entrada ────────────────────────────
+        // A API exige o ID do medicamento, não o nome — buscamos na lista atualizada
+        const medFinal = medicamentosExistentes.find(
+          (m) =>
+            String(m.nome || '')
+              .trim()
+              .toLowerCase() ===
+            String(nomeMed || '')
+              .trim()
+              .toLowerCase()
+        );
+
+        if (!medFinal) {
+          logError(
+            `ID não encontrado para "${nomeMed}" — entrada não registrada.`
+          );
+          count++;
+          continue;
+        }
+
         const payload = {
           tipo: 'E',
-          medicamento_nome: nomeMed,
+          medicamento: medFinal.id,
           dosagem: dosagem,
           categoria: row.categoria || '',
           lote: row.lote || '',
@@ -543,7 +562,7 @@
         };
 
         logInfo(
-          `Registrando entrada: ${nomeMed} | qtd: ${payload.quantidade} | valor: ${valorUnit}`
+          `Registrando entrada: ${nomeMed} (id: ${medFinal.id}) | qtd: ${payload.quantidade} | valor: ${valorUnit}`
         );
 
         const resposta = await fetch(`${API_BASE_URL}/movimentacoes/`, {

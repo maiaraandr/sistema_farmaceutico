@@ -105,8 +105,6 @@ function atualizarKPIHoje() {
   if (el) el.textContent = new Date().toLocaleDateString('pt-BR');
 }
 
-// ── CARREGAR DADOS ──
-
 async function carregarFornecedores() {
   try {
     var resp = await fetch(API_FORNECEDORES);
@@ -177,8 +175,6 @@ async function carregarHistoricoEntradas() {
   }
 }
 
-// ── REGISTRAR ENTRADA ──
-
 async function registrarEntrada(event) {
   event.preventDefault();
 
@@ -228,37 +224,37 @@ async function registrarEntrada(event) {
     var salvo;
     if (existente) {
       salvo = await atualizarMedicamentoExistente(existente, {
-        nome: nome,
-        miligrama: miligrama,
-        categoria: categoria,
-        lote: lote,
-        validade: validade,
-        quantidade: quantidade,
-        valorUnitario: valorUnitario,
-        fornecedorId: fornecedorId,
+        nome,
+        miligrama,
+        categoria,
+        lote,
+        validade,
+        quantidade,
+        valorUnitario,
+        fornecedorId,
       });
     } else {
       salvo = await criarMedicamento({
-        nome: nome,
-        miligrama: miligrama,
-        categoria: categoria,
-        lote: lote,
-        validade: validade,
-        quantidade: quantidade,
-        valorUnitario: valorUnitario,
-        fornecedorId: fornecedorId,
+        nome,
+        miligrama,
+        categoria,
+        lote,
+        validade,
+        quantidade,
+        valorUnitario,
+        fornecedorId,
       });
     }
 
     await registrarMovimentacaoEntrada({
       medicamentoId: salvo.id,
-      quantidade: quantidade,
-      fornecedorNome: fornecedorNome,
-      categoria: categoria,
-      lote: lote,
-      validade: validade,
-      valorUnitario: valorUnitario,
-      dataEntrada: dataEntrada,
+      quantidade,
+      fornecedorNome,
+      categoria,
+      lote,
+      validade,
+      valorUnitario,
+      dataEntrada,
     });
 
     alert('Entrada registrada com sucesso.');
@@ -347,8 +343,6 @@ async function registrarMovimentacaoEntrada(d) {
   return resp.json();
 }
 
-// ── EDITAR ──
-
 window.abrirModalEdicao = function (movimentacaoId) {
   var id = Number(movimentacaoId);
   var mov = null;
@@ -370,7 +364,6 @@ window.abrirModalEdicao = function (movimentacaoId) {
   var lote = extrair(mov.observacao, 'Lote:');
   var validadeObs = extrair(mov.observacao, 'Validade informada:');
   var valorUnitario = extrair(mov.observacao, 'Valor unitario:');
-
   if (!valorUnitario)
     valorUnitario = extrair(mov.observacao, 'Valor unit\u00e1rio:');
 
@@ -402,7 +395,6 @@ window.abrirModalEdicao = function (movimentacaoId) {
 
   document.getElementById('modalEdicaoEntrada').classList.add('active');
   criarIcones();
-
   document.body.style.overflow = 'hidden';
 };
 
@@ -457,19 +449,17 @@ async function salvarEdicaoEntrada() {
     movimentacaoEmEdicao.observacao,
     'Data da entrada:'
   );
-  var fornecedorIdMed =
-    typeof med.fornecedor === 'object' ? med.fornecedor.id : med.fornecedor;
 
   try {
     var respMed = await fetch(API_MEDICAMENTOS + med.id + '/', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nome: nome,
+        nome,
         miligrama: miligrama || null,
-        categoria: categoria,
-        lote: lote,
-        validade: validade,
+        categoria,
+        lote,
+        validade,
         quantidade: novoEstoque,
         valor_unit: valorUnitario,
         descricao: med.descricao || '',
@@ -481,7 +471,6 @@ async function salvarEdicaoEntrada() {
       var errMed = await respMed.json().catch(function () {
         return {};
       });
-      console.error('Erro PUT medicamento:', errMed);
       alert('Erro ao atualizar medicamento: ' + JSON.stringify(errMed));
       return;
     }
@@ -503,7 +492,7 @@ async function salvarEdicaoEntrada() {
         body: JSON.stringify({
           medicamento: Number(movimentacaoEmEdicao.medicamento),
           tipo: 'E',
-          quantidade: quantidade,
+          quantidade,
           observacao: novaObs,
         }),
       }
@@ -513,7 +502,6 @@ async function salvarEdicaoEntrada() {
       var errMov = await respMov.json().catch(function () {
         return {};
       });
-      console.error('Erro PUT movimentacao:', errMov);
       alert('Erro ao atualizar movimentacao: ' + JSON.stringify(errMov));
       return;
     }
@@ -555,6 +543,7 @@ function fecharModalExcluir() {
   document.getElementById('modalExcluirEntrada').classList.remove('active');
   entradaExcluindo = null;
 }
+
 async function confirmarExclusao() {
   if (!entradaExcluindo) return;
 
@@ -562,7 +551,6 @@ async function confirmarExclusao() {
     const respMov = await fetch(API_MOVIMENTACOES + entradaExcluindo.id + '/', {
       method: 'DELETE',
     });
-
     if (!respMov.ok) {
       alert('Erro ao excluir movimentação.');
       return;
@@ -576,7 +564,6 @@ async function confirmarExclusao() {
       const respMed = await fetch(API_MEDICAMENTOS + med.id + '/', {
         method: 'DELETE',
       });
-
       if (!respMed.ok) {
         alert('Erro ao excluir medicamento.');
         return;
@@ -584,10 +571,8 @@ async function confirmarExclusao() {
     }
 
     fecharModalExcluir();
-
     await carregarMedicamentos();
     await carregarHistoricoEntradas();
-
     alert('Medicamento excluído permanentemente.');
   } catch (err) {
     console.error(err);
@@ -662,9 +647,9 @@ function renderizarTabelaEntradas() {
       '<td><code>' +
       String(m.medicamento || '').padStart(4, '0') +
       '</code></td>' +
-      '<td>' +
+      '<td><strong>' +
       esc(m.medicamento_nome || '\u2014') +
-      '</td>' +
+      '</strong></td>' +
       '<td><span class="badge badge-info">' +
       esc(categoria || '\u2014') +
       '</span></td>' +

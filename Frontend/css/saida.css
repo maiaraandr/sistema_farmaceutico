@@ -170,7 +170,6 @@ textarea {
   border-bottom: 1px solid #edf2ff;
 }
 
-/* ── Cabeçalho da tabela: título à esquerda, ações à direita na mesma linha ── */
 .saida-card-header-table {
   display: flex;
   align-items: center;
@@ -601,13 +600,12 @@ select.form-input {
 /* ── Código do medicamento ── */
 
 code {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  background: #f3f7ff;
+  color: #2f5bca;
+  padding: 3px 8px;
+  border-radius: 8px;
   font-size: 12px;
-  background: #f1f5f9;
-  color: #475569;
-  padding: 2px 7px;
-  border-radius: 6px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* ── Paginação ── */

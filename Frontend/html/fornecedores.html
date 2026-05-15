@@ -3,19 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Saída de Medicamentos | GestMed</title>
+    <title>Fornecedores - GestMed</title>
 
-    <link rel="stylesheet" href="../CSS/base.css" />
-    <link rel="stylesheet" href="../CSS/saida.css" />
-
+    <link rel="stylesheet" href="../CSS/fornecedores.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   </head>
 
-  <body class="page-saida">
-    <div class="saida-shell">
-      <header class="saida-topbar">
-        <div class="saida-topbar-left">
+  <body class="page-fornecedores">
+    <div class="page-shell">
+      <header class="page-topbar">
+        <div class="topbar-left">
           <button
             class="btn-home"
             type="button"
@@ -25,20 +22,22 @@
             Início
           </button>
 
-          <div class="saida-title-wrap">
-            <p class="saida-kicker">GestMed</p>
-            <h1 class="saida-title">
-              <i data-lucide="package-minus"></i>
-              Saída de Medicamentos
+          <div class="title-wrap">
+            <span class="kicker">GestMed</span>
+            <h1 class="title">
+              <i data-lucide="truck"></i>
+              Fornecedores
             </h1>
-            <p class="saida-subtitle">Registro de saída do estoque</p>
+            <p class="page-subtitle">
+              Cadastre, edite e consulte fornecedores do sistema
+            </p>
           </div>
         </div>
 
-        <div class="saida-topbar-right">
-          <div class="saida-user-chip">
+        <div class="topbar-right">
+          <div class="user-chip">
             <i data-lucide="user"></i>
-            <span id="userName">Carregando...</span>
+            <span class="user-name" id="userName">Carregando...</span>
           </div>
 
           <button class="btn btn-outline btn-sm" id="logoutBtn" type="button">
@@ -48,90 +47,105 @@
         </div>
       </header>
 
-      <main class="saida-content">
-        <!-- Formulário -->
-        <section class="saida-section">
-          <div class="saida-card">
-            <div class="saida-card-header">
-              <h2 class="saida-card-title">
-                <i data-lucide="clipboard-edit"></i>
-                Registrar Saída
-              </h2>
+      <main class="page-content">
+        <section class="content-section" id="secaoFormulario">
+          <div class="card" id="cardFormulario">
+            <div class="card-header card-header-form">
+              <h3 class="card-title">
+                <i data-lucide="building-2"></i>
+                <span id="tituloFormulario">Cadastrar fornecedor</span>
+                <span class="card-title-edit-label">
+                  <i data-lucide="pencil"></i>
+                  Editando
+                </span>
+              </h3>
             </div>
 
-            <div class="saida-card-body">
-              <form id="formSaida">
-                <div class="form-grid-saida">
-                  <div class="form-group col-6">
-                    <label for="medicamento" class="required"
-                      >Medicamento</label
-                    >
-                    <select id="medicamento" class="form-input" required>
-                      <option value="">Selecione...</option>
-                    </select>
-                  </div>
-
-                  <div class="form-group col-3">
-                    <label for="estoqueAtual">Estoque disponível</label>
-                    <input
-                      type="text"
-                      id="estoqueAtual"
-                      class="form-input"
-                      placeholder="Selecione um medicamento"
-                      readonly
-                    />
-                  </div>
-
-                  <div class="form-group col-3">
-                    <label for="quantidade" class="required">Quantidade</label>
-                    <input
-                      type="number"
-                      id="quantidade"
-                      class="form-input"
-                      min="1"
-                      placeholder="Quantidade retirada"
-                      required
-                    />
-                  </div>
-
-                  <div class="form-group col-6">
-                    <label for="dataSaida" class="required"
-                      >Data da Saída</label
-                    >
-                    <input
-                      type="date"
-                      id="dataSaida"
-                      class="form-input"
-                      required
-                    />
-                  </div>
-
-                  <div class="form-group col-6">
-                    <label for="destino" class="required"
-                      >Destino / Motivo</label
-                    >
-                    <input
-                      type="text"
-                      id="destino"
-                      class="form-input"
-                      placeholder="Uso interno, setor, descarte..."
-                      required
-                    />
-                  </div>
+            <div class="card-body">
+              <form id="formFornecedor" class="form-grid-fornecedor">
+                <div class="form-group col-6">
+                  <label for="nome" class="required">Nome</label>
+                  <input
+                    id="nome"
+                    type="text"
+                    class="form-input"
+                    placeholder="Ex.: MedSupply Distribuidora"
+                    required
+                  />
                 </div>
 
-                <div class="form-actions">
-                  <button
-                    type="reset"
-                    class="btn btn-secondary"
-                    id="btnLimparSaida"
-                  >
+                <div class="form-group col-6">
+                  <label for="nome" class="required">Nome</label>
+                  <input
+                    id="nome"
+                    type="text"
+                    class="form-input"
+                    placeholder="Ex.: MedSupply Distribuidora"
+                    required
+                  />
+                </div>
+
+                <div class="form-group col-6">
+                  <label for="endereco">Endereço</label>
+                  <input
+                    id="endereco"
+                    type="text"
+                    class="form-input"
+                    placeholder="Rua..., nº..., Bairro..."
+                  />
+                </div>
+
+                <div class="form-group col-3">
+                  <label for="cnpj">CNPJ (opcional)</label>
+                  <input
+                    id="cnpj"
+                    type="text"
+                    class="form-input"
+                    placeholder="00.000.000/0001-00"
+                  />
+                </div>
+
+                <div class="form-group col-3">
+                  <label for="telefone">Telefone</label>
+                  <input
+                    id="telefone"
+                    type="text"
+                    class="form-input"
+                    placeholder="(00) 90000-0000"
+                  />
+                </div>
+
+                <div class="form-group col-4">
+                  <label for="email">E-mail</label>
+                  <input
+                    id="email"
+                    type="email"
+                    class="form-input"
+                    placeholder="contato@fornecedor.com"
+                  />
+                </div>
+
+                <div class="form-group col-2">
+                  <label for="ativo">Status</label>
+                  <select id="ativo" class="form-input">
+                    <option value="true">Ativo</option>
+                    <option value="false">Inativo</option>
+                  </select>
+                </div>
+
+                <div class="form-actions-wrap">
+                  <button type="reset" class="btn btn-secondary" id="btnLimpar">
                     <i data-lucide="rotate-ccw"></i>
                     Limpar
                   </button>
-                  <button type="submit" class="btn btn-primary">
+
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="btnSubmitFornecedor"
+                  >
                     <i data-lucide="check"></i>
-                    Registrar Saída
+                    Salvar fornecedor
                   </button>
                 </div>
               </form>
@@ -139,110 +153,94 @@
           </div>
         </section>
 
-        <!-- KPIs -->
-        <section class="saida-section">
-          <div class="saida-kpi-row">
-            <div class="saida-kpi-card">
+        <section class="content-section indicadores-section">
+          <div class="kpi-row">
+            <div
+              class="kpi-card-mini"
+              data-filtro="todos"
+              data-tooltip="Total de fornecedores cadastrados"
+            >
               <div class="label">
-                <i data-lucide="package-minus"></i> Total de Saídas
+                <i data-lucide="users"></i>
+                Total
               </div>
-              <div class="value" id="kpiSaidas">0</div>
-              <div class="sub">No histórico</div>
+              <div class="value" id="kpiTotal">0</div>
+              <div class="sub">Fornecedores no sistema</div>
             </div>
-            <div class="saida-kpi-card">
-              <div class="label"><i data-lucide="calendar"></i> Hoje</div>
-              <div class="value" id="kpiHoje">—</div>
-              <div class="sub">Data atual</div>
-            </div>
-            <div class="saida-kpi-card">
+
+            <div
+              class="kpi-card-mini"
+              data-filtro="ativos"
+              data-tooltip="Fornecedores ativos"
+            >
               <div class="label">
-                <i data-lucide="activity"></i> Último Registro
+                <i data-lucide="badge-check"></i>
+                Ativos
               </div>
-              <div class="value" id="kpiUltimo">—</div>
-              <div class="sub">Saída mais recente</div>
+              <div class="value" id="kpiAtivos">0</div>
+              <div class="sub">Em operação</div>
+            </div>
+
+            <div
+              class="kpi-card-mini"
+              data-filtro="inativos"
+              data-tooltip="Fornecedores inativos"
+            >
+              <div class="label">
+                <i data-lucide="badge-x"></i>
+                Inativos
+              </div>
+              <div class="value" id="kpiInativos">0</div>
+              <div class="sub">Fora de operação</div>
             </div>
           </div>
         </section>
 
-        <!-- Histórico -->
-        <section class="saida-section">
-          <div class="saida-card">
-            <div class="saida-card-header saida-card-header-table">
-              <div class="filters-left">
-                <h2 class="saida-card-title">
-                  <i data-lucide="list"></i>
-                  Histórico de Saídas
-                </h2>
-                <span class="badge-pill badge-out" id="badgeSaidas">
-                  <i data-lucide="hash" style="width: 14px; height: 14px"></i>
-                  <span id="totalLinhasSaida">0</span> registros
-                </span>
-              </div>
+        <section class="content-section">
+          <div class="card">
+            <div class="card-header card-header-table">
+              <h3 class="card-title">
+                <i data-lucide="list"></i>
+                Lista de fornecedores
+              </h3>
 
               <div class="table-actions">
                 <div class="search-box">
                   <i data-lucide="search"></i>
                   <input
                     type="text"
-                    id="searchSaida"
-                    placeholder="Buscar medicamento"
+                    id="buscaFornecedor"
+                    placeholder="Buscar por nome/CNPJ..."
                   />
-                </div>
-
-                <div class="dropdown-export">
-                  <button
-                    type="button"
-                    class="btn btn-primary btn-sm"
-                    id="btnExportarSaida"
-                  >
-                    <i data-lucide="download"></i>
-                    Exportar
-                  </button>
-                  <div class="dropdown-menu" id="dropdownExportarSaida">
-                    <button
-                      type="button"
-                      class="dropdown-item"
-                      id="btnExportarCSVSaida"
-                    >
-                      <i data-lucide="file-text"></i>
-                      Exportar CSV
-                    </button>
-                    <button
-                      type="button"
-                      class="dropdown-item"
-                      id="btnExportarExcelSaida"
-                    >
-                      <i data-lucide="file-spreadsheet"></i>
-                      Exportar Excel (.xlsx)
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
 
-            <div class="saida-card-body">
+            <div class="card-body">
               <div class="table-container">
                 <table class="data-table">
                   <thead>
                     <tr>
-                      <th>Código</th>
-                      <th>Medicamento</th>
-                      <th>Quantidade</th>
-                      <th>Destino / Motivo</th>
-                      <th>Data da Saída</th>
+                      <th>Nome</th>
+                      <th>CNPJ</th>
+                      <th>Telefone</th>
+                      <th>E-mail</th>
                       <th>Status</th>
+                      <th style="width: 170px">Ações</th>
                     </tr>
                   </thead>
-                  <tbody id="tabelaSaida">
+
+                  <tbody id="tabelaFornecedores">
                     <tr>
                       <td colspan="6" class="empty-row">
-                        Nenhuma saída registrada ainda.
+                        Nenhum fornecedor cadastrado.
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-              <div class="pagination" id="paginationSaida"></div>
+
+              <div class="pagination" id="paginationFornecedores"></div>
             </div>
           </div>
         </section>
@@ -251,6 +249,6 @@
 
     <script src="../Javascript/Storage.js"></script>
     <script src="../Javascript/autenticacao.js"></script>
-    <script src="../Javascript/saida.js"></script>
+    <script src="../Javascript/fornecedores.js"></script>
   </body>
 </html>

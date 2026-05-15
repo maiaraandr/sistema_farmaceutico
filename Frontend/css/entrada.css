@@ -787,3 +787,12 @@ select.form-input {
     width: 100%;
   }
 }
+
+code {
+  background: #f3f7ff;
+  color: #2f5bca;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+}

@@ -306,7 +306,7 @@ function renderTabela() {
     const tr = document.createElement('tr');
     tr.innerHTML =
       `<td><code>${String(s.medicamento || '').padStart(4, '0')}</code></td>` +
-      `<td>${escapeHTML(s.medicamento_nome || '—')}</td>` +
+      `<td><strong>${escapeHTML(s.medicamento_nome || '—')}</strong></td>` +
       `<td>${Number(s.quantidade || 0)}</td>` +
       `<td>${escapeHTML(destino || '—')}</td>` +
       `<td>${dataSaida ? fmtDataBR(dataSaida) : fmtDataHora(s.data_movimentacao)}</td>` +
