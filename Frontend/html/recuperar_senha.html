@@ -30,6 +30,7 @@
 
           <div id="recoveryError" class="message error hidden"></div>
           <div id="recoverySuccess" class="success-message hidden"></div>
+          <div id="recoveryInfo" class="message info hidden"></div>
 
           <form id="recoveryForm" class="recovery-form">
             <div class="form-field">
@@ -55,7 +56,7 @@
             </button>
 
             <div class="auth-link">
-              <a href="index.html"> Voltar ao Login </a>
+              <a href="index.html">Voltar ao Login</a>
             </div>
           </form>
         </div>
@@ -67,6 +68,64 @@
       document.getElementById('email').focus();
 
       const API_BASE_URL = 'https://gestmed.onrender.com/api';
+
+      // Tenta a requisição até MAX_TENTATIVAS vezes com delay entre elas
+      async function fetchComRetry(
+        url,
+        options,
+        maxTentativas = 4,
+        delayMs = 8000
+      ) {
+        let ultimoErro;
+
+        for (let tentativa = 1; tentativa <= maxTentativas; tentativa++) {
+          try {
+            const controller = new AbortController();
+            // Timeout de 20s por tentativa (Render pode demorar para acordar)
+            const timeout = setTimeout(() => controller.abort(), 20000);
+
+            const response = await fetch(url, {
+              ...options,
+              signal: controller.signal,
+            });
+
+            clearTimeout(timeout);
+            return response; // sucesso — retorna imediatamente
+          } catch (err) {
+            ultimoErro = err;
+
+            if (tentativa < maxTentativas) {
+              atualizarBotao(
+                `Servidor iniciando... (${tentativa}/${maxTentativas})`
+              );
+              mostrarInfo(
+                `O servidor está acordando, isso pode levar alguns segundos. Tentativa ${tentativa} de ${maxTentativas}...`
+              );
+              await esperar(delayMs);
+            }
+          }
+        }
+
+        throw ultimoErro; // esgotou todas as tentativas
+      }
+
+      function esperar(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      function atualizarBotao(texto) {
+        document.getElementById('recoveryBtn').textContent = texto;
+      }
+
+      function mostrarInfo(texto) {
+        const el = document.getElementById('recoveryInfo');
+        el.textContent = texto;
+        el.classList.remove('hidden');
+      }
+
+      function ocultarInfo() {
+        document.getElementById('recoveryInfo').classList.add('hidden');
+      }
 
       document
         .getElementById('recoveryForm')
@@ -80,24 +139,28 @@
 
           errorDiv.classList.add('hidden');
           successDiv.classList.add('hidden');
+          ocultarInfo();
 
           if (!validarEmail(email)) {
-            errorDiv.textContent = 'Por favor, digite um e-mail válido';
+            errorDiv.textContent = 'Por favor, digite um e-mail válido.';
             errorDiv.classList.remove('hidden');
             return;
           }
 
           btn.disabled = true;
-          btn.textContent = 'Enviando...';
+          atualizarBotao('Enviando...');
 
           try {
-            const response = await fetch(`${API_BASE_URL}/recuperar-senha/`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ email }),
-            });
+            const response = await fetchComRetry(
+              `${API_BASE_URL}/recuperar-senha/`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+              }
+            );
+
+            ocultarInfo();
 
             const data = await response.json();
 
@@ -105,24 +168,21 @@
               errorDiv.textContent =
                 data.erro || 'Erro ao solicitar recuperação de senha.';
               errorDiv.classList.remove('hidden');
-              btn.disabled = false;
-              btn.textContent = 'Enviar Instruções';
-              return;
+            } else {
+              successDiv.textContent =
+                data.mensagem ||
+                'Se o e-mail estiver cadastrado, você receberá as instruções em alguns minutos.';
+              successDiv.classList.remove('hidden');
+              document.getElementById('recoveryForm').reset();
             }
-
-            successDiv.textContent =
-              data.mensagem ||
-              'Se o e-mail estiver cadastrado, você receberá as instruções em alguns minutos.';
-            successDiv.classList.remove('hidden');
-
-            document.getElementById('recoveryForm').reset();
-            btn.disabled = false;
-            btn.textContent = 'Enviar Instruções';
           } catch (error) {
-            errorDiv.textContent = 'Não foi possível conectar ao servidor.';
+            ocultarInfo();
+            errorDiv.textContent =
+              'Não foi possível conectar ao servidor após várias tentativas. Aguarde um momento e tente novamente.';
             errorDiv.classList.remove('hidden');
+          } finally {
             btn.disabled = false;
-            btn.textContent = 'Enviar Instruções';
+            atualizarBotao('Enviar Instruções');
           }
         });
 

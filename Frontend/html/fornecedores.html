@@ -48,12 +48,13 @@
       </header>
 
       <main class="page-content">
+        <!-- ── Formulário ── -->
         <section class="content-section" id="secaoFormulario">
           <div class="card" id="cardFormulario">
-            <div class="card-header card-header-form">
+            <div class="card-header">
               <h3 class="card-title">
                 <i data-lucide="building-2"></i>
-                <span id="tituloFormulario">Cadastrar fornecedor</span>
+                <span id="tituloFormulario">Registrar fornecedor</span>
                 <span class="card-title-edit-label">
                   <i data-lucide="pencil"></i>
                   Editando
@@ -62,20 +63,9 @@
             </div>
 
             <div class="card-body">
-              <form id="formFornecedor" class="form-grid-fornecedor">
+              <form id="formFornecedor" class="form-grid">
                 <div class="form-group col-6">
-                  <label for="nome" class="required">Nome</label>
-                  <input
-                    id="nome"
-                    type="text"
-                    class="form-input"
-                    placeholder="Ex.: MedSupply Distribuidora"
-                    required
-                  />
-                </div>
-
-                <div class="form-group col-6">
-                  <label for="nome" class="required">Nome</label>
+                  <label for="nome">Nome do Fornecedor</label>
                   <input
                     id="nome"
                     type="text"
@@ -138,14 +128,13 @@
                     <i data-lucide="rotate-ccw"></i>
                     Limpar
                   </button>
-
                   <button
                     type="submit"
                     class="btn btn-primary"
                     id="btnSubmitFornecedor"
                   >
                     <i data-lucide="check"></i>
-                    Salvar fornecedor
+                    Registrar
                   </button>
                 </div>
               </form>
@@ -153,66 +142,54 @@
           </div>
         </section>
 
+        <!-- ── KPIs ── -->
         <section class="content-section indicadores-section">
           <div class="kpi-row">
-            <div
-              class="kpi-card-mini"
-              data-filtro="todos"
-              data-tooltip="Total de fornecedores cadastrados"
-            >
-              <div class="label">
+            <div class="kpi-card-mini" data-filtro="todos">
+              <p class="kpi-label">
                 <i data-lucide="users"></i>
-                Total
-              </div>
-              <div class="value" id="kpiTotal">0</div>
-              <div class="sub">Fornecedores no sistema</div>
+                Total de fornecedores
+              </p>
+              <p class="kpi-value" id="kpiTotal">0</p>
+              <p class="kpi-sub">No histórico</p>
             </div>
 
-            <div
-              class="kpi-card-mini"
-              data-filtro="ativos"
-              data-tooltip="Fornecedores ativos"
-            >
-              <div class="label">
+            <div class="kpi-card-mini" data-filtro="ativos">
+              <p class="kpi-label">
                 <i data-lucide="badge-check"></i>
                 Ativos
-              </div>
-              <div class="value" id="kpiAtivos">0</div>
-              <div class="sub">Em operação</div>
+              </p>
+              <p class="kpi-value" id="kpiAtivos">0</p>
+              <p class="kpi-sub">Em operação</p>
             </div>
 
-            <div
-              class="kpi-card-mini"
-              data-filtro="inativos"
-              data-tooltip="Fornecedores inativos"
-            >
-              <div class="label">
+            <div class="kpi-card-mini" data-filtro="inativos">
+              <p class="kpi-label">
                 <i data-lucide="badge-x"></i>
                 Inativos
-              </div>
-              <div class="value" id="kpiInativos">0</div>
-              <div class="sub">Fora de operação</div>
+              </p>
+              <p class="kpi-value" id="kpiInativos">0</p>
+              <p class="kpi-sub">Fora de operação</p>
             </div>
           </div>
         </section>
 
+        <!-- ── Tabela ── -->
         <section class="content-section">
           <div class="card">
             <div class="card-header card-header-table">
               <h3 class="card-title">
                 <i data-lucide="list"></i>
-                Lista de fornecedores
+                Histórico de Fornecedores
               </h3>
 
-              <div class="table-actions">
-                <div class="search-box">
-                  <i data-lucide="search"></i>
-                  <input
-                    type="text"
-                    id="buscaFornecedor"
-                    placeholder="Buscar por nome/CNPJ..."
-                  />
-                </div>
+              <div class="search-box">
+                <i data-lucide="search"></i>
+                <input
+                  type="text"
+                  id="buscaFornecedor"
+                  placeholder="Buscar por nome/CNPJ..."
+                />
               </div>
             </div>
 
@@ -226,10 +203,9 @@
                       <th>Telefone</th>
                       <th>E-mail</th>
                       <th>Status</th>
-                      <th style="width: 170px">Ações</th>
+                      <th style="width: 160px">Ações</th>
                     </tr>
                   </thead>
-
                   <tbody id="tabelaFornecedores">
                     <tr>
                       <td colspan="6" class="empty-row">
