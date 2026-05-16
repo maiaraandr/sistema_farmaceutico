@@ -1,4 +1,5 @@
-const API_MEDICAMENTOS = 'https://gestmed.onrender.com/api/medicamentos/';
+const API_MEDICAMENTOS =
+  'https://sistemafarmaceutico-production.up.railway.app/api/medicamentos/';
 
 let produtos = [];
 

@@ -1,4 +1,5 @@
-const API_AUTH_URL = 'https://gestmed.onrender.com/api';
+const API_AUTH_URL =
+  'https://sistemafarmaceutico-production.up.railway.app/api';
 
 // ── Sessão ─────────────────────────────────────────────────────────────────────
 

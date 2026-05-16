@@ -1,6 +1,9 @@
-const API_MEDICAMENTOS = 'https://gestmed.onrender.com/api/medicamentos/';
-const API_FORNECEDORES = 'https://gestmed.onrender.com/api/fornecedores/';
-const API_MOVIMENTACOES = 'https://gestmed.onrender.com/api/movimentacoes/';
+const API_MEDICAMENTOS =
+  'https://sistemafarmaceutico-production.up.railway.app/api/medicamentos/';
+const API_FORNECEDORES =
+  'https://sistemafarmaceutico-production.up.railway.app/api/fornecedores/';
+const API_MOVIMENTACOES =
+  'https://sistemafarmaceutico-production.up.railway.app/api/movimentacoes/';
 
 let medicamentosCache = [];
 let fornecedoresCache = [];

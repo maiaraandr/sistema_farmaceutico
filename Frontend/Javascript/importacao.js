@@ -1,5 +1,6 @@
 (() => {
-  const API_BASE_URL = 'https://gestmed.onrender.com/api';
+  const API_BASE_URL =
+    'https://sistemafarmaceutico-production.up.railway.app/api';
 
   const elTipo = document.getElementById('tipoImport');
   const elFile = document.getElementById('fileInput');

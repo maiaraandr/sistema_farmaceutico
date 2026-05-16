@@ -1,4 +1,5 @@
-const API_FORNECEDORES = 'https://gestmed.onrender.com/api/fornecedores/';
+const API_FORNECEDORES =
+  'https://sistemafarmaceutico-production.up.railway.app/api/fornecedores/';
 
 let fornecedoresCache = [];
 window.__fornecedorEditandoId = null;
