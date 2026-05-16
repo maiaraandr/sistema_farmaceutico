@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 load_dotenv(BASE_DIR / ".env", override=True)
 
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-fallback-key")
@@ -109,17 +108,20 @@ REST_FRAMEWORK = {
     ],
 }
 
-CSRF_TRUSTED_ORIGINS = os.getenv(
-    "CSRF_TRUSTED_ORIGINS",
-    "http://127.0.0.1:5500,http://localhost:5500"
-).split(",")
+CSRF_TRUSTED_ORIGINS = [
+    "https://" + origin if not origin.startswith("http") else origin
+    for origin in os.getenv(
+        "CSRF_TRUSTED_ORIGINS",
+        "http://127.0.0.1:5500,http://localhost:5500"
+    ).split(",")
+]
 
-
+# Email via Brevo API (sem SMTP)
 EMAIL_BACKEND       = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST          = "smtp-relay.brevo.com"
-EMAIL_PORT     = 465
-EMAIL_USE_SSL  = True
-EMAIL_USE_TLS  = False
+EMAIL_PORT          = 465
+EMAIL_USE_SSL       = True
+EMAIL_USE_TLS       = False
 EMAIL_HOST_USER     = os.getenv("BREVO_USER")
 EMAIL_HOST_PASSWORD = os.getenv("BREVO_KEY")
 DEFAULT_FROM_EMAIL  = "GestMed <maysilva29andrade@gmail.com>"
