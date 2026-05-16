@@ -1,7 +1,10 @@
+import os
+
+import requests as http_requests
+
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
 from django.db import transaction
 from django.db.models import Sum
 from django.utils.dateparse import parse_date
@@ -579,33 +582,33 @@ def solicitar_recuperacao_senha(request):
 
     nome_usuario = user.get_full_name() or user.username
 
-    corpo_texto = (
-        f"Olá, {nome_usuario}.\n\n"
-        "Recebemos uma solicitação para redefinir sua senha.\n\n"
-        f"Acesse o link abaixo (válido por 1 hora):\n"
-        f"{reset_link}\n\n"
-        "Se você não solicitou, ignore este e-mail."
-    )
+    payload = {
+        "sender": {"name": "GestMed", "email": "maysilva29andrade@gmail.com"},
+        "to": [{"email": user.email}],
+        "subject": "GestMed — Recuperação de senha",
+        "htmlContent": _html_email_recuperacao(nome_usuario, reset_link),
+    }
 
     try:
-        send_mail(
-            subject="GestMed — Recuperação de senha",
-            message=corpo_texto,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            html_message=_html_email_recuperacao(
-                nome_usuario,
-                reset_link,
-            ),
-            fail_silently=False,
+        resp = http_requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            json=payload,
+            headers={
+                "api-key": os.getenv("BREVO_API_KEY"),
+                "Content-Type": "application/json",
+            },
+            timeout=10,
         )
+
+        if resp.status_code not in (200, 201):
+            return Response(
+                {"sucesso": False, "erro": resp.text},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     except Exception as e:
         return Response(
-            {
-                "sucesso": False,
-                "erro": str(e),
-            },
+            {"sucesso": False, "erro": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
