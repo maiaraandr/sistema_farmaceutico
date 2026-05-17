@@ -239,7 +239,6 @@
     return res;
   }
 
-  // ── CONVERSÃO DE DATA SERIAL DO EXCEL ──────────────────────────────────────
   function converterDataExcel(valor) {
     if (!valor && valor !== 0) return '';
 
@@ -341,8 +340,6 @@
     if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 
-  // ── APLICAR IMPORTAÇÃO VIA API ─────────────────────────────────────────────
-
   async function aplicarImportacao() {
     if (!resultadoValidacao?.okRows?.length) {
       alert('Valide o arquivo antes de aplicar.');
@@ -419,11 +416,7 @@
       }
     }
 
-    // ── ENTRADAS ──────────────────────────────────────────────────────────────
-    // Ao importar entradas, o medicamento é automaticamente criado/atualizado
-    // na tabela de medicamentos, garantindo que o catálogo fique completo.
     if (tipo === 'entradas') {
-      // Carrega listas existentes uma única vez para evitar N+1 requests
       const respF = await fetch(`${API_BASE_URL}/fornecedores/`);
       const fornecedores = respF.ok ? await respF.json() : [];
 
@@ -436,7 +429,6 @@
           Number(row.valor_unitario || row.valor_unit || row.valor) || 0;
         const dosagem = row.dosagem || row.miligrama || '';
 
-        // ── 1. Garante que o medicamento exista no catálogo ──────────────────
         const medExistente = medicamentosExistentes.find(
           (m) =>
             String(m.nome || '')
@@ -458,7 +450,6 @@
         );
 
         if (!medExistente) {
-          // Cria o medicamento no catálogo
           const payloadMed = {
             nome: nomeMed,
             miligrama: dosagem || null,
@@ -480,7 +471,7 @@
 
           if (respNovo.ok) {
             const novoMed = await respNovo.json();
-            medicamentosExistentes.push(novoMed); // evita duplicata na mesma importação
+            medicamentosExistentes.push(novoMed);
             logOk(`Medicamento criado: ${nomeMed}`);
           } else {
             const erroMed = await respNovo.text();
@@ -489,7 +480,6 @@
             );
           }
         } else if (atualizar) {
-          // Atualiza estoque e valor do medicamento existente
           const payloadUpdate = {
             nome: medExistente.nome,
             miligrama: dosagem || medExistente.miligrama || null,
@@ -525,9 +515,6 @@
             );
           }
         }
-
-        // ── 2. Registra a movimentação de entrada ────────────────────────────
-        // A API exige o ID do medicamento, não o nome — buscamos na lista atualizada
         const medFinal = medicamentosExistentes.find(
           (m) =>
             String(m.nome || '')
@@ -546,20 +533,20 @@
           continue;
         }
 
+        const observacao = [
+          `Fornecedor: ${row.fornecedor || '—'}`,
+          `Categoria: ${row.categoria || '—'}`,
+          `Lote: ${row.lote || '—'}`,
+          `Validade informada: ${row.vencimento || '—'}`,
+          `Valor unitário: ${valorUnit}`,
+          `Data da entrada: ${row.data_entrada || row.data || new Date().toISOString().slice(0, 10)}`,
+        ].join(' | ');
+
         const payload = {
           tipo: 'E',
           medicamento: medFinal.id,
-          dosagem: dosagem,
-          categoria: row.categoria || '',
-          lote: row.lote || '',
-          vencimento: row.vencimento || null,
           quantidade: Number(row.quantidade) || 0,
-          valor_unitario: valorUnit,
-          fornecedor: row.fornecedor || '',
-          data_movimentacao:
-            row.data_entrada ||
-            row.data ||
-            new Date().toISOString().slice(0, 10),
+          observacao: observacao,
         };
 
         logInfo(
