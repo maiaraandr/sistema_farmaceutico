@@ -38,7 +38,7 @@ function isAuthenticated() {
 function protectPage() {
   if (!isAuthenticated()) {
     limparSessaoUsuario();
-    window.location.href = 'index.html';
+    window.location.href = '/html/index.html';
     return false;
   }
   return true;
@@ -46,7 +46,7 @@ function protectPage() {
 
 function redirectIfAuthenticated() {
   if (isAuthenticated()) {
-    window.location.href = 'inicio.html';
+    window.location.href = '/html/inicio.html';
     return true;
   }
   return false;
@@ -54,7 +54,7 @@ function redirectIfAuthenticated() {
 
 function logout() {
   limparSessaoUsuario();
-  window.location.href = 'index.html';
+  window.location.href = '/html/index.html';
 }
 
 function preencherNomeUsuario(elementId = 'userName') {
