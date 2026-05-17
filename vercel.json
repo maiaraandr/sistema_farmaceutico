@@ -1,6 +1,9 @@
 {
   "rewrites": [
     { "source": "/", "destination": "/Frontend/html/index.html" },
+    { "source": "/css/(.*)", "destination": "/Frontend/css/$1" },
+    { "source": "/Javascript/(.*)", "destination": "/Frontend/Javascript/$1" },
+    { "source": "/html/(.*)", "destination": "/Frontend/html/$1" },
     { "source": "/(.*)", "destination": "/Frontend/$1" }
   ]
 }
