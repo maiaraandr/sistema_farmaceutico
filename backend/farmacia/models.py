@@ -42,8 +42,18 @@ class Medicamento(models.Model):
         null=True
     )
 
-    lote = models.CharField(max_length=50, verbose_name="Lote")
-    validade = models.DateField(verbose_name="Data de validade")
+    lote = models.CharField(
+        max_length=50,
+        verbose_name="Lote",
+        blank=True,
+        null=True
+    )
+
+    validade = models.DateField(
+        verbose_name="Data de validade",
+        blank=True,
+        null=True
+    )
 
     quantidade = models.PositiveIntegerField(
         verbose_name="Quantidade em estoque",
@@ -65,9 +75,11 @@ class Medicamento(models.Model):
 
     fornecedor = models.ForeignKey(
         "Fornecedor",
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         related_name="medicamentos",
-        verbose_name="Fornecedor"
+        verbose_name="Fornecedor",
+        blank=True,
+        null=True
     )
 
     data_cadastro = models.DateTimeField(auto_now_add=True, verbose_name="Data de cadastro")
@@ -85,18 +97,6 @@ class Medicamento(models.Model):
         ]
 
         constraints = [
-            models.UniqueConstraint(
-                fields=[
-                    "nome",
-                    "miligrama",
-                    "categoria",
-                    "lote",
-                    "validade",
-                    "valor_unit",
-                    "fornecedor",
-                ],
-                name="uq_medic_entrada_unica",
-            ),
             models.CheckConstraint(
                 condition=Q(quantidade__gte=0) & Q(valor_unit__gte=0),
                 name="ck_medic_valores_nao_negativos",
