@@ -16,7 +16,7 @@ from django.utils.http import (
 
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Fornecedor, Medicamento, Movimentacao
@@ -300,11 +300,18 @@ def registrar_entrada(request):
     )
 
 
-# ── Autenticação ─────────────────────────────────────────────
+# ── Autenticação ──────────────────────────────────────────────────────────────
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def cadastrar_usuario(request):
+    # Apenas admins (is_staff) podem cadastrar novos usuários
+    if not request.user.is_staff:
+        return Response(
+            {"erro": "Apenas administradores podem cadastrar novos usuários."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
     nome = (request.data.get("nome") or "").strip()
     email = (request.data.get("email") or "").strip().lower()
     usuario = (request.data.get("usuario") or "").strip()
@@ -433,12 +440,13 @@ def login_usuario(request):
                 "usuario": user.username,
                 "nome": user.get_full_name() or user.username,
                 "email": user.email,
+                "is_admin": user.is_staff,  # <── campo novo: identifica admin
             },
         }
     )
 
 
-# ── Recuperação de senha ────────────────────────────────────
+# ── Recuperação de senha ──────────────────────────────────────────────────────
 
 def _html_email_recuperacao(nome_usuario, reset_link):
     return f"""<!DOCTYPE html>
