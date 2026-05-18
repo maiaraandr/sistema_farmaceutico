@@ -1,7 +1,3 @@
-// ── cadastro.js ──────────────────────────────────────────────────────────────
-// A tela de cadastro só pode ser acessada por admins logados.
-// O token de sessão é enviado no header Authorization para o backend validar.
-
 const API_BASE_URL =
   'https://sistemafarmaceutico-production.up.railway.app/api';
 
@@ -91,16 +87,19 @@ form.addEventListener('submit', async function (e) {
   btn.textContent = 'Cadastrando...';
 
   try {
-    const token = getSessionToken();
+    const adminUser = getCurrentUser();
 
     const resp = await fetch(`${API_BASE_URL}/cadastro/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Envia o token para o backend identificar quem está fazendo o cadastro
-        Authorization: `Token ${token}`,
-      },
-      body: JSON.stringify({ nome, email, telefone, usuario, senha }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome,
+        email,
+        telefone,
+        usuario,
+        senha,
+        admin_id: adminUser?.id, // envia o id do admin para o backend validar
+      }),
     });
 
     const data = await resp.json();

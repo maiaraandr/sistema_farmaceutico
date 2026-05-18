@@ -16,7 +16,7 @@ from django.utils.http import (
 
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .models import Fornecedor, Medicamento, Movimentacao
@@ -303,10 +303,24 @@ def registrar_entrada(request):
 # ── Autenticação ──────────────────────────────────────────────────────────────
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def cadastrar_usuario(request):
-    # Apenas admins (is_staff) podem cadastrar novos usuários
-    if not request.user.is_staff:
+    # Verifica se o admin_id enviado pelo frontend pertence a um usuário is_staff
+    admin_id = request.data.get("admin_id")
+    if not admin_id:
+        return Response(
+            {"erro": "Apenas administradores podem cadastrar novos usuários."},
+            status=status.HTTP_403_FORBIDDEN,
+        )
+
+    try:
+        admin_user = User.objects.get(id=admin_id)
+        if not admin_user.is_staff:
+            return Response(
+                {"erro": "Apenas administradores podem cadastrar novos usuários."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+    except User.DoesNotExist:
         return Response(
             {"erro": "Apenas administradores podem cadastrar novos usuários."},
             status=status.HTTP_403_FORBIDDEN,
