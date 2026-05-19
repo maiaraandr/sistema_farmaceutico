@@ -1,106 +1,131 @@
-const API_AUTH_URL =
+const API_BASE_URL =
   'https://sistemafarmaceutico-production.up.railway.app/api';
 
-// ── Sessão ─────────────────────────────────────────────────────────────────────
+const btn = document.getElementById('registerBtn');
+const errorDiv = document.getElementById('registerError');
+const successDiv = document.getElementById('registerSuccess');
+const form = document.getElementById('registerForm');
 
-function getCurrentUser() {
+// ── Proteção: apenas admin pode acessar esta página ───────────────────────────
+// protectAdminPage() está em autenticacao.js:
+//   → não logado        → redireciona pro login
+//   → logado, não admin → redireciona pro home
+//   → logado e admin    → deixa passar ✓
+if (!protectAdminPage()) {
+  // O redirect já foi feito dentro da função, apenas paramos a execução
+  throw new Error('Acesso negado.');
+}
+
+// ── Lucide icons ──────────────────────────────────────────────────────────────
+lucide.createIcons();
+document.getElementById('nome').focus();
+
+// ── Helpers de mensagem ───────────────────────────────────────────────────────
+function mostrarErro(msg) {
+  successDiv.classList.add('hidden');
+  errorDiv.textContent = msg;
+  errorDiv.classList.remove('hidden');
+}
+
+function mostrarSucesso(msg) {
+  errorDiv.classList.add('hidden');
+  successDiv.textContent = msg;
+  successDiv.classList.remove('hidden');
+}
+
+// ── Toggle de senha ───────────────────────────────────────────────────────────
+function toggleSenha(btnId, inputId) {
+  const botao = document.getElementById(btnId);
+  const input = document.getElementById(inputId);
+  if (!botao || !input) return;
+
+  botao.addEventListener('click', function () {
+    const icon = this.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      if (icon) icon.setAttribute('data-lucide', 'eye-off');
+    } else {
+      input.type = 'password';
+      if (icon) icon.setAttribute('data-lucide', 'eye');
+    }
+    lucide.createIcons();
+  });
+}
+
+toggleSenha('toggleSenha', 'senha');
+toggleSenha('toggleSenhaConfirm', 'senhaConfirm');
+
+// ── Submit ────────────────────────────────────────────────────────────────────
+form.addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const nome = document.getElementById('nome').value.trim();
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const telefone = document.getElementById('telefone').value.trim();
+  const usuario = document.getElementById('usuario').value.trim();
+  const senha = document.getElementById('senha').value;
+  const senhaConfirm = document.getElementById('senhaConfirm').value;
+
+  errorDiv.classList.add('hidden');
+  successDiv.classList.add('hidden');
+
+  if (!nome) return mostrarErro('Informe o nome completo.');
+  if (!email) return mostrarErro('Informe um e-mail válido.');
+  if (usuario.length < 4)
+    return mostrarErro('O usuário deve ter no mínimo 4 caracteres.');
+  if (senha.length < 6)
+    return mostrarErro('A senha deve ter no mínimo 6 caracteres.');
+  if (senha !== senhaConfirm) return mostrarErro('As senhas não coincidem.');
+
+  btn.disabled = true;
+  btn.textContent = 'Cadastrando...';
+
   try {
-    const raw = localStorage.getItem('farm_current_user');
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
+    const adminUser = getCurrentUser();
 
-function getSessionToken() {
-  return localStorage.getItem('farm_session_token');
-}
-
-function salvarSessaoUsuario(user) {
-  localStorage.setItem('farm_current_user', JSON.stringify(user));
-  const token = `token_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-  localStorage.setItem('farm_session_token', token);
-}
-
-function limparSessaoUsuario() {
-  localStorage.removeItem('farm_current_user');
-  localStorage.removeItem('farm_session_token');
-}
-
-// ── Autenticação ───────────────────────────────────────────────────────────────
-
-function isAuthenticated() {
-  const user = getCurrentUser();
-  const token = getSessionToken();
-  return !!(user && token && user.id);
-}
-
-function protectPage() {
-  if (!isAuthenticated()) {
-    limparSessaoUsuario();
-    window.location.href = '/html/index.html';
-    return false;
-  }
-  return true;
-}
-
-function redirectIfAuthenticated() {
-  if (isAuthenticated()) {
-    window.location.href = '/html/inicio.html';
-    return true;
-  }
-  return false;
-}
-
-function logout() {
-  limparSessaoUsuario();
-  window.location.href = '/html/index.html';
-}
-
-function preencherNomeUsuario(elementId = 'userName') {
-  const el = document.getElementById(elementId);
-  if (!el) return;
-  const user = getCurrentUser();
-  el.textContent = user?.nome || user?.usuario || 'Usuário';
-}
-
-// ── Login via API ──────────────────────────────────────────────────────────────
-
-async function loginSistema(usuario, senha) {
-  try {
-    const resp = await fetch(`${API_AUTH_URL}/login/`, {
+    const resp = await fetch(`${API_BASE_URL}/cadastro/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuario, senha }),
+      body: JSON.stringify({
+        nome,
+        email,
+        telefone,
+        usuario,
+        senha,
+        admin_id: adminUser?.id,
+      }),
     });
 
     const data = await resp.json();
 
-    if (!resp.ok || !data.sucesso) {
-      return {
-        sucesso: false,
-        mensagem: data.erro || 'Usuário ou senha inválidos.',
-      };
+    if (resp.status === 403) {
+      mostrarErro(
+        'Acesso negado. Apenas administradores podem cadastrar usuários.'
+      );
+      btn.disabled = false;
+      btn.textContent = 'Cadastrar';
+      return;
     }
 
-    salvarSessaoUsuario(data.usuario);
-    return {
-      sucesso: true,
-      mensagem: 'Login realizado com sucesso.',
-      usuario: data.usuario,
-    };
+    if (!resp.ok || !data.sucesso) {
+      mostrarErro(data.erro || 'Erro ao cadastrar. Tente novamente.');
+      btn.disabled = false;
+      btn.textContent = 'Cadastrar';
+      return;
+    }
+
+    mostrarSucesso(`Usuário "${data.usuario.usuario}" criado com sucesso!`);
+    btn.textContent = 'Sucesso!';
+
+    setTimeout(() => {
+      form.reset();
+      btn.disabled = false;
+      btn.textContent = 'Cadastrar';
+      successDiv.classList.add('hidden');
+    }, 2000);
   } catch (err) {
-    return {
-      sucesso: false,
-      mensagem: 'Não foi possível conectar ao servidor.',
-    };
+    mostrarErro('Não foi possível conectar ao servidor.');
+    btn.disabled = false;
+    btn.textContent = 'Cadastrar';
   }
-}
-
-// ── Verificação de autenticação ────────────────────────────────────────────────
-
-function verificarAutenticacao() {
-  if (!isAuthenticated()) {
-    window.location.href = '../html/index.html';
-  }
-}
+});

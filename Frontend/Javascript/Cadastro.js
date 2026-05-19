@@ -6,21 +6,15 @@ const errorDiv = document.getElementById('registerError');
 const successDiv = document.getElementById('registerSuccess');
 const form = document.getElementById('registerForm');
 
-// ── Proteção: redireciona se não for admin ────────────────────────────────────
-(function protegerPagina() {
-  const user = getCurrentUser();
-  const token = getSessionToken();
-
-  if (!user || !token) {
-    window.location.href = '/html/index.html';
-    return;
-  }
-
-  if (!user.is_admin) {
-    // Usuário logado mas não é admin → volta para início
-    window.location.href = '/html/inicio.html';
-  }
-})();
+// ── Proteção: apenas admin pode acessar esta página ───────────────────────────
+// protectAdminPage() está em autenticacao.js:
+//   → não logado        → redireciona pro login
+//   → logado, não admin → redireciona pro home
+//   → logado e admin    → deixa passar ✓
+if (!protectAdminPage()) {
+  // O redirect já foi feito dentro da função, apenas paramos a execução
+  throw new Error('Acesso negado.');
+}
 
 // ── Lucide icons ──────────────────────────────────────────────────────────────
 lucide.createIcons();
@@ -98,7 +92,7 @@ form.addEventListener('submit', async function (e) {
         telefone,
         usuario,
         senha,
-        admin_id: adminUser?.id, // envia o id do admin para o backend validar
+        admin_id: adminUser?.id,
       }),
     });
 
@@ -123,7 +117,6 @@ form.addEventListener('submit', async function (e) {
     mostrarSucesso(`Usuário "${data.usuario.usuario}" criado com sucesso!`);
     btn.textContent = 'Sucesso!';
 
-    // Limpa o formulário após 1.5s mas permanece na tela (admin pode cadastrar mais)
     setTimeout(() => {
       form.reset();
       btn.disabled = false;

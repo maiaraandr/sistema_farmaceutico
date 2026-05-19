@@ -78,8 +78,14 @@
               <a href="recuperar_senha.html"> Esqueceu a senha? </a>
             </div>
 
-            <div class="auth-link">
-              <a href="cadastro.html"> Novo usuário? </a>
+            <!--
+              Link de cadastro: só aparece se o usuário logado for admin.
+              Não logado ou não admin → link fica oculto.
+              Isso evita que qualquer pessoa tente acessar a tela de cadastro.
+              (A tela de cadastro também tem proteção própria no cadastro.js)
+            -->
+            <div class="auth-link" id="linkCadastro" style="display: none">
+              <a href="cadastro.html"> Cadastrar novo usuário </a>
             </div>
           </form>
         </div>
@@ -97,13 +103,18 @@
 
       const usernameInput = document.getElementById('username');
       const passwordInput = document.getElementById('password');
-
       const togglePasswordBtn = document.getElementById('togglePassword');
       const togglePasswordIcon = document.getElementById('togglePasswordIcon');
-
       const loginForm = document.getElementById('loginForm');
       const loginBtn = document.getElementById('loginBtn');
       const loginError = document.getElementById('loginError');
+      const linkCadastro = document.getElementById('linkCadastro');
+
+      // Mostra link de cadastro apenas se já estiver logado como admin
+      // (ex: admin voltou pra tela de login por algum motivo)
+      if (isAdmin()) {
+        linkCadastro.style.display = '';
+      }
 
       if (usernameInput) {
         usernameInput.focus();
@@ -111,9 +122,7 @@
 
       function mostrarErro(mensagem) {
         loginError.textContent = mensagem;
-
         loginError.classList.remove('hidden');
-
         setTimeout(() => {
           loginError.classList.add('hidden');
         }, 3000);
@@ -121,13 +130,10 @@
 
       togglePasswordBtn.addEventListener('click', () => {
         const mostrandoSenha = passwordInput.type === 'text';
-
         passwordInput.type = mostrandoSenha ? 'password' : 'text';
-
         togglePasswordIcon.innerHTML = mostrandoSenha
           ? '<i data-lucide="eye"></i>'
           : '<i data-lucide="eye-off"></i>';
-
         lucide.createIcons();
       });
 
@@ -138,50 +144,42 @@
         const password = passwordInput.value;
 
         loginError.classList.add('hidden');
-
         loginBtn.disabled = true;
         loginBtn.textContent = 'Entrando...';
 
         try {
           const response = await fetch(`${API_BASE_URL}/login/`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              usuario: username,
-              senha: password,
-            }),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuario: username, senha: password }),
           });
 
           const data = await response.json();
 
           if (!response.ok || !data.sucesso) {
             mostrarErro(data.erro || 'Usuário ou senha inválidos.');
-
             loginBtn.disabled = false;
             loginBtn.textContent = 'Login';
-
             return;
           }
 
+          // Salva o usuário completo (incluindo is_admin) no localStorage
           localStorage.setItem(
             'farm_current_user',
             JSON.stringify(data.usuario)
           );
-
           localStorage.setItem('farm_session_token', `token_${Date.now()}`);
 
           loginBtn.textContent = 'Sucesso!';
           loginBtn.style.backgroundColor = '#22c55e';
           loginBtn.style.color = '#fff';
 
+          // Admin vai pro home normalmente; lá o menu de cadastro pode aparecer
           setTimeout(() => {
             window.location.href = '/html/inicio.html';
           }, 500);
         } catch (error) {
           mostrarErro('Não foi possível conectar ao servidor.');
-
           loginBtn.disabled = false;
           loginBtn.textContent = 'Login';
         }
