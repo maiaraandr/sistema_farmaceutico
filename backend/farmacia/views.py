@@ -582,19 +582,20 @@ def solicitar_recuperacao_senha(request):
 
     nome_usuario = user.get_full_name() or user.username
 
+    # ── Resend ──────────────────────────────────────────────
     payload = {
-        "sender": {"name": "GestMed", "email": "maysilva29andrade@gmail.com"},
-        "to": [{"email": user.email}],
+        "from": "GestMed <onboarding@resend.dev>",
+        "to": [user.email],
         "subject": "GestMed — Recuperação de senha",
-        "htmlContent": _html_email_recuperacao(nome_usuario, reset_link),
+        "html": _html_email_recuperacao(nome_usuario, reset_link),
     }
 
     try:
         resp = http_requests.post(
-            "https://api.brevo.com/v3/smtp/email",
+            "https://api.resend.com/emails",
             json=payload,
             headers={
-                "api-key": os.getenv("BREVO_API_KEY"),
+                "Authorization": f"Bearer {os.getenv('RESEND_API_KEY')}",
                 "Content-Type": "application/json",
             },
             timeout=10,
