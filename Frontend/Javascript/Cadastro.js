@@ -6,15 +6,22 @@ const errorDiv = document.getElementById('registerError');
 const successDiv = document.getElementById('registerSuccess');
 const form = document.getElementById('registerForm');
 
-// ── Proteção: apenas admin pode acessar esta página ───────────────────────────
-// protectAdminPage() está em autenticacao.js:
-//   → não logado        → redireciona pro login
-//   → logado, não admin → redireciona pro home
-//   → logado e admin    → deixa passar ✓
-if (!protectAdminPage()) {
-  // O redirect já foi feito dentro da função, apenas paramos a execução
-  throw new Error('Acesso negado.');
-}
+// ── Proteção: redireciona se não for admin ────────────────────────────────────
+(function protegerPagina() {
+  const user = getCurrentUser();
+  const token = getSessionToken();
+
+  if (!user || !token) {
+    window.location.href = '/html/index.html';
+    return;
+  }
+
+  // Comparação explícita: is_admin deve ser exatamente true
+  // Evita que undefined/null seja tratado como falsy e redirecione admin
+  if (user.is_admin !== true) {
+    window.location.href = '/html/inicio.html';
+  }
+})();
 
 // ── Lucide icons ──────────────────────────────────────────────────────────────
 lucide.createIcons();
