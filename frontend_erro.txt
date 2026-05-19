@@ -1,4 +1,4 @@
-::ffff:127.0.0.1 - - [10/May/2026 20:12:13] "GET /Frontend/html/index.html HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [10/May/2026 20:12:13] "GET /Frontendindex.html HTTP/1.1" 304 -
 ::ffff:127.0.0.1 - - [10/May/2026 20:12:13] "GET /Frontend../CSS/base.css HTTP/1.1" 304 -
 ::ffff:127.0.0.1 - - [10/May/2026 20:12:13] "GET /Frontend../CSS/auth.css HTTP/1.1" 304 -
 ::ffff:127.0.0.1 - - [10/May/2026 20:12:13] "GET /Frontend../Javascript/Storage.js HTTP/1.1" 304 -

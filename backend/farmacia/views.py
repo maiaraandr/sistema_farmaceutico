@@ -300,32 +300,11 @@ def registrar_entrada(request):
     )
 
 
-# ── Autenticação ──────────────────────────────────────────────────────────────
+# ── Autenticação ─────────────────────────────────────────────
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def cadastrar_usuario(request):
-    # Verifica se o admin_id enviado pelo frontend pertence a um usuário is_staff
-    admin_id = request.data.get("admin_id")
-    if not admin_id:
-        return Response(
-            {"erro": "Apenas administradores podem cadastrar novos usuários."},
-            status=status.HTTP_403_FORBIDDEN,
-        )
-
-    try:
-        admin_user = User.objects.get(id=admin_id)
-        if not admin_user.is_staff:
-            return Response(
-                {"erro": "Apenas administradores podem cadastrar novos usuários."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-    except User.DoesNotExist:
-        return Response(
-            {"erro": "Apenas administradores podem cadastrar novos usuários."},
-            status=status.HTTP_403_FORBIDDEN,
-        )
-
     nome = (request.data.get("nome") or "").strip()
     email = (request.data.get("email") or "").strip().lower()
     usuario = (request.data.get("usuario") or "").strip()
@@ -454,13 +433,12 @@ def login_usuario(request):
                 "usuario": user.username,
                 "nome": user.get_full_name() or user.username,
                 "email": user.email,
-                "is_admin": user.is_staff,  # <── campo novo: identifica admin
             },
         }
     )
 
 
-# ── Recuperação de senha ──────────────────────────────────────────────────────
+# ── Recuperação de senha ────────────────────────────────────
 
 def _html_email_recuperacao(nome_usuario, reset_link):
     return f"""<!DOCTYPE html>

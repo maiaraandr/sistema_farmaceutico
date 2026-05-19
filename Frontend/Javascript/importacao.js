@@ -42,7 +42,7 @@
       }
       localStorage.removeItem('farm_current_user');
       localStorage.removeItem('farm_session_token');
-      window.location.href = '/html/index.html';
+      window.location.href = 'index.html';
     });
 
     logInfo('Aguardando arquivo…');
@@ -150,7 +150,7 @@
     const currentUser =
       typeof getCurrentUser === 'function' ? getCurrentUser() : null;
     if (!currentUser) {
-      window.location.href = '../html/index.html';
+      window.location.href = '..index.html';
       return;
     }
     const el = document.getElementById('userName');

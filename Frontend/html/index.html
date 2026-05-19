@@ -78,8 +78,7 @@
               <a href="recuperar_senha.html"> Esqueceu a senha? </a>
             </div>
 
-            <!-- Só aparece para admin logado -->
-            <div class="auth-link" id="linkCadastro" style="display: none">
+            <div class="auth-link">
               <a href="cadastro.html"> Novo usuário? </a>
             </div>
           </form>
@@ -105,17 +104,6 @@
       const loginForm = document.getElementById('loginForm');
       const loginBtn = document.getElementById('loginBtn');
       const loginError = document.getElementById('loginError');
-
-      // Mostra o link de cadastro apenas se já estiver logado como admin
-      (function () {
-        try {
-          const user = JSON.parse(localStorage.getItem('farm_current_user'));
-          const token = localStorage.getItem('farm_session_token');
-          if (user && token && user.is_admin === true) {
-            document.getElementById('linkCadastro').style.display = '';
-          }
-        } catch (_) {}
-      })();
 
       if (usernameInput) {
         usernameInput.focus();
@@ -189,7 +177,7 @@
           loginBtn.style.color = '#fff';
 
           setTimeout(() => {
-            window.location.href = '/html/inicio.html';
+            window.location.href = 'inicio.html';
           }, 500);
         } catch (error) {
           mostrarErro('Não foi possível conectar ao servidor.');

@@ -70,7 +70,7 @@ function inicializarEventos() {
 
       localStorage.removeItem('farm_current_user');
       localStorage.removeItem('farm_session_token');
-      window.location.href = '/html/index.html';
+      window.location.href = 'index.html';
     });
   }
 

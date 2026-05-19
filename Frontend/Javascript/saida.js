@@ -78,7 +78,7 @@ function inicializarLogout() {
 
     localStorage.removeItem('farm_current_user');
     localStorage.removeItem('farm_session_token');
-    window.location.href = '/html/index.html';
+    window.location.href = 'index.html';
   });
 }
 
@@ -491,5 +491,5 @@ async function safeJson(resp) {
 function verificarAutenticacao() {
   const currentUser =
     typeof getCurrentUser === 'function' ? getCurrentUser() : null;
-  if (!currentUser) window.location.href = '../html/index.html';
+  if (!currentUser) window.location.href = '..index.html';
 }

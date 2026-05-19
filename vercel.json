@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/Frontend/html/index.html" },
+    { "source": "/", "destination": "/Frontendindex.html" },
     { "source": "/html/:path*", "destination": "/Frontend/html/:path*" },
     { "source": "/css/:path*", "destination": "/Frontend/css/:path*" },
     { "source": "/CSS/:path*", "destination": "/Frontend/css/:path*" },

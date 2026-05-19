@@ -51,7 +51,7 @@ subprocess.Popen(
 time.sleep(5)
 
 print("Abrindo login...")
-webbrowser.open("http://127.0.0.1:5500/Frontend/html/index.html")
+webbrowser.open("http://127.0.0.1:5500/Frontendindex.html")
 
 print("Sistema iniciado.")
 print("Se a API não abrir, veja o arquivo backend_erro.txt.")
