@@ -1,4 +1,7 @@
 import os
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 import requests as http_requests
 
@@ -582,30 +585,25 @@ def solicitar_recuperacao_senha(request):
 
     nome_usuario = user.get_full_name() or user.username
 
-    # ── Resend ──────────────────────────────────────────────
-    payload = {
-        "from": "GestMed <onboarding@resend.dev>",
-        "to": [user.email],
-        "subject": "GestMed — Recuperação de senha",
-        "html": _html_email_recuperacao(nome_usuario, reset_link),
-    }
+    # ── Gmail SMTP ──────────────────────────────────────────
+    email_host_user = os.getenv("EMAIL_HOST_USER")
+    email_password = os.getenv("EMAIL_PASSWORD")
 
     try:
-        resp = http_requests.post(
-            "https://api.resend.com/emails",
-            json=payload,
-            headers={
-                "Authorization": f"Bearer {os.getenv('RESEND_API_KEY')}",
-                "Content-Type": "application/json",
-            },
-            timeout=10,
-        )
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "GestMed — Recuperação de senha"
+        msg["From"] = f"GestMed <{email_host_user}>"
+        msg["To"] = user.email
 
-        if resp.status_code not in (200, 201):
-            return Response(
-                {"sucesso": False, "erro": resp.text},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+        msg.attach(MIMEText(
+            _html_email_recuperacao(nome_usuario, reset_link),
+            "html",
+            "utf-8",
+        ))
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(email_host_user, email_password)
+            smtp.sendmail(email_host_user, user.email, msg.as_string())
 
     except Exception as e:
         return Response(
