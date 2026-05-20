@@ -1,5 +1,4 @@
-const API_AUTH_URL =
-  'https://sistemafarmaceutico-production.up.railway.app/api';
+const API_AUTH_URL = 'https://sistema-farmaceutico.onrender.com/api';
 
 // ── Sessão ─────────────────────────────────────────────────────────────────────
 

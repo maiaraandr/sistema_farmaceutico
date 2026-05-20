@@ -1,5 +1,5 @@
 const API_CONFIG = {
-  BASE_URL: 'https://sistemafarmaceutico-production.up.railway.app/api',
+  BASE_URL: 'https://sistema-farmaceutico.onrender.com/api',
   TIMEOUT: 10000,
   USE_API: true,
 };

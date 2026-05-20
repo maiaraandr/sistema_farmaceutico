@@ -1,7 +1,7 @@
 const API_MEDICAMENTOS =
-  'https://sistemafarmaceutico-production.up.railway.app/api/medicamentos/';
+  'https://sistema-farmaceutico.onrender.com/api/medicamentos/';
 const API_MOVIMENTACOES =
-  'https://sistemafarmaceutico-production.up.railway.app/api/movimentacoes/';
+  'https://sistema-farmaceutico.onrender.com/api/movimentacoes/';
 
 let medicamentos = [];
 let saidas = [];

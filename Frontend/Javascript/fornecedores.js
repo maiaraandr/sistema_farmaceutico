@@ -1,5 +1,5 @@
 const API_FORNECEDORES =
-  'https://sistemafarmaceutico-production.up.railway.app/api/fornecedores/';
+  'https://sistema-farmaceutico.onrender.com/api/fornecedores/';
 
 let fornecedoresCache = [];
 window.__fornecedorEditandoId = null;

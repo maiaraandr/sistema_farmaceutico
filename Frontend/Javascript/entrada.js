@@ -1,9 +1,9 @@
 const API_MEDICAMENTOS =
-  'https://sistemafarmaceutico-production.up.railway.app/api/medicamentos/';
+  'https://sistema-farmaceutico.onrender.com/api/medicamentos/';
 const API_FORNECEDORES =
-  'https://sistemafarmaceutico-production.up.railway.app/api/fornecedores/';
+  'https://sistema-farmaceutico.onrender.com/api/fornecedores/';
 const API_MOVIMENTACOES =
-  'https://sistemafarmaceutico-production.up.railway.app/api/movimentacoes/';
+  'https://sistema-farmaceutico.onrender.com/api/movimentacoes/';
 
 let medicamentosCache = [];
 let fornecedoresCache = [];
