@@ -61,6 +61,9 @@ DATABASES = {
         "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT"),
+        "OPTIONS": {
+            "options": "-c search_path=public",
+        },
     }
 }
 
@@ -115,16 +118,5 @@ CSRF_TRUSTED_ORIGINS = [
         "http://127.0.0.1:5500,http://localhost:5500"
     ).split(",")
 ]
-
-# Email via Brevo API (sem SMTP)
-EMAIL_BACKEND       = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST          = "smtp-relay.brevo.com"
-EMAIL_PORT          = 465
-EMAIL_USE_SSL       = True
-EMAIL_USE_TLS       = False
-EMAIL_HOST_USER     = os.getenv("BREVO_USER")
-EMAIL_HOST_PASSWORD = os.getenv("BREVO_KEY")
-DEFAULT_FROM_EMAIL  = "GestMed <maysilva29andrade@gmail.com>"
-EMAIL_TIMEOUT       = 10
 
 SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:5500/Frontend")
